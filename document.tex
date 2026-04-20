@@ -1,0 +1,2367 @@
+\documentclass{article}
+
+\usepackage{longtable} % Required for tables to perpass pages
+\usepackage{amsmath, amssymb} % Required for symbols check / checked
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, shapes.geometric, shapes.symbols, positioning, fit, shapes}
+
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{minted}
+
+\usepackage[backend=biber,
+            style=authoryear,    % ou "numeric", "apa", "authoryear-comp", etc.
+            language=portuguese]{biblatex}
+\addbibresource{references.bib} % nome do seu .bib — deve estar na mesma pasta
+
+
+\title{Luisa's COTB notes Project}
+\author{Andre Luiz de Moraes and Luisa Narvaz  Blankenburg}
+\date{August 2025}
+
+
+% ==== README ====
+
+    %=== FOR CHECK / CHECKED BOXES
+    % Esse código vai gerar uma tabela grande com as tarefas organizadas por etapa, com caixas desmarcadas ($\Box$). Para marcar alguma como feita, basta trocar \Box por \boxtimes.
+
+\begin{document}
+
+\maketitle
+
+% Criando o sumário
+\tableofcontents
+
+
+\section{Próximas atividades}
+
+    \begin{itemize}
+        \item Continuar a execução do Tutorial 9: Fase 1 — Score, Estímulo-Resposta e Feedback - Seção \ref{sec: Tutorial 9: Fase 1}.
+            \begin{itemize}
+                \item \textit{Continuar geração} -  Gerar um vídeo da etapa atual para comparação futura. Adotar um padrão de nome para o vídeo no formato video-etapatutorial-funcionalidade (obs: se fizer mais de um sobre o mesmo item padronizar com versionamento (sufixos -1, -2).
+            \end{itemize}
+        \item \textit{Continuar andamento} Tutorial 10: Interação com botões \ref{sec:Tutorial10_Botoes}.
+            \begin{itemize}
+                \item Priorizar botões inside window. (na tela do jogo).
+                \item Se der tempo testar com GPIO.
+            \end{itemize}    
+        \item Continuar escrita do paper (resumo, background, related works, ferramentas utilizadas) 
+    \end{itemize}
+ \section{Checklist de Atividades (Cronograma por Semana)}
+    
+    \begin{longtable}{|m{4.0cm}|m{4cm}|m{3.0cm}|m{1.2cm}|m{2.0cm}|}
+    \hline
+        \textbf{Etapa} & \textbf{Tarefa} & \textbf{Observação} & \textbf{Status} & \textbf{Previsão} \\
+        \hline
+        \multirow{3}{*}{\parbox{4.5cm}{\raggedright Etapa 0: Fundamentação e Preparação}} 
+         & Criar e organizar o referencial teórico. & ~ & $\boxtimes$ & Ago-3 \\
+         & Estruturar um repositório para os arquivos. & ~ & $\boxtimes$ & Ago-3 \\
+         & Criar documento de planejamento inicial. & ~ & $\boxtimes$ & Ago-4 \\
+        \hline
+        \multirow{8}{*}{\parbox{4.5cm}{\raggedright Etapa 1: Definição Geral e Planejamento}} 
+         & Refinar a ideia central do projeto. & ~ & $\boxtimes$ & Ago-4 \\
+         & Definir a faixa etária do público-alvo. & 7-10 anos & $\boxtimes$ & Ago-4 \\
+         & Selecionar o tipo de tarefa de atenção. & Altura, timbre e melodia & $\boxtimes$ & Ago-4 \\
+         & Verificar acesso ao público-alvo (acesso às crianças para testes). & ~ & $\Box$ & Set-1 \\
+         & Decidir a plataforma do aplicativo. & Web & $\boxtimes$ & Set-1 \\
+         & Instalar e configurar o VM com Raspberry Pi OS. & Etapa 1.1 – ambiente gráfico & $\boxtimes$ & Set-1 \\
+         & Realizar primeiras interações gráficas no Raspberry Pi OS. & Abrir navegador, gerenciador de arquivos, desligar/reiniciar & $\boxtimes$ & Set-2 \\
+         & Utilizar o terminal para rodar comandos e scripts Python básicos. & Etapa 1.2 – ambiente de terminal & $\boxtimes$ & Set-3 \\
+        \hline
+        \multirow{6}{*}{\parbox{4.5cm}{\raggedright Etapa 2: Design do Jogo e Feedback Musical}} 
+         & Definir a lógica do jogo (regras principais e progressão). & ~ & $\boxtimes$ & Set-3 \\
+         & Projetar a interface visual do jogo (protótipo inicial). & ~ & $\boxtimes$ & Set-3 \\
+         & Selecionar os estímulos musicais (sons de acerto, erro, início/fim). & ~ & $\Box$ & Set-4 \\
+         & Mapear sons a eventos específicos do jogo (acerto, erro). & ~ & $\Box$ & Set-4 \\
+         & Criar um fluxograma do fluxo de interação da criança. & ~ & $\boxtimes$ & Set-4 \\
+         & Preparar protótipo final de interface (para guiar implementação). & ~ & $\boxtimes$ & Set-4 \\
+        \hline
+        \multirow{5}{*}{\parbox{4.5cm}{\raggedright Etapa 3A: Configuração e Programação no Raspberry}} 
+         & Instalar ambiente Raspbian no VirtualBox. & Ambiente funcional via terminal e interface gráfica. & $\boxtimes$ & Ago-4 \\
+         & Implementar script Python para tocar sons usando bibliotecas (ex: \texttt{pygame}, \texttt{playsound}, \texttt{pydub}). & ~ & $\boxtimes$ & Out-1 \\
+         & Testar reprodução de sons individuais em resposta a comandos simples. & ~ & $\boxtimes$ & Out-1 \\
+         & Testar acionamento de sons a partir de eventos simulados (ex: tecla pressionada). & ~ & $\boxtimes$ & Out-2 \\
+         & Criar versão integrada do protótipo funcional (som + interação teclado). & ~ & $\boxtimes$ & Out-2 \\
+        \hline
+        \multirow{4}{*}{\parbox{4.0cm}{\raggedright Etapa 3B: Implementação da Lógica do Jogo}} 
+         & Criar tela inicial com entrada do nome e da escola. & ~ & $\boxtimes$ & Out-3 \\
+         & Implementar progressão de fases (fácil → intermediário → difícil). & ~ & $\Box$ & Out-4 \\
+         & Integrar sons de feedback à lógica de progressão das fases. & ~ & $\Box$ & Out-4 \\
+        \hline
+        \multirow{2}{*}{\parbox{4.5cm}{\raggedright Etapa 4: Preparação para Docker (futuro)}} 
+         & Planejar containerização da aplicação Python no Raspberry (sem executar ainda). & ~ & $\Box$ & Out-3 \\
+         & Identificar pacotes e dependências necessárias para uso futuro com Docker. & ~ & $\Box$ & Out-4 \\
+        \hline
+        \multirow{4}{*}{\parbox{4.5cm}{\raggedright Etapa 5: Coleta de Dados e Análise}} 
+         & Executar sessões com os participantes. & ~ & $\Box$ & Nov-1 \\
+         & Organizar os dados por criança. & ~ & $\Box$ & Nov-2 \\
+         & Realizar análises estatísticas. & ~ & $\Box$ & Nov-3 \\
+         & Gerar gráficos e tabelas comparativas. & ~ & $\Box$ & Nov-3 \\
+        \hline
+        \multirow{5}{*}{\parbox{4.5cm}{\raggedright Etapa 6: Redação do Artigo}} 
+         & Criar o template no Overleaf. & ~ & $\boxtimes$ & Nov-2 \\
+         & Redigir o artigo com base nas seções padrão. & ~ & $\Box$ & Nov-2 até Nov-4 \\
+         & Incluir figuras, tabelas e fotos autorizadas. & ~ & $\Box$ & Nov-3 \\
+         & Revisar as normas da conferência. & ~ & $\Box$ & Nov-4 \\
+         & Submeter o artigo ao COTB 2026 (versão final pronta para envio). & ~ & $\Box$ & Nov-4 \\
+        \hline
+        \multirow{3}{*}{\parbox{4.5cm}{\raggedright Etapa Opcional: Expansão e Futuro}} 
+         & Avaliar personalização de estímulos por perfil sensorial. & ~ & $\Box$ & -- \\
+         & Testar em outros contextos (clínicas, casa). & ~ & $\Box$ & -- \\
+         & Criar vídeo demonstrativo do projeto. & ~ & $\Box$ & -- \\
+    \hline
+    \end{longtable}
+
+
+
+
+\section{Introduction}
+    
+    \begin{itemize}
+        \item Breve Explicação sobre TDAH e suas características
+        \item Justificativa de uso da Faixa etária
+        \item Problemas que o TDAH acarreta no dia a dia (exemplificações mais concretas)
+        \item Recursos e ferramentas que são adotadas para auxiliar crianças ou pessoas com este défcit
+        \item Trazer a proposta do trabalho com a prossível solução ou método que será implementado
+        \item Descrever as seções do trabalho juntamente com o que se trata 
+    \end{itemize}
+    
+        % \subsection*{Etapa 0: Fundamentação e Preparação do Projeto}
+        % \begin{itemize}
+        %   \item Criar e organizar o referencial teórico, abordando: desenvolvimento cognitivo infantil, aprendizagem multissensorial, estímulos musicais, uso de Arduino na educação e trabalhos relacionados.
+        %   \item Estruturar um repositório (Google Drive, GitHub etc.) para organizar os arquivos.
+        %   \item Criar documento de planejamento inicial do experimento com objetivos e hipóteses.
+        % \end{itemize}
+        
+        % \subsection*{Etapa 1: Definição Geral e Planejamento}
+        % \begin{itemize}
+        %   \item Refinar a ideia central do projeto e seus objetivos.
+        %   \item Definir a faixa etária do público-alvo (sugestão: 7 a 10 anos).
+        %   \item Selecionar o tipo de tarefa de atenção (ex: clicar apenas nas notas certas).
+        %   \item Verificar acesso ao público-alvo (parceria com escola, pais, etc.).
+        %   \item Decidir a plataforma do app (desktop, web ou mobile).
+        % \end{itemize}
+        
+        % \subsection*{Etapa 2: Design do Jogo e Feedback Musical}
+        % \begin{itemize}
+        %   \item Definir a lógica do jogo (mecânica da atenção e estímulo).
+        %   \item Escolher os estímulos musicais (notas, trechos, instrumentos).
+        %   \item Definir os tipos de feedback para acertos/erros: som musical, LED, vibração.
+        %   \item Criar protótipo visual da interface (wireframe ou storyboard).
+        % \end{itemize}
+        
+        % \subsection*{Etapa 3: Desenvolvimento Tecnológico}
+        % \subsection*{Aplicativo}
+        % \begin{itemize}
+        %   \item Desenvolver versão funcional mínima do jogo.
+        %   \item Incluir registro de dados: tempo de resposta, acertos, erros, sessões.
+        %   \item Implementar elementos visuais lúdicos e acessíveis.
+        % \end{itemize}
+        
+        % \subsection*{Arduino}
+        % \begin{itemize}
+        %   \item Montar o circuito com Arduino Uno/Nano, LEDs, buzzer/speaker e motor vibratório.
+        %   \item Programar respostas via comunicação serial (USB ou Bluetooth).
+        %   \item Testar a integração entre o jogo e o Arduino.
+        % \end{itemize}
+        
+        % \subsection*{Etapa 4: Protocolo Experimental}
+        % \begin{itemize}
+        %   \item Elaborar o roteiro do experimento (tempo de sessão, fases).
+        %   \item Preparar os termos de consentimento para pais/responsáveis.
+        %   \item Definir os grupos: Grupo A (controle) e Grupo B (experimental).
+        %   \item Criar questionário pós-sessão para pais ou professores.
+        %   \item Conduzir piloto com poucas crianças para ajuste fino.
+        % \end{itemize}
+        
+        % \subsection*{Etapa 5: Coleta de Dados e Análise}
+        % \begin{itemize}
+        %   \item Executar sessões com ambos os grupos.
+        %   \item Organizar os dados de desempenho por participante.
+        %   \item Realizar análises descritivas e testes estatísticos (t-test, Wilcoxon etc.).
+        %   \item Gerar gráficos e tabelas para análise comparativa.
+        % \end{itemize}
+        
+        % \subsection*{Etapa 6: Redação do Artigo e Preparação para Submissão}
+        % \begin{itemize}
+        %   \item Criar um template no Overleaf com o formato do COTB 2026.
+        %   \item Iniciar a redação do artigo com base nas seções padrão (introdução, metodologia, resultados, etc.).
+        %   \item Incluir figuras, tabelas, gráficos e fotos autorizadas.
+        %   \item Revisar conteúdo e normas da conferência.
+        %   \item Submeter o artigo até o prazo limite.
+        % \end{itemize}
+        
+        % \subsection*{Etapa Opcional: Expansão e Futuro}
+        % \begin{itemize}
+        %   \item Avaliar possibilidade de personalização dos estímulos por perfil sensorial.
+        %   \item Testar em outros contextos (clínicas, domicílio).
+        %   \item Criar vídeo demonstrativo do projeto para divulgação científica.
+        % \end{itemize}
+    
+
+
+\section{Background}
+
+    \begin{itemize}
+        \item TDAH e suas características
+        \item Microcontroladores inteligentes [Raspberry, Arduino]
+        \item Parte física e biológica [sentidos dos seres humanos]
+        \item Sons e suas frequências [como os sons afetam ou mudam as percepções]
+        \item Tecnologias para Estímulo Multisensorial
+        % \item Prototipação web para o experimento [HTML, HTTP, PYTHON, Bibliotecas Python]
+    \end{itemize}
+
+\section{Related Works}
+
+\section{Experiment Design}
+    Aqui é onde detalharemos como é montada a estrutura da implementação de infraestrutura (se foram recursos de  virtualização como virtualbox ou docker) e em termos de código (uso do pip para instalação das bibliotecas). Depois detalhando a organização geral, inguagem adotada, recursos empregados em termos de bibliotecas (sons, raspberry, video, etc... ).
+
+\section{Results}
+
+\section{Discussion}
+
+\section{Final considerations and Future Works}
+
+\section{Conclusion}
+
+\section{Links importantes}
+
+    \subsection{Luisa's repository Files (Google Drive, Architecture design...}
+        \begin{itemize}
+            \item \href{https://drive.google.com/drive/folders/1o6-JCINkQ0FW6wflNxQX2QXGrQJeRE1v?usp=sharing}{Anotações de Luisa no Google Drive}
+            \item \href{https://drive.google.com/file/d/1Byj-EFS_2pPbINGEN-ElwYOrXvs_eHLL/view?usp=sharing}{Link para o Draw.io da arquitetura}
+            \item \href{https://www.overleaf.com/project/68e6425dded8ca081e13f7ea}{Link Paper COTB}
+            \item \href{https://github.com/luisablankenburg08/jogo_pygame.git}{Link do GitHub}
+        \end{itemize}
+    
+    \subsection{Instalação e configuração Raspberry}
+        \begin{itemize}
+            \item \href{https://youtube.com/playlist?list=PL7eqM3uJZ1pK7dlVWirm43lMNS0kQtk-P&si=DWgMLabO2IlJbfhL}{Playlist de curso de Extensão de prof. André no YouTube}
+        \end{itemize}
+    \subsection{Protótipo interface visual}
+        \begin{itemize}
+            \item \href{https://www.canva.com/design/DAGwpH8wyio/i7u20WVU_0vb8Oj-3aBwtA/edit?utm_content=DAGwpH8wyio&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton}{Interface no Canva}
+        \end{itemize}
+    \subsection{Criando som com Sonic Pi}
+    \begin{itemize}
+        \item \href{https://projects.raspberrypi.org/en/projects/getting-started-with-sonic-pi/0}{Introdução ao Sonic Pi}
+        \item \href{https://www.makerhero.com/blog/sonic-pi-musica-com-raspberry-pi/}{Criando música com Sonic Pi}
+    \end{itemize}
+
+
+
+\newpage
+\section{Tutorial 1: Primeiros Passos com UTM e Raspberry Pi OS}
+\label{sec:Etapa 1: Primeiros Passos com UTM e Raspberry Pi OS}
+    Nesta primeira etapa, o objetivo é proporcionar uma forma visual e simples de interagir com um ambiente de Raspberry Pi. O uso do \textbf{UTM} é recomendado, pois permite executar o Raspberry Pi OS dentro de uma máquina virtual através de uma interface gráfica, reduzindo a complexidade inicial. De acordo com a Figura \ref{fig:tabela da luisa}.
+
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[scale=0.20]{experiment-01-general-architecture.pdf}
+        \caption{Figura teste da Luisa}
+        \label{fig:tabela da luisa}
+    \end{figure}
+
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Familiarizar-se com a interface gráfica do Raspberry Pi OS.
+        \item Compreender o conceito de máquinas virtuais e emulação.
+        \item Aprender a iniciar, desligar e navegar no ambiente simulado do Raspberry Pi.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Computador com macOS, Windows ARM ou Linux.
+        \item Conexão com a Internet para download do UTM e da imagem do Raspberry Pi OS.
+    \end{itemize}
+    
+    \subsubsection*{Guia de Instalação}
+    \begin{enumerate}
+        \item Baixar e instalar o UTM:
+        \begin{itemize}
+            \item macOS: \url{https://mac.getutm.app}
+            \item Windows/Linux: \url{https://docs.getutm.app}
+        \end{itemize}
+        \item Baixar uma imagem pré-compilada do Raspberry Pi OS compatível com QEMU/UTM no site oficial:
+        \begin{itemize}
+            \item \url{https://www.raspberrypi.com/software/operating-systems/}
+        \end{itemize}
+        \item Abrir o UTM e criar uma nova Máquina Virtual:
+        \begin{itemize}
+            \item Selecionar ``Create New Virtual Machine''.
+            \item Escolher a imagem do Raspberry Pi OS baixada.
+            \item Configurar a memória (mínimo recomendado: 2 GB).
+            \item Configurar o tamanho do disco virtual (mínimo recomendado: 8 GB).
+        \end{itemize}
+        \item Iniciar a Máquina Virtual e aguardar a inicialização do Raspberry Pi OS.
+    \end{enumerate}
+    
+    \subsubsection*{Primeiras Interações}
+    \begin{itemize}
+        \item Fazer login com as credenciais padrão (normalmente \texttt{pi} / \texttt{raspberry}).
+        \item Explorar o ambiente de desktop (gerenciador de arquivos, navegador, terminal).
+        \item Praticar as operações básicas de reinício e desligamento da VM.
+    \end{itemize}
+    
+    \subsubsection*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+        \item Entender o que é um ambiente virtualizado de Raspberry Pi.
+        \item Ganhar confiança na navegação pelo sistema Raspberry Pi OS via interface gráfica.
+        \item Estar preparada para a próxima etapa, que introduzirá o uso do terminal e a instalação de pacotes.
+    \end{itemize}
+    
+    
+\newpage  
+\section{Tutorial 2: Uso do Terminal no Raspberry Pi OS via UTM}
+    \label{sec: Etapa 2: Uso do Terminal no Raspberry Pi OS via UTM}
+        Após a familiarização inicial com a interface gráfica (Etapa 1), esta segunda etapa tem como objetivo introduzir o uso do terminal Linux no ambiente do Raspberry Pi OS. A ideia é que a aluna aprenda a executar comandos básicos, instalar pacotes e rodar scripts em Python diretamente pela linha de comando, ganhando autonomia no controle do sistema.
+        
+        \subsubsection*{Objetivos}
+        \begin{itemize}
+            \item Aprender a abrir e utilizar o terminal do Raspberry Pi OS.
+            \item Executar comandos básicos de navegação e gerenciamento de arquivos.
+            \item Instalar pacotes utilizando o gerenciador \texttt{apt}.
+            \item Criar e executar scripts simples em Python.
+        \end{itemize}
+        
+        \subsubsection*{Requisitos}
+        \begin{itemize}
+            \item Ter concluído a Etapa 1 (UTM configurado com Raspberry Pi OS em funcionamento).
+            \item Conexão com a Internet dentro do Raspberry Pi OS (para instalar pacotes).
+        \end{itemize}
+        
+        \subsubsection*{Guia de Aprendizagem}
+        \begin{enumerate}
+            \item Abrir o terminal no Raspberry Pi OS (ícone no menu ou atalho de teclado).
+            \item Praticar comandos básicos:
+            \begin{itemize}
+                \item \texttt{ls} – listar arquivos e diretórios.
+                \item \texttt{cd <diretório>} – navegar entre pastas.
+                \item \texttt{mkdir <nome>} – criar uma nova pasta.
+                \item \texttt{rm <arquivo>} – remover arquivos.
+            \end{itemize}
+            \item Atualizar os pacotes do sistema:
+            \begin{verbatim}
+            sudo apt-get update
+            sudo apt-get upgrade
+            \end{verbatim}
+            \item Instalar o Python e pacotes auxiliares (se não estiverem presentes):
+            \begin{verbatim}
+            sudo apt-get install python3 python3-pip -y
+            \end{verbatim}
+            \item Criar um arquivo Python simples:
+            \begin{verbatim}
+            nano ola.py
+            \end{verbatim}
+            Inserir o código:
+            \begin{verbatim}
+            print("Olá, mundo do Raspberry Pi!")
+            \end{verbatim}
+            Salvar (\texttt{CTRL+O}) e sair (\texttt{CTRL+X}).
+            \item Executar o arquivo criado:
+            \begin{verbatim}
+            python3 ola.py
+            \end{verbatim}
+        \end{enumerate}
+        
+        \subsubsection*{Primeiros Exercícios Práticos}
+        \begin{itemize}
+            \item Criar scripts em Python que exibam mensagens personalizadas.
+            \item Instalar a biblioteca \texttt{pygame} e testar sons básicos:
+            \begin{verbatim}
+            pip3 install pygame
+            \end{verbatim}
+            \item Criar um script que reproduza um som curto usando \texttt{pygame}.
+        \end{itemize}
+        
+        \subsubsection*{Resultados de Aprendizagem Esperados}
+        \begin{itemize}
+            \item Entender o funcionamento do terminal Linux dentro do Raspberry Pi OS.
+            \item Adquirir noções básicas de gerenciamento de arquivos e pacotes.
+            \item Rodar scripts em Python para experimentar funções relacionadas a som e interação.
+            \item Preparar-se para a Etapa 3, onde será introduzido o uso de Docker e ambientes de desenvolvimento mais avançados.
+        \end{itemize}
+    
+
+\newpage
+\section{Tutorial 3: Design do Jogo e Feedback Musical}
+\label{sec: Etapa 3: Design do Jogo e Feedback Musical}
+
+    Esta etapa tem como objetivo planejar a lógica principal do jogo, definir os elementos de feedback musical que serão utilizados e iniciar a prototipação visual da interface. O foco aqui é unir elementos de usabilidade com estímulos auditivos que favoreçam a atenção da criança durante a tarefa. 
+
+    \textbf{{Texto de exemplo para ilustrar referências:}} seguindo os conceitos de \cite{franco2014vantagens} e de \cite{roque2017inserccao} os passos para criar um jogo são blabablabla.... 
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Planejar o fluxo básico do jogo com estímulos musicais.
+        \item Selecionar sons curtos e lúdicos que possam atuar como feedback positivo ou negativo.
+        \item Criar um esboço visual da interface do jogo, mesmo que em papel ou ferramenta online.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Ter definido o público-alvo e o tipo de tarefa (ex: identificação de sons por timbre, altura, etc.).
+        \item Conhecimentos básicos sobre lógica de jogos e elementos visuais.
+    \end{itemize}
+    
+    \subsubsection*{Guia de Aprendizagem}
+    \begin{enumerate}
+        \item Esboçar a lógica central do jogo:
+        \begin{itemize}
+            \item Como a criança interage com o sistema (clique? teclado? resposta por tempo?).
+            \item O que acontece ao acertar ou errar.
+            \item Como será a progressão da dificuldade.
+        \end{itemize}
+        \item Escolher os tipos de som:
+        \begin{itemize}
+            \item Som de acerto, erro, início de rodada, fim de jogo.
+            \item Usar sites como \texttt{freesound.org} ou gerar sons simples em Python.
+        \end{itemize}
+        \item Criar um protótipo visual simples:
+        \begin{itemize}
+            \item Pode ser feito em papel, PowerPoint, Figma, Canva ou outros.
+            \item Marcar claramente os botões, áreas de estímulo, e o retorno sonoro.
+        \end{itemize}
+    \end{enumerate}
+    
+    \subsubsection*{Primeiros Exercícios Práticos}
+    \begin{itemize}
+        \item Criar um fluxograma da lógica de interação.
+        \item Baixar pelo menos três sons para testar.
+        \item Fazer uma versão "printável" ou digital do layout da interface.
+    \end{itemize}
+    
+    \subsubsection*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+        \item Ter clareza sobre como o jogo vai funcionar do ponto de vista da criança.
+        \item Ter um conjunto de sons prontos para uso e testados previamente.
+        \item Ter um protótipo que possa guiar a implementação na Etapa 3.
+    \end{itemize}
+
+
+    \subsection{Lógica e estrutura do Jogo}
+
+
+% --- PREÂMBULO (use apenas se seu projeto ainda não carrega tikz) ---
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta, shapes.geometric, positioning}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=9mm and 16mm,
+  >=Latex,
+  box/.style={rectangle, draw, rounded corners=2pt, minimum width=30mm, minimum height=7mm, align=center},
+  step/.style={box, minimum width=38mm},
+  deci/.style={diamond, draw, aspect=2, inner sep=1pt},
+  light/.style={rectangle, draw, rounded corners=2pt, align=center, dashed},
+  line/.style={very thick}
+]
+
+% Linha central
+\node[box]   (start)   {Start};
+\node[step,  below=of start]   (phase)   {Select Phase \& Params};
+\node[step,  below=of phase]   (show)    {Show Stimulus};
+\node[step,  below=of show]    (wait)    {Wait for Input ($t_s$)};
+\node[deci,  below=of wait]    (ok)      {Correct?};
+\node[step,  below left=10mm and 16mm of ok] (negfb)  {Feedback −};
+\node[step,  below right=10mm and 16mm of ok] (posfb) {Feedback +};
+\node[step,  below=16mm of posfb] (progress) {Update Score / Progress};
+\node[deci,  below=of progress] (endphase) {Phase Complete?};
+\node[box,   below left=10mm and -4mm of endphase] (loop) {Next Stimulus};
+\node[box,   below right=10mm and -4mm of endphase] (end)  {End / Next Phase};
+
+% Alternativas de entrada (lateral)
+\node[light, right=32mm of wait] (inputs) {Input Options\\[1mm]
+\footnotesize GPIO Buttons / Touch / Gamepad / Gestures / Motion};
+
+% Conexões
+\draw[line] (start) -- (phase);
+\draw[line] (phase) -- (show);
+\draw[line] (show) -- (wait);
+\draw[line] (wait) -- (ok);
+
+\draw[line] (ok.east) -- ++(8mm,0) |- (posfb.east);
+\draw[line] (ok.west) -- ++(-8mm,0) |- (negfb.west);
+
+\draw[line] (posfb) -- (progress);
+\draw[line] (negfb.east) -| (show.west); % erro -> repete estímulo (clean)
+
+\draw[line] (progress) -- (endphase);
+\draw[line] (endphase.west) -- ++(-8mm,0) |- (loop.west);
+\draw[line] (loop.north) |- (show.west);
+\draw[line] (endphase.east) -- ++(8mm,0) |- (end.east);
+
+% Conexão lateral (opcional/clean)
+\draw[line, dashed] (inputs.west) -- ++(-10mm,0) |- (wait.east);
+
+\end{tikzpicture}
+\caption{Fluxograma clean de “Musicalizando no Céu”: estímulo → entrada → avaliação → feedback → progresso.}
+\label{fig:fluxo-clean-musicalizando}
+\end{figure}
+
+
+
+\newpage
+\section{Tutorial 4: Configuração e Programação no Raspberry}
+\label{sec: Etapa 4: Configuração e Programação no Raspberry}
+
+Esta etapa marca a transição entre o planejamento e a execução prática do sistema. Utilizando o Raspberry Pi OS instalado via VirtualBox, a aluna deve criar um programa funcional em Python que toque sons e reaja a eventos simulados (como pressionamento de teclas). Essa etapa servirá de base para o uso posterior de contêineres com Docker.
+
+\subsubsection*{Objetivos}
+\begin{itemize}
+    \item Implementar um script em Python capaz de tocar sons com bibliotecas apropriadas.
+    \item Simular eventos (como teclas pressionadas) para acionar os sons.
+    \item Criar uma base simples, porém funcional, para o protótipo do jogo.
+\end{itemize}
+
+\subsubsection*{Requisitos}
+\begin{itemize}
+    \item Raspberry Pi OS funcional no VirtualBox.
+    \item Python 3 instalado e funcionando.
+    \item Acesso à internet no ambiente virtualizado.
+\end{itemize}
+
+\subsubsection*{Guia de Aprendizagem}
+\begin{enumerate}
+    \item Abrir o terminal do Raspberry Pi OS.
+    \item Instalar bibliotecas de som em Python:
+    \begin{verbatim}
+    pip3 install pygame playsound pydub
+    sudo apt-get install ffmpeg  # necessário para pydub
+    \end{verbatim}
+    \item Baixar sons simples (formato .wav ou .mp3) para testes.
+    \item Criar o script Python básico:
+    \begin{verbatim}
+    import pygame
+    import time
+
+    pygame.mixer.init()
+    pygame.mixer.music.load("som1.mp3")
+    pygame.mixer.music.play()
+
+    while pygame.mixer.music.get_busy():
+        time.sleep(1)
+    \end{verbatim}
+    \item Testar execução:
+    \begin{verbatim}
+    python3 som_teste.py
+    \end{verbatim}
+    \item Adicionar lógica condicional (ex: pressionar teclas):
+    \begin{verbatim}
+    import pygame
+
+    pygame.init()
+    pygame.mixer.init()
+    screen = pygame.display.set_mode((400, 300))
+    pygame.display.set_caption("Teste de Sons")
+
+    som_acerto = pygame.mixer.Sound("acerto.wav")
+    som_erro = pygame.mixer.Sound("erro.wav")
+
+    rodando = True
+    while rodando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_a:
+                    som_acerto.play()
+                elif evento.key == pygame.K_e:
+                    som_erro.play()
+
+    pygame.quit()
+    \end{verbatim}
+\end{enumerate}
+
+\subsubsection*{Primeiros Exercícios Práticos}
+\begin{itemize}
+    \item Criar um script que toque diferentes sons com base em teclas pressionadas.
+    \item Trocar os sons por opções escolhidas no tutorial anterior.
+    \item Criar variações para testar sons diferentes em sequência.
+\end{itemize}
+
+\subsubsection*{Resultados de Aprendizagem Esperados}
+\begin{itemize}
+    \item Compreender como integrar eventos do teclado com reprodução de sons em Python.
+    \item Criar um programa básico, mas funcional, com estrutura de loops, condicionais e eventos.
+    \item Preparar terreno para expansão do código em forma de jogo ou aplicação educacional.
+\end{itemize}
+
+\newpage
+\section{Tutorial 5: Estrutura Básica do Jogo (Pygame)}
+\label{sec: Etapa 5: Estrutura Básica do Jogo (Pygame)}
+
+    Nesta etapa inicia-se a implementação do jogo \textit{Musicalizando no Céu} em Python, utilizando a biblioteca \texttt{pygame}. O objetivo é criar a janela, o laço principal de execução, o fundo (céu) e um primeiro estímulo visual (estrela piscando).
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Configurar um ambiente de projeto em Python (preferencialmente com \textit{virtualenv}).
+        \item Instalar e validar o \texttt{pygame}.
+        \item Renderizar uma janela com fundo e uma estrela piscando.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Raspberry Pi OS funcional (via VirtualBox).
+        \item Python 3 instalado.
+        \item Acesso à internet ou mídia local com os pacotes.
+    \end{itemize}
+    
+    \subsubsection*{Guia de Aprendizagem}
+    \begin{enumerate}
+        \item Abrir o terminal no Raspberry Pi OS e criar a pasta do projeto:
+    \begin{verbatim}
+    mkdir -p ~/projetos/musicalizando-no-ceu && cd ~/projetos/musicalizando-no-ceu
+    \end{verbatim}
+    
+        \item (Opcional, recomendado) Criar e ativar um ambiente virtual:
+    \begin{verbatim}
+    python3 -m venv .venv
+    source .venv/bin/activate
+    \end{verbatim}
+    
+        \item Instalar o \texttt{pygame}:
+    \begin{verbatim}
+    pip3 install pygame
+    \end{verbatim}
+    
+        \item Criar a estrutura inicial de pastas e um arquivo principal:
+    \begin{verbatim}
+    mkdir assets assets/sounds assets/images
+    touch main.py
+    \end{verbatim}
+    
+        \item (Opcional) Adicionar uma imagem simples de estrela em \texttt{assets/images/estrela.png}.
+              Caso não tenha uma imagem, o código desenhará a estrela como forma geométrica.
+    
+        \item Abrir o arquivo \texttt{main.py} no editor e inserir o código base:
+    \begin{verbatim}
+    import pygame
+    import sys
+    
+    WIDTH, HEIGHT = 800, 480
+    FPS = 60
+    
+    def desenhar_estrela(surface, x, y, size, color):
+        # Desenha uma estrela simples via polygon (fallback sem imagem)
+        pts = [(x, y - size), (x + size*0.3, y - size*0.3), (x + size, y - size*0.3),
+               (x + size*0.45, y + size*0.1), (x + size*0.6, y + size),
+               (x, y + size*0.45), (x - size*0.6, y + size),
+               (x - size*0.45, y + size*0.1), (x - size, y - size*0.3),
+               (x - size*0.3, y - size*0.3)]
+        pygame.draw.polygon(surface, color, pts)
+    
+    def main():
+        pygame.init()
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Musicalizando no Céu - Protótipo")
+        clock = pygame.time.Clock()
+    
+        # Fundo (céu)
+        SKY = (20, 30, 80)
+    
+        # Controle de piscar
+        blink_timer = 0.0
+        blink_period = 0.8  # segundos
+        star_visible = True
+    
+        # Se houver imagem:
+        star_img = None
+        try:
+            star_img = pygame.image.load("assets/images/estrela.png").convert_alpha()
+        except Exception:
+            star_img = None
+    
+        while True:
+            dt = clock.tick(FPS) / 1000.0  # delta time em segundos
+    
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+    
+            blink_timer += dt
+            if blink_timer >= blink_period:
+                star_visible = not star_visible
+                blink_timer = 0.0
+    
+            screen.fill(SKY)
+    
+            # Desenha estrela
+            if star_visible:
+                if star_img:
+                    rect = star_img.get_rect(center=(WIDTH//2, HEIGHT//2))
+                    screen.blit(star_img, rect)
+                else:
+                    desenhar_estrela(screen, WIDTH//2, HEIGHT//2, 30, (255, 215, 0))
+    
+            pygame.display.flip()
+    
+    if __name__ == "__main__":
+        main()
+    \end{verbatim}
+    
+        \item Executar o protótipo:
+    \begin{verbatim}
+    python3 main.py
+    \end{verbatim}
+    \end{enumerate}
+    
+    \subsubsection*{Primeiros Exercícios Práticos}
+    \begin{itemize}
+        \item Alterar o tamanho e a velocidade do piscar da estrela.
+        \item Trocar o fundo por um gradiente de céu ou imagem.
+        \item Posicionar duas estrelas piscando em ritmos diferentes.
+    \end{itemize}
+    
+    \subsubsection*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+        \item Domínio do ciclo básico do \texttt{pygame} (janela, eventos, desenho, atualização).
+        \item Compreensão de como animar elementos por tempo.
+    \end{itemize}
+    
+
+\newpage
+\section{Tutorial 6: Interação e Feedback (Entrada do Usuário + Sons)}
+\label{sec: Etapa 6: Interação e Feedback (Entrada do Usuário + Sons)}
+
+    Agora adicionamos interação: a estrela ativa representa um estímulo. A jogadora responde por teclado (ou clique). Em seguida, o jogo avalia acerto/erro e toca feedback sonoro/visual. Nesta etapa mantemos o foco em teclado e clique. Mapeamento para GPIO ficará como atividade extra.
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Mapear entrada do usuário (teclado e clique do mouse).
+        \item Associar estímulo \textrightarrow{} resposta correta.
+        \item Implementar feedback positivo/negativo (som + visual).
+        \item Exibir pontuação simples.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Concluir a Etapa 5.
+        \item Arquivos de som colocados em \texttt{assets/sounds/} 
+              (ex.: \texttt{acerto.wav}, \texttt{erro.wav}).
+    \end{itemize}
+    
+    \subsubsection*{Guia de Aprendizagem}
+    \begin{enumerate}
+        \item Instalar suporte de áudio (já incluso no \texttt{pygame}). Se necessário, testar:
+    \begin{verbatim}
+    python3 - << 'PY'
+    import pygame, time
+    pygame.mixer.init()
+    s = pygame.mixer.Sound(file="assets/sounds/acerto.wav")
+    s.play()
+    time.sleep(1)
+    print("OK")
+    PY
+    \end{verbatim}
+    
+        \item Atualizar o \texttt{main.py} para suportar interação e feedback:
+    \begin{verbatim}
+    import pygame, sys, time
+    
+    WIDTH, HEIGHT = 800, 480
+    FPS = 60
+    SKY = (20, 30, 80)
+    WHITE = (245, 245, 245)
+    GOLD = (255, 215, 0)
+    RED  = (200, 60, 60)
+    GREEN= (60, 180, 75)
+    
+    def desenhar_estrela(surface, x, y, size, color):
+        pts = [(x, y - size), (x + size*0.3, y - size*0.3), (x + size, y - size*0.3),
+               (x + size*0.45, y + size*0.1), (x + size*0.6, y + size),
+               (x, y + size*0.45), (x - size*0.6, y + size),
+               (x - size*0.45, y + size*0.1), (x - size, y - size*0.3),
+               (x - size*0.3, y - size*0.3)]
+        pygame.draw.polygon(surface, color, pts)
+    
+    def main():
+        pygame.init()
+        pygame.mixer.init()
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Musicalizando no Céu - Interação")
+        clock = pygame.time.Clock()
+        font = pygame.font.SysFont(None, 28)
+    
+        acerto_snd = pygame.mixer.Sound("assets/sounds/acerto.wav")
+        erro_snd   = pygame.mixer.Sound("assets/sounds/erro.wav")
+    
+        blink_timer = 0.0
+        blink_period = 0.8
+        star_visible = True
+    
+        # Regra simples: aperte a tecla A quando a estrela estiver visível
+        pontos = 0
+        feedback_color = None
+        feedback_timer = 0.0
+    
+        while True:
+            dt = clock.tick(FPS) / 1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        if star_visible:
+                            pontos += 1
+                            acerto_snd.play()
+                            feedback_color = GREEN
+                        else:
+                            pontos = max(0, pontos - 1)
+                            erro_snd.play()
+                            feedback_color = RED
+                        feedback_timer = 0.4
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:  # clique esquerdo como alternativa
+                        if star_visible:
+                            pontos += 1
+                            acerto_snd.play()
+                            feedback_color = GREEN
+                        else:
+                            pontos = max(0, pontos - 1)
+                            erro_snd.play()
+                            feedback_color = RED
+                        feedback_timer = 0.4
+    
+            blink_timer += dt
+            if blink_timer >= blink_period:
+                star_visible = not star_visible
+                blink_timer = 0.0
+    
+            screen.fill(SKY)
+    
+            # Estrela alvo
+            if star_visible:
+                desenhar_estrela(screen, WIDTH//2, HEIGHT//2, 30, GOLD)
+            else:
+                desenhar_estrela(screen, WIDTH//2, HEIGHT//2, 30, WHITE)
+    
+            # Feedback (borda da tela)
+            if feedback_color:
+                pygame.draw.rect(screen, feedback_color, (0, 0, WIDTH, 6))
+                feedback_timer -= dt
+                if feedback_timer <= 0:
+                    feedback_color = None
+    
+            # Pontuação
+            score_surf = font.render(f"Pontos: {pontos}", True, WHITE)
+            screen.blit(score_surf, (10, 10))
+    
+            instr = font.render("Aperte 'A' (ou clique) quando a estrela estiver ACESA", True, WHITE)
+            screen.blit(instr, (10, 40))
+    
+            pygame.display.flip()
+    
+    if __name__ == "__main__":
+        main()
+    \end{verbatim}
+    
+        \item Executar:
+    \begin{verbatim}
+    python3 main.py
+    \end{verbatim}
+    
+        \item (Extra, futuro no Raspberry real) Testar GPIO com botões:
+    \begin{verbatim}
+    # No Raspberry Pi físico:
+    sudo apt-get install python3-rpi.gpio
+    # Exemplo de leitura de botão (didático):
+    python3 - << 'PY'
+    import RPi.GPIO as GPIO, time
+    BTN=17; GPIO.setmode(GPIO.BCM); GPIO.setup(BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    print("Pressione o botão (CTRL+C para sair)...")
+    try:
+        while True:
+            if GPIO.input(BTN)==0: print("Botão!")
+            time.sleep(0.05)
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+    PY
+    \end{verbatim}
+    \end{enumerate}
+    
+    \subsubsection*{Exercícios Práticos}
+    \begin{itemize}
+        \item Mudar a tecla-alvo (ex.: de \texttt{A} para \texttt{S}) e inserir segundo estímulo.
+        \item Alterar sons e criar uma variação de feedback visual (ex.: círculo que expande).
+        \item Exibir \textit{combos}: +2 pontos para dois acertos seguidos.
+    \end{itemize}
+    
+    \subsubsection*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+        \item Relação estímulo \textrightarrow{} resposta \textrightarrow{} feedback.
+        \item Integração de áudio e entrada de usuário no loop de jogo.
+    \end{itemize}
+
+
+\newpage
+\section{Tutorial 7: Fases, Sequências e Progressão}
+\label{sec: Etapa 7: Fases, Sequências e Progressão}
+
+    Nesta etapa organizamos a lógica de fases, adicionamos sequências (listas de estímulos) e tempo-limite de resposta. Ao completar a sequência, a fase é concluída e pode-se avançar.
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Definir fases com parâmetros (nº de estímulos, tempo de resposta, velocidade).
+        \item Implementar sequência de alvos e avaliação de acerto dentro do tempo.
+        \item Exibir barra de progresso ou contador de acertos da fase.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Concluir as Etapas 5 e 6.
+    \end{itemize}
+    
+    \subsubsection*{Guia de Aprendizagem}
+    \begin{enumerate}
+        \item Criar um arquivo de configuração simples (\texttt{levels.py}) com as fases:
+    \begin{verbatim}
+    # levels.py
+    LEVELS = [
+        {"name": "Fase 1", "seq_len": 4, "blink_period": 0.9, "timeout": 2.8},
+        {"name": "Fase 2", "seq_len": 6, "blink_period": 0.7, "timeout": 2.0},
+        {"name": "Fase 3", "seq_len": 8, "blink_period": 0.55, "timeout": 1.5},
+    ]
+    \end{verbatim}
+    
+        \item Atualizar \texttt{main.py} para controlar sequência, tempo e progresso:
+    \begin{verbatim}
+    import pygame, sys, random, time
+    from levels import LEVELS
+    
+    WIDTH, HEIGHT = 800, 480
+    FPS = 60
+    SKY = (20, 30, 80)
+    WHITE = (245, 245, 245)
+    GOLD = (255, 215, 0)
+    GREEN= (60, 180, 75)
+    RED  = (200, 60, 60)
+    
+    def desenhar_estrela(surface, x, y, size, color):
+        pts = [(x, y - size), (x + size*0.3, y - size*0.3), (x + size, y - size*0.3),
+               (x + size*0.45, y + size*0.1), (x + size*0.6, y + size),
+               (x, y + size*0.45), (x - size*0.6, y + size),
+               (x - size*0.45, y + size*0.1), (x - size, y - size*0.3),
+               (x - size*0.3, y - size*0.3)]
+        pygame.draw.polygon(surface, color, pts)
+    
+    def main():
+        pygame.init(); pygame.mixer.init()
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.setcaption = pygame.display.set_caption
+        pygame.display.setcaption("Musicalizando no Céu - Fases")
+        clock = pygame.time.Clock()
+        font = pygame.font.SysFont(None, 26)
+    
+        acerto_snd = pygame.mixer.Sound("assets/sounds/acerto.wav")
+        erro_snd   = pygame.mixer.Sound("assets/sounds/erro.wav")
+    
+        level_idx = 0
+        pontos = 0
+    
+        while level_idx < len(LEVELS):
+            level = LEVELS[level_idx]
+            seq_len    = level["seq_len"]
+            blink_per  = level["blink_period"]
+            timeout_s  = level["timeout"]
+    
+            # Gera sequência (ex.: 1 = estrela acesa, 0 = apagada).
+            # A regra: responder (tecla 'A' ou clique) SOMENTE quando estiver acesa.
+            sequence = [random.choice([0,1]) for _ in range(seq_len)]
+    
+            seq_pos = 0
+            star_visible = False
+            blink_timer = 0.0
+            feedback_color = None; feedback_timer = 0.0
+    
+            # Timer p/ resposta do estímulo atual
+            stim_timer = 0.0
+            responded  = False
+            correct    = False
+    
+            running_phase = True
+            while running_phase:
+                dt = clock.tick(FPS)/1000.0
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit(); sys.exit()
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+                        if not responded:
+                            responded = True
+                            if star_visible:
+                                acerto_snd.play(); pontos += 1
+                                feedback_color = GREEN
+                            else:
+                                erro_snd.play(); pontos = max(0, pontos-1)
+                                feedback_color = RED
+                            feedback_timer = 0.3
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if not responded:
+                            responded = True
+                            if star_visible:
+                                acerto_snd.play(); pontos += 1
+                                feedback_color = GREEN
+                            else:
+                                erro_snd.play(); pontos = max(0, pontos-1)
+                                feedback_color = RED
+                            feedback_timer = 0.3
+    
+                # Atualiza piscar e estímulo baseado na sequência
+                blink_timer += dt
+                if blink_timer >= blink_per:
+                    blink_timer = 0.0
+                    # novo estado visual conforme a sequência
+                    if seq_pos < seq_len:
+                        star_visible = bool(sequence[seq_pos])
+                        seq_pos += 1
+                        responded = False
+                        stim_timer = 0.0
+    
+                # Timeout por estímulo
+                if not responded and seq_pos>0 and seq_pos<=seq_len:
+                    stim_timer += dt
+                    if stim_timer >= timeout_s:
+                        # Não respondeu a tempo: conta como erro se estrela estava acesa
+                        if star_visible:
+                            erro_snd.play(); pontos = max(0, pontos-1)
+                            feedback_color = RED; feedback_timer = 0.3
+                        responded = True  # trava até o próximo estímulo
+    
+                # Fim da fase quando a sequência toda foi mostrada e último estímulo expirou
+                if seq_pos >= seq_len and responded:
+                    running_phase = False
+    
+                # Desenho
+                screen.fill(SKY)
+                if star_visible:
+                    desenhar_estrela(screen, WIDTH//2, HEIGHT//2, 30, GOLD)
+                else:
+                    desenhar_estrela(screen, WIDTH//2, HEIGHT//2, 30, WHITE)
+    
+                # Barra de progresso
+                prog_w = int((seq_pos/seq_len) * (WIDTH-40))
+                pygame.draw.rect(screen, WHITE, (20, 20, WIDTH-40, 10), 1)
+                pygame.draw.rect(screen, GREEN, (20, 20, prog_w, 10))
+    
+                # Cabeçalho
+                header = font.render(
+                    f"{level['name']}  |  Estímulo {min(seq_pos,seq_len)}/{seq_len}  |  Pontos: {pontos}",
+                    True, WHITE)
+                screen.blit(header, (20, 40))
+    
+                # Feedback de borda
+                if feedback_color:
+                    pygame.draw.rect(screen, feedback_color, (0, 0, WIDTH, 5))
+                    feedback_timer -= dt
+                    if feedback_timer <= 0: feedback_color = None
+    
+                pygame.display.flip()
+    
+            # Animação breve de fim de fase
+            t0 = time.time()
+            while time.time() - t0 < 0.8:
+                dt = clock.tick(FPS)/1000.0
+                screen.fill(SKY)
+                msg = font.render(f"{level['name']} concluída!", True, GOLD)
+                screen.blit(msg, (WIDTH//2-120, HEIGHT//2-10))
+                pygame.display.flip()
+    
+            level_idx += 1
+    
+        # Tela final
+        pygame.time.wait(400)
+        pygame.quit()
+    
+    if __name__ == "__main__":
+        main()
+    \end{verbatim}
+    
+        \item Executar:
+    \begin{verbatim}
+    python3 main.py
+    \end{verbatim}
+    \end{enumerate}
+
+\subsubsection*{Exercícios Práticos}
+\begin{itemize}
+    \item Trocar a regra da sequência para notas (ex.: 3 cores/sons diferentes com teclas distintas).
+    \item Ajustar \texttt{seq\_len}, \texttt{blink\_period} e \texttt{timeout} por fase, refinando a dificuldade.
+    \item Exibir ``vidas'' (erros máximos) e reiniciar a fase ao esgotar.
+\end{itemize}
+
+\subsubsection*{Resultados de Aprendizagem Esperados}
+\begin{itemize}
+    \item Controle de fluxo por fases e temporização por estímulo.
+    \item Implementação de progressão e finalização de fase.
+\end{itemize}
+
+
+
+% Copie para o Overleaf. Numeração iniciando no 8, como solicitado.
+
+\newpage
+\section{Tutorial 8: Tela Inicial e Registro do Jogador}
+\label{sec: Tutorial 8: Tela Inicial}
+
+    Esta etapa implementa a tela inicial minimalista do jogo: a aluna deverá criar uma interface simples para inserir \textbf{Nome} e \textbf{Escola} e, ao clicar em \emph{Começar}, avançar para a Fase 1. O foco é o fluxo e a experiência, não a arquitetura complexa.
+    
+    \subsubsection{Objetivos}
+    \begin{itemize}
+    \item Exibir uma tela inicial com dois campos de texto (Nome, Escola) e um botão "Começar".
+    \item Validar entradas (não vazias) antes de avançar.
+    \item Armazenar informações do jogador em memória (variáveis) e preparar o avanço para a Fase 1.
+    \end{itemize}
+    
+    \subsubsection{Requisitos}
+    \begin{itemize}
+    \item Python 3 instalado (Raspberry Pi OS ou ambiente local).
+    \item Biblioteca \texttt{pygame} instalada (\texttt{pip3 install pygame}).
+    \item Conhecimento básico dos tutoriais anteriores de configuração (Tutorial 4).
+    \end{itemize}
+    
+    \subsubsection{Guia de Aprendizagem}
+    \begin{enumerate}
+    \item Criar a estrutura mínima de pastas:
+    \begin{verbatim}
+    projeto-jogo/
+    ├─ assets/
+    └─ main.py
+    \end{verbatim}
+    
+    ```
+    \item Abrir \texttt{main.py} e colar o código base abaixo (versão procedural, simples). Este arquivo deve conter apenas o mínimo necessário para a tela inicial e a transição para a Fase 1.
+    \begin{verbatim}
+    # main.py (Tela inicial minimal)
+    import pygame, sys
+    
+    WIDTH, HEIGHT = 900, 600
+    BG = (18,18,24); FG = (240,240,240); ACCENT = (100,180,255); ERROR = (255,90,90)
+    
+    pygame.init(); screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Musicalizing in the Sky")
+    clock = pygame.time.Clock(); FONT = pygame.font.SysFont("Arial", 28); FONT_SM = pygame.font.SysFont("Arial", 20)
+    
+    mode = "menu"; player_name = ""; player_school = ""; error_msg = ""
+    name_rect = pygame.Rect(WIDTH//2-180, 220, 360, 48)
+    school_rect = pygame.Rect(WIDTH//2-180, 290, 360, 48)
+    button_rect = pygame.Rect(WIDTH//2-120, 370, 240, 56)
+    active_field = None
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+            if mode == "menu":
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if name_rect.collidepoint(event.pos): active_field = "name"
+                    elif school_rect.collidepoint(event.pos): active_field = "school"
+                    elif button_rect.collidepoint(event.pos):
+                        if player_name.strip() and player_school.strip(): mode = "phase1"; error_msg = ""
+                        else: error_msg = "Preencha nome e escola."
+                    else: active_field = None
+                if event.type == pygame.KEYDOWN:
+                    if active_field == "name":
+                        if event.key == pygame.K_BACKSPACE: player_name = player_name[:-1]
+                        elif event.key != pygame.K_RETURN and len(player_name) < 32: player_name += event.unicode
+                    elif active_field == "school":
+                        if event.key == pygame.K_BACKSPACE: player_school = player_school[:-1]
+                        elif event.key != pygame.K_RETURN and len(player_school) < 32: player_school += event.unicode
+            elif mode == "phase1":
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: mode = "menu"
+    
+        screen.fill(BG)
+        if mode == "menu":
+            title = FONT.render("Musicalizing in the Sky", True, FG); screen.blit(title, (WIDTH//2 - title.get_width()//2, 120))
+            pygame.draw.rect(screen, (70,70,90), name_rect, border_radius=10)
+            pygame.draw.rect(screen, ACCENT if active_field=="name" else (120,120,140), name_rect, 2, border_radius=10)
+            pygame.draw.rect(screen, (70,70,90), school_rect, border_radius=10)
+            pygame.draw.rect(screen, ACCENT if active_field=="school" else (120,120,140), school_rect, 2, border_radius=10)
+            screen.blit(FONT_SM.render(player_name or "Seu nome", True, FG if player_name else (170,170,180)), (name_rect.x+12, name_rect.y+12))
+            screen.blit(FONT_SM.render(player_school or "Sua escola", True, FG if player_school else (170,170,180)), (school_rect.x+12, school_rect.y+12))
+            pygame.draw.rect(screen, ACCENT, button_rect, border_radius=14)
+            b = FONT.render("Começar", True, (10,10,20)); screen.blit(b, (button_rect.centerx-b.get_width()//2, button_rect.centery-b.get_height()//2))
+            if error_msg:
+                e = FONT_SM.render(error_msg, True, ERROR); screen.blit(e, (WIDTH//2 - e.get_width()//2, 440))
+        else:
+            msg = FONT.render(f"Bem-vinda, {player_name}! Fase 1...", True, FG)
+            screen.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - 20))
+            hud = FONT_SM.render("ESC volta ao menu", True, (200,200,210)); screen.blit(hud, (WIDTH//2 - hud.get_width()//2, HEIGHT//2 + 20))
+        pygame.display.flip(); clock.tick(60)
+    \end{verbatim}
+    
+    \item Executar o tutorial (no Raspberry ou local):
+    \begin{verbatim}
+    python3 main.py
+    \end{verbatim}
+    
+    \item Validar checklist mínimo:
+    \begin{itemize}
+        \item [ ] Inserir Nome e Escola e avançar para Fase 1.
+        \item [ ] Mensagem de erro ao tentar avançar com campos vazios.
+        \item [ ] ESC retorna ao menu.
+    \end{itemize}
+    
+    \end{enumerate}
+    
+    \subsubsection\*{Primeiros Exercícios Práticos}
+    \begin{itemize}
+    \item Salvar Nome e Escola em \texttt{saves/players.csv} ao clicar em \emph{Começar}.
+    \item Modificar cores e fontes usando arquivos em \texttt{assets/fonts}.
+    \item Adicionar botão \emph{Sair} no menu.
+    \end{itemize}
+    
+    \subsubsection\*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+    \item Entender a interação básica entre UI, eventos e estado do jogo.
+    \item Ter um fluxo de entrada do jogador funcional que inicia a Fase 1.
+    \item Preparar o terreno para implementar a lógica da Fase 1 no próximo tutorial.
+    \end{itemize}
+    
+    \bigskip
+    \hrule
+    \bigskip
+
+
+\newpage
+\section{Tutorial 9: Fase 1 — Score, Estímulo-Resposta e Feedback} \label{sec: Tutorial 9: Fase 1}
+
+    Esta etapa implementa a mecânica básica da Fase 1: quatro alvos (setas), um alvo destacado por rodada, avaliação da resposta via teclado e atualização do placar.
+    
+    \subsubsection{Objetivos}
+    \begin{itemize}
+    \item Implementar a lógica de estímulo-resposta (um alvo destacado por rodada).
+    \item Atualizar \texttt{score} em caso de acerto e exibir feedback visual/sonoro.
+    \item Exibir HUD com Nome, Escola, Pontuação e Rodada.
+    \end{itemize}
+    
+    \subsubsection{Requisitos}
+    \begin{itemize}
+    \item Concluir o Tutorial 8.
+    \item Arquivos de som opcionais em \texttt{assets/sounds} (\texttt{acerto.wav}, \texttt{erro.wav}).
+    \end{itemize}
+    
+    \subsubsection{Guia de Aprendizagem}
+    \begin{enumerate}
+    \item No arquivo \texttt{main.py} (criado no Tutorial 8) adicionar as variáveis e posições da Fase 1:
+    \begin{verbatim}
+    import random
+    STAR\_KEYS = \[pygame.K\_LEFT, pygame.K\_UP, pygame.K\_RIGHT, pygame.K\_DOWN]
+    KEY\_LABELS = {pygame.K\_LEFT:"<-", pygame.K\_UP:"^", pygame.K\_RIGHT:">", pygame.K\_DOWN:"v"}
+    score = 0; round\_num = 1; target\_key = random.choice(STAR\_KEYS)
+    feedback = ""; feedback\_timer = 0
+    pos = {
+    pygame.K\_LEFT:  (WIDTH//2 - 200, HEIGHT//2),
+    pygame.K\_UP:    (WIDTH//2,       HEIGHT//2 - 120),
+    pygame.K\_RIGHT: (WIDTH//2 + 200, HEIGHT//2),
+    pygame.K\_DOWN:  (WIDTH//2,       HEIGHT//2 + 120),
+    }
+    \end{verbatim}
+    
+    ```
+    \item No loop principal, dentro do modo \texttt{"phase1"}, tratar eventos de teclado:
+    \begin{verbatim}
+    if mode == "phase1":
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE: mode = "menu"; score = 0; round_num = 1
+            elif event.key in STAR_KEYS:
+                if event.key == target_key:
+                    score += 1; feedback = "ACERTOU"; feedback_timer = 30
+                else:
+                    feedback = "ERROU"; feedback_timer = 30
+                round_num += 1; target_key = random.choice(STAR_KEYS)
+    \end{verbatim}
+    
+    \item Na seção de desenho (quando \texttt{mode == "phase1"}) renderizar alvos, feedback e HUD:
+    \begin{verbatim}
+    title = FONT.render("FASE 1 — Siga o estímulo", True, FG)
+    screen.blit(title, (WIDTH//2 - title.get_width()//2, 60))
+    instr = FONT_SM.render("Pressione a seta do alvo destacado", True, (200,200,210))
+    screen.blit(instr, (WIDTH//2 - instr.get_width()//2, 100))
+    
+    for k,(x,y) in pos.items():
+        color = ACCENT if k == target_key else (90,100,130)
+        pygame.draw.circle(screen, color, (x,y), 36)
+        lbl = FONT_SM.render(KEY_LABELS[k], True, FG)
+        screen.blit(lbl, (x - lbl.get_width()//2, y - lbl.get_height()//2))
+    
+    if feedback:
+        fb_col = (120,230,160) if feedback == "ACERTOU" else (255,120,120)
+        fb = FONT.render(feedback, True, fb_col)
+        screen.blit(fb, (WIDTH//2 - fb.get_width()//2, HEIGHT - 120))
+        if feedback_timer > 0: feedback_timer -= 1
+        else: feedback = ""
+    
+    hud = FONT_SM.render(f"Jogadora: {player_name} | Escola: {player_school} | Pontos: {score} | Rodada: {round_num}", True, (210,210,230))
+    screen.blit(hud, (WIDTH//2 - hud.get_width()//2, 10))
+    \end{verbatim}
+    
+    \item Executar e testar:
+    \begin{verbatim}
+    python3 main.py
+    \end{verbatim}
+    ```
+    
+    \end{enumerate}
+    
+    \subsubsection{Primeiros Exercícios Práticos}
+    \begin{itemize}
+    \item Adicionar limite de tempo por rodada e computar erro se não houver resposta.
+    \item Implementar sons de acerto/erro e testar no Raspberry (fones/alto‑falante).
+    \item Definir critério de fim de fase (ex.: 10 pontos ou 60s) e avançar para próxima fase.
+    \end{itemize}
+    
+    \subsubsection{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+    \item Implementar uma interação simples estímulo‑resposta usando teclado.
+    \item Atualizar e exibir score e feedback em tempo real.
+    \item Preparar dados básicos (nome/escola/pontos) para salvar ou exportar.
+    \end{itemize}
+
+
+
+\newpage
+\section{Tutorial 10: Interação com Botões — GPIO físico e simulação}
+\label{sec:Tutorial10_Botoes}
+
+Este tutorial mostra como integrar botões físicos do Raspberry Pi (GPIO) ao jogo em Python e também como oferecer alternativas de simulação (botão na tela ou mock GPIO) para desenvolvimento em PC/VirtualBox. O objetivo é permitir que a aluna controle o fluxo do jogo (ex.: iniciar fase, responder estímulo) usando: (a) botões físicos no Raspberry Pi; (b) botões na tela (Pygame); (c) um mock de GPIO para testes locais.
+
+\subsubsection*{Objetivos}
+\begin{itemize}
+    \item Conectar um botão físico ao Raspberry Pi e ler seu estado a partir de Python (\texttt{gpiozero}).
+    \item Implementar um botão na tela (Pygame) que simule o botão físico, útil para testes sem hardware.
+    \item Demonstrar como usar \texttt{gpiozero}'s \texttt{MockFactory} para testes automatizados em PC/VirtualBox.
+    \item Integrar a leitura do botão ao fluxo do jogo (ex.: mapear botão a \texttt{Começar} ou a responder estímulos na Fase 1).
+\end{itemize}
+
+\subsubsection*{Requisitos}
+\begin{itemize}
+    \item Raspberry Pi com GPIO acessível (se for usar hardware). 
+    \item Python 3 instalado.
+    \item Biblioteca \texttt{gpiozero} e \texttt{pygame} instaladas:
+    \begin{verbatim}
+    pip3 install gpiozero pygame
+    \end{verbatim}
+    \item Caso esteja no VirtualBox/PC: apenas o botão na tela ou o Mock GPIO serão usados.
+\end{itemize}
+
+\subsubsection*{Notas de segurança e permissões}
+\begin{itemize}
+    \item Ao usar GPIO no Raspberry Pi, execute o script com permissões adequadas (\texttt{sudo} ou grupo \texttt{gpio}).
+    \item Sempre use apenas 3.3V nos GPIOs (não use 5V).
+    \item Botões simples devem ser conectados entre o pino GPIO e GND, com pull-up interno habilitado.
+\end{itemize}
+
+\subsubsection*{Guia de Aprendizagem}
+\begin{enumerate}
+    \item Exemplo de botão físico com \texttt{gpiozero}:
+    \begin{verbatim}
+    # gpio_button_example.py
+    from gpiozero import Button
+
+    def on_hw_button():
+        print("Botão físico pressionado! -> disparar ação do jogo")
+
+    btn = Button(17, pull_up=True, bounce_time=0.05)  # GPIO17
+    btn.when_pressed = on_hw_button
+
+    import signal
+    signal.pause()
+    \end{verbatim}
+
+    \item Exemplo de botão na tela (Pygame):
+    \begin{verbatim}
+    # pygame_button_example.py
+    button_rect = pygame.Rect(20, 20, 140, 48)
+
+    def on_screen_button():
+        print("Botão de tela pressionado! -> disparar ação do jogo")
+
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN and button_rect.collidepoint(event.pos):
+            on_screen_button()
+
+    pygame.draw.rect(screen, (100,180,255), button_rect, border_radius=8)
+    lbl = FONT.render("BOTÃO", True, (10,10,20))
+    screen.blit(lbl, (button_rect.x+10, button_rect.y+10))
+    \end{verbatim}
+
+    \item Exemplo de Mock GPIO (para testes locais):
+    \begin{verbatim}
+    from gpiozero import Device, Button
+    from gpiozero.pins.mock import MockFactory
+    import time
+
+    Device.pin_factory = MockFactory()
+    btn = Button(17, pull_up=True)
+
+    def on_mock():
+        print("Mock: botão acionado")
+
+    btn.when_pressed = on_mock
+
+    pin = Device.pin_factory.pin(17)
+    pin.drive_low(); time.sleep(0.2); pin.drive_high()
+    \end{verbatim}
+\end{enumerate}
+
+\subsubsection*{Checklist de Validação}
+\begin{itemize}
+    \item [ ] Botão físico (GPIO17) dispara a função esperada quando pressionado.
+    \item [ ] Botão na tela é clicável e dispara a mesma ação.
+    \item [ ] MockFactory permite simulação de pressões em PC/VirtualBox.
+\end{itemize}
+
+\subsubsection*{Exercícios Práticos}
+\begin{itemize}
+    \item Adicionar um segundo botão para ``Pausar'' o jogo.
+    \item Registrar timestamps de pressões em CSV (tempo de reação).
+    \item Testar MockFactory para simular diferentes padrões de resposta.
+\end{itemize}
+
+\subsubsection*{Resultados de Aprendizagem Esperados}
+\begin{itemize}
+    \item Integrar hardware simples (botões) com software em Python.
+    \item Criar alternativa de simulação para desenvolvimento sem hardware.
+    \item Garantir práticas seguras ao mexer com GPIO (uso de pull-up e tensão correta).
+\end{itemize}
+
+
+\newpage
+\section{Tutorial 11: Layout Dinâmico e Responsivo no Pygame}
+\label{sec:Tutorial11_LayoutDinamico}
+
+    Nesta etapa aprendemos a posicionar botões e elementos visuais de forma relativa ao tamanho da tela. Isso permite que o jogo rode em diferentes resoluções sem perder a organização dos elementos.
+    
+    \subsubsection*{Objetivos}
+    \begin{itemize}
+        \item Entender a diferença entre coordenadas absolutas e relativas.
+        \item Implementar funções auxiliares para calcular posições baseadas em porcentagens da tela.
+        \item Reposicionar botões, textos e alvos de forma responsiva.
+    \end{itemize}
+    
+    \subsubsection*{Requisitos}
+    \begin{itemize}
+        \item Concluir o Tutorial 10 (interação com botões).
+        \item Biblioteca \texttt{pygame} instalada.
+    \end{itemize}
+    
+    \subsubsection*{Guia de Aprendizagem}
+    \begin{enumerate}
+        \item Criar uma função auxiliar para calcular posições relativas:
+        \begin{verbatim}
+        def pos_rel(x_frac, y_frac, width, height):
+            """ Retorna posição relativa dado percentual da tela """
+            return int(width * x_frac), int(height * y_frac)
+        \end{verbatim}
+    
+        \item Criar botões com base em porcentagens, e não valores fixos:
+        \begin{verbatim}
+        WIDTH, HEIGHT = 900, 600
+        start_btn_rect = pygame.Rect(0, 0, WIDTH//4, HEIGHT//12)
+        start_btn_rect.center = pos_rel(0.5, 0.7, WIDTH, HEIGHT)
+        \end{verbatim}
+    
+        \item No desenho, os elementos ficam automaticamente centralizados:
+        \begin{verbatim}
+        pygame.draw.rect(screen, (100,180,255), start_btn_rect, border_radius=8)
+        label = FONT.render("COMEÇAR", True, (10,10,20))
+        screen.blit(label, (
+            start_btn_rect.centerx - label.get_width()//2,
+            start_btn_rect.centery - label.get_height()//2
+        ))
+        \end{verbatim}
+    
+        \item Exemplo de reposicionamento dinâmico dos 4 alvos da Fase 1:
+        \begin{verbatim}
+        positions = {
+            pygame.K_LEFT:  pos_rel(0.25, 0.5, WIDTH, HEIGHT),
+            pygame.K_UP:    pos_rel(0.5, 0.3, WIDTH, HEIGHT),
+            pygame.K_RIGHT: pos_rel(0.75, 0.5, WIDTH, HEIGHT),
+            pygame.K_DOWN:  pos_rel(0.5, 0.7, WIDTH, HEIGHT),
+        }
+        \end{verbatim}
+    
+        \item Ao mudar o tamanho da janela (ex.: 1280x720), basta recalcular os elementos
+        chamando \texttt{pos\_rel()} novamente.
+    \end{enumerate}
+    
+    \subsubsection*{Checklist de Validação}
+    \begin{itemize}
+        \item [ ] Botões permanecem centralizados ao mudar a resolução da janela.
+        \item [ ] Elementos da Fase 1 mantêm proporção na tela.
+        \item [ ] Nenhum elemento “sai” da área visível.
+    \end{itemize}
+    
+    \subsubsection*{Exercícios Práticos}
+    \begin{itemize}
+        \item Criar uma função \texttt{resize\_ui()} que reposiciona todos os elementos ao detectar mudança de tamanho de janela.
+        \item Adicionar margens relativas (ex.: 5\% da largura da tela).
+        \item Testar o jogo em resoluções diferentes (800x600, 1280x720, fullscreen).
+    \end{itemize}
+    
+    \subsubsection*{Resultados de Aprendizagem Esperados}
+    \begin{itemize}
+        \item Aprender a projetar interfaces responsivas em Pygame.
+        \item Garantir que o jogo seja usável em diferentes dispositivos/telas.
+        \item Estabelecer boas práticas para escalabilidade da interface.
+    \end{itemize}
+
+
+\newpage
+\section{Tutorial 12: Criação e Edição de Trilha Sonora no Jogo}
+\label{sec: Etapa 12: Criação e Edição de Trilha Sonora no Jogo}
+
+Nesta etapa, Luisa irá aprender a incorporar sons e trilhas sonoras ao jogo, criando uma ambientação mais imersiva e divertida. Serão utilizadas músicas de fundo para cada fase, além de sons específicos para eventos de vitória e derrota. Também serão exploradas ferramentas simples e gratuitas para gerar ou editar sons personalizados.
+
+\subsubsection*{Checklist de Atividades}
+\begin{longtable}{|m{0.8cm}|m{11cm}|m{2cm}|}
+\hline
+\textbf{\#} & \textbf{Tarefa} & \textbf{Status} \\
+\hline
+1 & Acessar sites de sons (BeepBox, Mixkit, Freesound ou Soundtrap) e escolher trilha, som de vitória e som de derrota. & $\Box$ \\
+\hline
+2 & Salvar os arquivos em formato \texttt{.mp3} ou \texttt{.wav} e colocá-los na pasta \texttt{./sounds/}. & $\Box$ \\
+\hline
+3 & Inserir o código Python para tocar trilha de fundo e efeitos de vitória/derrota. & $\Box$ \\
+\hline
+4 & Testar a reprodução dos sons e ajustar o volume conforme necessário. & $\Box$ \\
+\hline
+5 & (Desafio) Criar uma mudança automática de trilha ao passar de fase. & $\Box$ \\
+\hline
+\end{longtable}
+
+\subsubsection*{Objetivos}
+\begin{itemize}
+    \item Compreender o papel da trilha sonora e dos efeitos sonoros no jogo.
+    \item Criar e importar uma música de fundo para uma fase.
+    \item Adicionar efeitos sonoros para \textit{vitória} e \textit{derrota}.
+    \item Aprender a utilizar ferramentas online para edição e geração de sons.
+\end{itemize}
+
+\subsubsection*{Materiais Necessários}
+\begin{itemize}
+    \item Computador com acesso à internet.
+    \item Ambiente Python configurado com a biblioteca \texttt{pygame}.
+    \item Fones de ouvido ou alto-falantes.
+\end{itemize}
+
+\subsubsection*{1. Escolhendo Sons e Trilhas}
+
+Para iniciar, acesse uma das plataformas abaixo e escolha:
+\begin{itemize}
+    \item Uma trilha sonora curta e suave para a fase (ex.: música alegre ou calma).
+    \item Um som de comemoração para vitórias (ex.: aplausos, fanfarra, sino).
+    \item Um som para derrotas (ex.: buzzer, som triste ou de falha).
+\end{itemize}
+
+\textbf{Sites Recomendados:}
+\begin{itemize}
+    \item \href{https://freesound.org}{Freesound.org} – sons e efeitos gratuitos [\textit{com sons prontos para baixar}].
+    \item \href{https://mixkit.co/free-sound-effects}{Mixkit.co} – sons temáticos e loops musicais.
+    \item \href{https://beepbox.co}{BeepBox.co} – cria melodias curtas em estilo 8-bit [\textit{caso queria criar seus próprios sons}.
+    \item \href{https://soundtrap.com}{Soundtrap.com} – editor online para criar trilhas mais elaboradas.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{https://upload.wikimedia.org/wikipedia/commons/0/06/BeepBox_interface.png}
+    \caption{Interface do site BeepBox (\url{https://beepbox.co}) para criação de melodias simples em estilo retrô.}
+    \label{fig:beepbox-interface}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{https://user-images.githubusercontent.com/38196183/168446224-3e8945b3-9059-4a4a-97a8-2e5c03b81b8e.png}
+    \caption{Interface de mixagem do Soundtrap: ferramenta online para criação colaborativa de trilhas sonoras.}
+    \label{fig:soundtrap-interface}
+\end{figure}
+
+Salve os arquivos com nomes simples, como:
+\begin{verbatim}
+trilha_fase.mp3
+vitoria.wav
+derrota.wav
+\end{verbatim}
+
+E coloque-os na mesma pasta do código principal do jogo (ex.: \texttt{./sounds/}).
+
+\subsubsection*{2. Código para Tocar Sons no Jogo}
+
+O exemplo abaixo mostra como tocar uma música de fundo contínua e sons de vitória ou derrota conforme o resultado do jogador.
+
+\begin{minted}[fontsize=\small, bgcolor=gray!5, frame=lines]{python}
+import pygame
+import time
+
+# Inicializa o mixer e o pygame
+pygame.init()
+pygame.mixer.init()
+
+# === Sons e trilhas ===
+pygame.mixer.music.load("sounds/trilha_fase.mp3")  # Trilha de fundo
+som_vitoria = pygame.mixer.Sound("sounds/vitoria.wav")
+som_derrota = pygame.mixer.Sound("sounds/derrota.wav")
+
+# === Inicia a trilha em loop ===
+pygame.mixer.music.play(-1)  # -1 significa tocar repetidamente
+
+# Simulação de fase do jogo
+print("Fase em andamento...")
+time.sleep(5)  # tempo da fase
+
+# Exemplo de resultado
+resultado = input("Digite 'v' para vitória ou 'd' para derrota: ")
+
+if resultado == 'v':
+    pygame.mixer.music.stop()
+    som_vitoria.play()
+    print("�� Você venceu!")
+elif resultado == 'd':
+    pygame.mixer.music.stop()
+    som_derrota.play()
+    print("�� Você perdeu!")
+
+time.sleep(3)
+pygame.quit()
+\end{minted}
+
+\subsubsection*{3. Personalizando a Trilha}
+
+Luisa pode criar suas próprias trilhas usando ferramentas online:
+\begin{itemize}
+    \item \textbf{BeepBox:} criar melodias curtas e exportar em MP3.
+    \item \textbf{Soundtrap:} misturar instrumentos e loops musicais.
+    \item \textbf{Soundation:} ajustar tempo e batidas.
+\end{itemize}
+
+Após criar o som, basta salvar e substituir o arquivo \texttt{trilha\_fase.mp3} no diretório do jogo.
+
+\subsubsection*{4. Atividade Prática}
+\begin{enumerate}
+    \item Escolher ou criar uma trilha sonora no \textbf{BeepBox} ou \textbf{Mixkit}.
+    \item Escolher sons de vitória e derrota.
+    \item Inserir os sons na pasta \texttt{./sounds}.
+    \item Testar o código acima e verificar o comportamento.
+    \item Experimentar volumes diferentes com:
+    \begin{minted}[fontsize=\small, bgcolor=gray!5]{python}
+pygame.mixer.music.set_volume(0.5)  # Volume da trilha (0 a 1)
+som_vitoria.set_volume(0.8)
+som_derrota.set_volume(0.6)
+    \end{minted}
+\end{enumerate}
+
+\subsubsection*{5. Desafio Extra}
+Crie uma \textbf{mudança de trilha sonora} quando o jogador avança de fase.  
+Por exemplo: troque automaticamente a música quando a pontuação atingir um certo valor.
+
+\begin{minted}[fontsize=\small, bgcolor=gray!5]{python}
+if pontuacao >= 10:
+    pygame.mixer.music.load("sounds/trilha_fase2.mp3")
+    pygame.mixer.music.play(-1)
+\end{minted}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{https://cdn.pixabay.com/photo/2017/01/31/17/44/gaming-2024671_960_720.png}
+    \caption{Exemplo de feedback sonoro visual: ao vencer, toca-se uma fanfarra e aparece um símbolo de comemoração.}
+    \label{fig:game-sound-feedback}
+\end{figure}
+
+\subsubsection*{Conclusão}
+Com esta etapa, o jogo passa a ter um componente sonoro dinâmico que reforça o envolvimento da jogadora. Sons bem escolhidos ajudam a criar uma atmosfera lúdica, reforçando o aprendizado e a atenção durante a interação.
+
+
+\newpage
+
+\newpage
+\section{Tutorial 13: Introdução ao BeepBox e Recriação do Tema do Super Mario}
+\label{sec:tutorial13}
+
+Este tutorial marca o início da etapa musical do projeto, apresentando a ferramenta \textbf{BeepBox}, uma plataforma online gratuita para composição de trilhas sonoras em estilo 8-bit (chiptune). O objetivo é compreender os elementos básicos de criação musical digital e reproduzir uma versão simplificada do tema clássico do \textit{Super Mario Bros.}, aprendendo conceitos fundamentais de melodia, ritmo e instrumentação digital.
+
+\subsubsection*{Objetivos}
+\begin{itemize}
+    \item Explorar a interface e os recursos básicos do BeepBox.
+    \item Entender a estrutura de uma trilha sonora (melodia, acompanhamento, ritmo).
+    \item Recriar o tema do \textit{Super Mario Bros.} em versão simplificada.
+    \item Exportar o resultado como arquivo de áudio para uso posterior no jogo.
+\end{itemize}
+
+\subsubsection*{Materiais Necessários}
+\begin{itemize}
+    \item Acesso à internet e navegador web (https://www.beepbox.co).
+    \item Fones de ouvido ou caixas de som.
+    \item Arquivo de referência do tema do Super Mario (opcional, disponível no YouTube ou Spotify).
+\end{itemize}
+
+\subsubsection*{Passo a Passo}
+
+\paragraph{1. Acessando o BeepBox}
+Abra o site \href{https://www.beepbox.co}{https://www.beepbox.co}.  
+A interface principal mostra uma linha do tempo (horizontal) e trilhas verticais correspondentes a diferentes canais de som (melodia, harmonia, baixo, percussão).
+
+\paragraph{2. Entendendo os canais}
+Cada linha colorida representa um canal:
+\begin{itemize}
+    \item Azul – Melodia principal (instrumento 1)
+    \item Verde – Acompanhamento (instrumento 2)
+    \item Amarelo – Baixo
+    \item Vermelho – Percussão
+\end{itemize}
+
+\paragraph{3. Criando a melodia}
+Clique sobre os quadradinhos azuis na linha do tempo para criar notas.  
+Para reproduzir o tema inicial do \textit{Super Mario Bros.}, use a sequência (em dó maior, simplificada):
+
+\begin{verbatim}
+E E - E - C E - G - - - G
+C - G - E - A B A A - -
+\end{verbatim}
+
+Dica: pressione a tecla \textbf{Q} para tocar a música.
+
+\paragraph{4. Ajustando tempo e instrumento}
+Na barra superior:
+\begin{itemize}
+    \item Ajuste o \textbf{tempo (BPM)} para 120.
+    \item Selecione o instrumento “square” ou “sine” para som 8-bit autêntico.
+\end{itemize}
+
+\paragraph{5. Adicionando o ritmo (percussão)}
+Ative o canal vermelho e adicione batidas regulares em 1, 3, 5, 7, criando uma base rítmica simples.
+
+\paragraph{6. Exportando a trilha}
+Clique em \textbf{File → Export → WAV} para salvar o áudio.  
+Este arquivo poderá ser reproduzido dentro do jogo Python via \texttt{pygame.mixer}.
+
+\subsubsection*{Desafio}
+Tente adicionar uma segunda parte à música, repetindo a melodia em uma oitava acima e variando o ritmo de acompanhamento. Observe como pequenas mudanças alteram a emoção transmitida pela música.
+
+\subsubsection*{Observações}
+\begin{itemize}
+    \item O BeepBox salva automaticamente o link com as notas — copie-o para reutilizar depois.
+    \item Use fones para perceber melhor os detalhes da melodia e da percussão.
+    \item Essa atividade pode ser feita em grupo: um aluno cria a melodia, outro o ritmo, e outro o acompanhamento.
+\end{itemize}
+
+
+
+
+\newpage
+\section{Tutorial: Fluxo de Trabalho com Git e GitHub}
+\label{sec:fluxo-trabalho-git}
+
+Este tutorial descreve o fluxo de trabalho padrão adotado para o desenvolvimento colaborativo do jogo musical no projeto \textit{COTB 2026}.
+O objetivo é orientar o processo de edição, versionamento e atualização do código-fonte utilizando Git e GitHub.
+
+\subsection{Visão Geral}
+
+O controle de versão é essencial para garantir que as modificações realizadas no código do jogo sejam registradas de forma organizada e segura.
+O repositório Git permite:
+\begin{itemize}
+    \item Manter o histórico de todas as alterações realizadas.
+    \item Trabalhar em equipe sem sobrescrever o código do outro.
+    \item Restaurar versões anteriores em caso de erro.
+    \item Sincronizar o projeto entre diferentes computadores.
+\end{itemize}
+
+\subsection{Fluxo de Trabalho Padrão}
+
+O processo de trabalho segue as etapas descritas abaixo:
+
+\begin{enumerate}
+    \item \textbf{Editar o código localmente:}
+    \begin{itemize}
+        \item Abrir o projeto no diretório local (\texttt{game-luisa/}).
+        \item Fazer as modificações desejadas (ex.: adicionar novas fases, imagens, sons ou ajustes de lógica).
+    \end{itemize}
+
+    \item \textbf{Verificar alterações:}
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git status
+    \end{minted}
+    Esse comando lista os arquivos modificados, adicionados ou removidos desde o último commit.
+
+    \item \textbf{Adicionar arquivos ao controle de versão:}
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git add .
+    \end{minted}
+    O ponto (\texttt{.}) adiciona todas as mudanças detectadas.  
+    Para adicionar um arquivo específico, use:
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git add fase1.py
+    \end{minted}
+
+    \item \textbf{Criar um commit (salvar a versão local):}
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git commit -m "Mensagem descritiva sobre a mudança"
+    \end{minted}
+    Exemplo:
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git commit -m "Adiciona fade sonoro e transição visual nas fases"
+    \end{minted}
+
+    \item \textbf{Enviar as alterações para o GitHub:}
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git push origin main
+    \end{minted}
+    Esse comando envia o commit local para o repositório remoto hospedado no GitHub.
+
+    \item \textbf{Atualizar o código local (caso outro colaborador tenha feito mudanças):}
+    \begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+git pull origin main
+    \end{minted}
+    Esse comando sincroniza o repositório local com a versão mais recente publicada no GitHub.
+\end{enumerate}
+
+\subsection{Resumo do Fluxo de Comandos}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Etapa} & \textbf{Comando} \\
+\hline
+Verificar alterações & \texttt{git status} \\
+Adicionar arquivos & \texttt{git add .} \\
+Criar commit & \texttt{git commit -m "mensagem"} \\
+Enviar para o GitHub & \texttt{git push origin main} \\
+Atualizar a partir do remoto & \texttt{git pull origin main} \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Representação Visual do Fluxo de Trabalho}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2.8cm,
+    every node/.style={font=\small, align=center},
+    box/.style={rectangle, rounded corners, draw=black!70, thick, fill=blue!5, minimum width=2.6cm, minimum height=1.2cm},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, draw=black!70}
+]
+
+\node[box] (edit) {Editar \\ código local};
+\node[box, right of=edit] (add) {Adicionar \\ \texttt{git add}};
+\node[box, right of=add] (commit) {Commit \\ \texttt{git commit}};
+\node[box, right of=commit] (push) {Enviar \\ \texttt{git push}};
+\node[box, right of=push] (github) {Repositório \\ GitHub};
+\node[box, below of=commit, yshift=-1.2cm] (pull) {Atualizar \\ \texttt{git pull}};
+
+% Arrows
+\draw[arrow] (edit) -- (add);
+\draw[arrow] (add) -- (commit);
+\draw[arrow] (commit) -- (push);
+\draw[arrow] (push) -- (github);
+\draw[arrow] (github.south) |- (pull.east);
+\draw[arrow] (pull.west) -| (edit.south);
+
+\end{tikzpicture}
+\caption{Fluxo de trabalho com Git e GitHub para o projeto \textit{game-luisa}.}
+\label{fig:git-workflow}
+\end{figure}
+
+\subsection{Boas Práticas}
+
+\begin{itemize}
+    \item Sempre realizar um \texttt{git pull origin main} antes de iniciar novas modificações.
+    \item Escrever mensagens de commit curtas e objetivas, indicando claramente o que foi alterado.
+    \item Evitar adicionar arquivos desnecessários (como o ambiente virtual \texttt{venv/}) — o arquivo \texttt{.gitignore} já trata disso.
+    \item Testar o jogo localmente antes de fazer o \texttt{push}.
+    \item Utilizar branches separados para grandes alterações, e fazer \texttt{merge} após revisão.
+\end{itemize}
+
+\subsection{Exemplo de Sessão de Trabalho Completa}
+
+\begin{minted}[fontsize=\small, bgcolor=lightgray!10]{bash}
+# 1. Atualizar código local
+git pull origin main
+
+# 2. Fazer modificações no jogo
+# (editar, testar, validar)
+
+# 3. Ver o que mudou
+git status
+
+# 4. Adicionar as alterações
+git add .
+
+# 5. Criar o commit
+git commit -m "Adiciona trilha sonora da Fase 3"
+
+# 6. Enviar para o GitHub
+git push origin main
+\end{minted}
+
+
+\subsection{Conclusão}
+
+Seguindo este fluxo, cada colaborador pode trabalhar de forma independente e sincronizada,
+mantendo o código-fonte atualizado e versionado de maneira segura.  
+Esse processo será adotado por padrão durante o desenvolvimento conjunto do projeto.
+
+
+
+\newpage
+\section{Tutorial 14: Acesso Remoto ao Raspberry Pi via Cabo RJ45 e SSH}
+\label{sec: Tutorial 14: Acesso Remoto ao Raspberry Pi via Cabo RJ45 e SSH}
+    
+    Este tutorial tem como objetivo permitir o acesso remoto ao Raspberry Pi 4 utilizando um cabo de rede (RJ45) e o protocolo SSH.  
+    O procedimento possibilita estabelecer comunicação direta entre o Raspberry Pi e o computador, mesmo sem roteador ou conexão Wi-Fi, permitindo diagnosticar e configurar o dispositivo em rede local.
+    
+    \subsection*{Objetivos}
+    \begin{itemize}
+        \item Testar a comunicação via cabo RJ45 com o Raspberry Pi.
+        \item Estabelecer acesso remoto via SSH em diferentes cenários (DHCP ou conexão direta).
+        \item Ativar o serviço SSH em sistemas já instalados, sem necessidade de reinstalação.
+    \end{itemize}
+    
+    \subsection*{Materiais Necessários}
+        \begin{itemize}
+            \item Raspberry Pi 4 (com cartão microSD já configurado com o sistema operacional).
+            \item Cabo RJ45 (Ethernet).
+            \item Fonte USB-C de 5 V / 3 A (pode ser usada a do Samsung S24+).
+            \item Computador com Linux ou macOS (para os comandos de teste).
+        \end{itemize}
+        
+    \subsection{Opção A – Conexão via Roteador (DHCP Automático)}
+        Esta é a forma mais simples de detectar o Raspberry Pi na rede.
+        
+        \begin{enumerate}
+            \item Conecte o Raspberry Pi e o computador ao mesmo roteador (via cabo ou Wi-Fi).
+            \item O roteador atribuirá um endereço IP automaticamente (DHCP).
+            \item Descubra o IP do Raspberry Pi executando:
+            \begin{minted}{bash}
+            arp -a
+            # ou
+            sudo nmap -sn 192.168.0.0/24
+            \end{minted}
+            \item Procure por um nome como \texttt{raspberrypi.lan}.
+            \item Acesse via SSH:
+            \begin{minted}{bash}
+            ssh pi@raspberrypi.local
+            # ou usando o IP encontrado
+            ssh pi@192.168.0.xxx
+            \end{minted}
+        \end{enumerate}
+    
+    \subsection{Opção B – Conexão Direta entre Raspberry Pi e Computador}
+    
+        Quando não há roteador disponível, o Raspberry Pi pode se comunicar por \textbf{endereçamento automático (Zeroconf)}.
+        
+        \begin{enumerate}
+            \item Conecte o cabo RJ45 diretamente entre o Raspberry Pi e o computador.
+            \item Aguarde cerca de 1 minuto para que ambos obtenham endereços do tipo \texttt{169.254.x.x}.
+            \item No computador, teste:
+            \begin{minted}{bash}
+            ping raspberrypi.local
+            ssh pi@raspberrypi.local
+            \end{minted}
+            \item Caso o SSH responda, o acesso está ativo.
+        \end{enumerate}
+        
+        Se o SSH não estiver habilitado, siga a próxima subseção.
+
+
+    
+    \subsection{Ativando o SSH em um Sistema Existente}
+    
+        \begin{enumerate}
+            \item Remova o cartão microSD e insira no computador.
+            \item Na partição visível chamada \texttt{boot}, crie um arquivo vazio chamado:
+            \begin{minted}{bash}
+            ssh
+            \end{minted}
+            (sem extensão).
+            \item Opcionalmente, para configurar Wi-Fi, crie também um arquivo \texttt{wpa\_supplicant.conf} com:
+            \begin{minted}{bash}
+            country=BR
+            ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+            update_config=1
+        
+            network={
+                ssid="NOME_DA_SUA_REDE"
+                psk="SENHA_DA_SUA_REDE"
+            }
+            \end{minted}
+            \item Recoloque o cartão no Raspberry Pi e ligue o dispositivo.
+        \end{enumerate}
+    
+    \subsection{Verificando o Acesso Bem-Sucedido}
+        Ao conectar-se com sucesso, o terminal exibirá:
+        \begin{minted}{bash}
+        pi@raspberrypi:~ $
+        \end{minted}
+        A partir desse ponto, o usuário poderá administrar o Raspberry Pi remotamente, instalar pacotes, configurar o VNC e realizar novas etapas do projeto.
+        
+        \subsection*{Resumo das Situações Comuns}
+        \begin{longtable}{|p{5cm}|p{9cm}|}
+        \hline
+        \textbf{Situação} & \textbf{Ação Recomendada} \\
+        \hline
+        Sistema liga e lê o SD & Tentar \texttt{ssh pi@raspberrypi.local} (conexão direta) \\
+        \hline
+        SSH não responde & Criar arquivo \texttt{ssh} na partição \texttt{boot} \\
+        \hline
+        Rede Wi-Fi disponível & Configurar via arquivo \texttt{wpa\_supplicant.conf} \\
+        \hline
+        Sistema corrompido ou inacessível & Reinstalar usando o Raspberry Pi Imager \\
+        \hline
+        \end{longtable}
+        
+        \subsection*{Próximos Passos}
+        Uma vez estabelecido o acesso via SSH, recomenda-se configurar o acesso gráfico via VNC para facilitar o controle remoto do ambiente de desenvolvimento.  
+        Isso será abordado no próximo tutorial:  
+        \textbf{Tutorial 15 – Acesso Gráfico ao Raspberry Pi via VNC}.
+
+
+
+\newpage
+\section{Tutorial 15: Acesso Gráfico ao Raspberry Pi via VNC}
+\label{sec: Tutorial 15: Acesso Gráfico ao Raspberry Pi via VNC}
+
+Este tutorial apresenta o procedimento para habilitar o acesso remoto ao ambiente gráfico do Raspberry Pi por meio do \textbf{VNC (Virtual Network Computing)}.  
+O VNC permite visualizar e controlar o desktop do Raspberry Pi diretamente do computador, sem necessidade de monitor ou teclado conectados ao dispositivo.
+
+\subsection*{Objetivos}
+\begin{itemize}
+    \item Ativar o servidor VNC no Raspberry Pi.
+    \item Configurar o VNC Viewer no computador para acesso remoto.
+    \item Garantir comunicação segura entre o Raspberry Pi e o computador pela rede local.
+\end{itemize}
+
+\subsection*{Materiais Necessários}
+\begin{itemize}
+    \item Raspberry Pi 4 (com sistema operacional funcional e acesso SSH habilitado).
+    \item Computador com \textbf{VNC Viewer} instalado (RealVNC ou outro cliente compatível).
+    \item Conexão de rede local (via Wi-Fi ou cabo RJ45).
+\end{itemize}
+
+\subsection{Ativando o VNC no Raspberry Pi}
+
+\begin{enumerate}
+    \item Acesse o Raspberry Pi via SSH:
+    \begin{minted}{bash}
+    ssh pi@raspberrypi.local
+    \end{minted}
+
+    \item Execute o comando de configuração:
+    \begin{minted}{bash}
+    sudo raspi-config
+    \end{minted}
+
+    \item No menu, navegue até:
+    \begin{quote}
+    \texttt{Interface Options} → \texttt{VNC} → \texttt{Enable}
+    \end{quote}
+
+    \item Saia do menu e reinicie o sistema:
+    \begin{minted}{bash}
+    sudo reboot
+    \end{minted}
+\end{enumerate}
+
+Após reiniciar, o Raspberry Pi estará executando o serviço VNC.
+
+\subsection{Instalando o VNC Viewer no Computador}
+
+\begin{enumerate}
+    \item Acesse o site oficial:  
+    \url{https://www.realvnc.com/en/connect/download/viewer/}
+    \item Baixe e instale o \textbf{VNC Viewer} compatível com seu sistema operacional.
+    \item Após a instalação, abra o programa e, na barra de endereço, digite:
+    \begin{quote}
+    \texttt{raspberrypi.local}
+    \end{quote}
+    ou o endereço IP do Raspberry Pi (ex: \texttt{192.168.0.105}).
+    \item Quando solicitado, insira as credenciais:
+    \begin{quote}
+    Usuário: \texttt{pi} \\
+    Senha: (a senha configurada no seu sistema)
+    \end{quote}
+\end{enumerate}
+
+\subsection{Verificando o Acesso ao Desktop}
+Se a conexão for bem-sucedida, a tela principal do Raspberry Pi será exibida no computador.  
+É possível navegar pelo sistema, abrir aplicativos e até executar o programa do projeto COTB diretamente pelo VNC.
+
+\begin{itemize}
+    \item Ícone de rede ou volume podem demorar alguns segundos para carregar — isso é normal.
+    \item Caso a tela apareça preta, desconecte e reconecte, pois o VNC às vezes precisa renegociar a resolução.
+\end{itemize}
+
+\subsection{Ajustando a Resolução do VNC}
+Para evitar distorções na imagem, é recomendável definir uma resolução fixa:
+
+\begin{minted}{bash}
+sudo raspi-config
+\end{minted}
+Em seguida, vá em:
+\begin{quote}
+\texttt{Display Options → Resolution → 1920x1080}
+\end{quote}
+Reinicie o Raspberry Pi para aplicar.
+
+\subsection*{Resumo das Situações Comuns}
+\begin{longtable}{|p{5cm}|p{9cm}|}
+\hline
+\textbf{Situação} & \textbf{Ação Recomendada} \\
+\hline
+Não conecta via VNC & Verificar se o serviço VNC está habilitado e o IP correto está sendo usado \\
+\hline
+Tela preta após conexão & Desconectar e reconectar o VNC Viewer (ou ajustar a resolução) \\
+\hline
+Conexão instável & Priorizar o uso do cabo RJ45 em vez de Wi-Fi \\
+\hline
+\end{longtable}
+
+\subsection*{Próximos Passos}
+Com o acesso gráfico ativo, o próximo passo será preparar o ambiente de desenvolvimento para o jogo educacional.  
+O próximo tutorial abordará a instalação de bibliotecas e dependências do \textbf{Python (pygame, pydub, playsound)}, para iniciar a criação dos estímulos musicais e visuais do projeto.
+
+
+
+% \bibliographystyle{plain} % ou abnt, unsrt, apalike, IEEEtran, etc.
+% \bibliography{references}
+
+\printbibliography[title={references}]
+
+\newpage
+
+\section*{Checklist de Revisão Estrutural -- Versão com Modelos de Reescrita}
+
+\subsection*{1. Abstract}
+
+\begin{itemize}
+    \item[$\boxtimes$] Substituir expressões fortes como ``comprovada a eficácia'' por termos como ``avaliada a viabilidade''.
+    
+    \textbf{Modelo de Reescrita:}
+    
+    \textit{``para que possa ser avaliada a viabilidade e o impacto preliminar da ferramenta proposta.''}
+
+    \item[$\boxtimes$] Reformular ``potencial pedagógico'' para linguagem não conclusiva.
+    
+    \textbf{Modelo de Reescrita:}
+    
+    \textit{``Espera-se que a ferramenta apresente indícios de viabilidade pedagógica em contexto educacional.''}
+
+    \item[$\boxtimes$] Inserir frase explícita indicando que a proposta não substitui tratamento clínico ou farmacológico.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Ressalta-se que a proposta não substitui intervenções clínicas ou farmacológicas, atuando como ferramenta complementar de apoio educacional.''}
+
+    \item[$\boxtimes$] Tornar mais claro o delineamento metodológico previsto.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``O estudo prevê delineamento quase-experimental com comparação entre condições com e sem estímulo musical estruturado.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{2. Introdução}
+
+\begin{itemize}
+    \item[$\boxtimes$] Reescrever o parágrafo que inicia com ``Diferentemente da abordagem medicinal tradicional...'' evitando comparação direta com medicina tradicional.
+    
+    \textbf{Modelo de Reescrita:}
+    
+    \textit{``Além das intervenções farmacológicas amplamente utilizadas, pesquisas recentes indicam que abordagens complementares baseadas em estímulos cognitivos e musicais podem contribuir para o desenvolvimento da atenção em crianças com TDAH.''}
+
+    \item[$\boxtimes$] Inserir hipótese formal da pesquisa.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``A hipótese central deste estudo é que crianças expostas a estímulos musicais estruturados durante atividades interativas apresentarão melhor desempenho em tarefas de atenção sustentada quando comparadas à condição sem estímulo musical estruturado.''}
+
+    \item[$\boxtimes$] Definir variáveis independentes (tipo de estímulo musical).
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``A variável independente corresponde ao tipo de estímulo musical aplicado durante a atividade.''}
+
+    \item[$\boxtimes$] Definir variáveis dependentes (tempo de resposta, número de acertos, evolução por fase).
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``As variáveis dependentes incluem tempo de resposta, taxa de acertos e evolução do desempenho ao longo das fases do jogo.''}
+
+    \item[$\boxtimes$] Reforçar explicitamente que a proposta é complementar ao tratamento clínico.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``A proposta apresentada possui caráter complementar, não substituindo intervenções clínicas ou terapêuticas previamente estabelecidas.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{3. Fundamentação Teórica}
+
+\begin{itemize}
+    \item[$\boxtimes$] Substituir termos como ``portador do transtorno'' por ``criança com TDAH''.
+    
+    \textbf{Modelo de Substituição:}
+    
+    \textit{Trocar todas as ocorrências de ``portador do transtorno'' por ``criança com TDAH''.}
+
+    \item[$\boxtimes$] Inserir referências recentes (2022--2025).
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{Inserir estudos recentes que abordem música e atenção, intervenções não farmacológicas no TDAH e jogos digitais cognitivos.}
+
+    \item[$\boxtimes$] Remover a Tabela comparativa Arduino vs Raspberry Pi.
+    
+    \item[$\boxtimes$] Substituir a tabela por um parágrafo técnico objetivo justificando a escolha do Raspberry Pi.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``A escolha do Raspberry Pi deve-se à sua maior capacidade de processamento, compatibilidade com bibliotecas multimídia como Pygame e possibilidade de registro automatizado de métricas atencionais em tempo real.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{4. Trabalhos Relacionados}
+
+\begin{itemize}
+    \item[$\Box$] Tornar a análise dos GAPS mais crítica e aprofundada.
+    
+    \item[$\Box$] Inserir parágrafo final explicitando claramente a contribuição original do trabalho.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Diferentemente dos trabalhos analisados, esta proposta integra estímulos musicais estruturados, coleta automatizada de métricas atencionais e aplicação em ambiente educacional, configurando uma abordagem interdisciplinar entre tecnologia acessível e intervenção cognitiva.''}
+
+    \item[$\Box$] Evitar linguagem superficial ou apenas descritiva.
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{5. Metodologia}
+
+\begin{itemize}
+    \item[$\boxtimes$] Especificar o tipo de estudo.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``O estudo caracteriza-se como quase-experimental, com delineamento comparativo entre duas condições experimentais.''}
+
+    \item[$\boxtimes$] Inserir descrição formal do delineamento experimental.
+    
+    \item[$\boxtimes$] Considerar inclusão de grupo controle.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Os participantes poderão ser divididos em Grupo Experimental (com estímulo musical estruturado) e Grupo Controle (sem estímulo musical adicional), permitindo comparação entre condições.''}
+
+    \item[$\Box$] Especificar testes estatísticos previstos.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Os dados serão analisados por meio de teste t para comparação entre médias e ANOVA para análise entre fases, adotando-se nível de significância de $p < 0{,}05$.''}
+
+    \item[$\boxtimes$] Substituir expressões especulativas como ``será possível observar''.
+    
+    \textbf{Modelo de Substituição:}
+    
+    \textit{Trocar por: ``serão analisadas variações nos indicadores de desempenho atencional''.}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{6. Design do Jogo}
+
+\begin{itemize}
+    \item[$\Box$] Especificar parâmetros técnicos dos estímulos sonoros.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Os estímulos sonoros serão configurados com frequência entre 400Hz e 800Hz, duração média de 300ms, ritmo entre 60 e 90 BPM e intervalo aproximado de 2 segundos entre estímulos.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{7. Ferramentas Utilizadas}
+
+\begin{itemize}
+    \item[$\Box$] Especificar modelo do Raspberry Pi.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``O sistema foi desenvolvido utilizando Raspberry Pi 4 Model B.''}
+
+    \item[$\boxtimes$] Informar versão do Python e Pygame.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``Foram utilizadas as versões Python 3.11 e Pygame 2.x.''}
+
+    \item[$\boxtimes$] Inserir link para repositório.
+    
+    \textbf{Modelo de Inserção:}
+    
+    \textit{``O código-fonte será disponibilizado em repositório público para fins de reprodutibilidade científica.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{8. Aspectos Éticos}
+
+\begin{itemize}
+    \item[$\Box$] Criar subseção específica sobre Aspectos Éticos.
+    
+    \textbf{Modelo de Texto:}
+    
+    \textit{``A participação ocorrerá mediante consentimento livre e esclarecido dos responsáveis legais e assentimento das crianças. Os dados serão anonimizados por meio de identificação alfanumérica, não sendo armazenadas informações pessoais sensíveis. O armazenamento seguirá as diretrizes da Lei Geral de Proteção de Dados (LGPD). Caso aplicável, o projeto será submetido a Comitê de Ética em Pesquisa.''}
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{9. Resultados}
+
+\begin{itemize}
+    \item[$\boxtimes$] Avaliar renomear seção para ``Plano de Avaliação Experimental''.
+    
+    \item[$\boxtimes$] Substituir termos como ``comprovam''.
+    
+    \textbf{Modelo de Substituição:}
+    
+    \textit{Trocar por: ``indicam viabilidade técnica preliminar do sistema''.}
+
+    \item[$\boxtimes$] Reduzir linguagem afirmativa sobre eficácia.
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{10. Considerações Finais}
+
+\begin{itemize}
+    \item[$\boxtimes$] Reformular linguagem conclusiva.
+    
+    \textbf{Modelo de Reescrita:}
+    
+    \textit{``Os resultados obtidos até o momento indicam viabilidade técnica do sistema, sendo necessária validação experimental com amostra ampliada para avaliação do impacto atencional.''}
+
+    \item[$\boxtimes$] Destacar necessidade de validação futura.
+\end{itemize}
+
+% ------------------------------------------------------
+
+\subsection*{11. Ajustes Formais}
+
+\begin{itemize}
+    \item[$\boxtimes$] Corrigir ``Figure'' para ``Figura''.
+    \item[$\boxtimes$] Corrigir ``Table'' para ``Tabela''.
+    \item[$\Box$] Atualizar campos CCSXML.
+    \item[$\Box$] Revisão gramatical completa.
+\end{itemize}
+
+
+
+\end{document}
