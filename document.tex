@@ -14,6 +14,7 @@
 \usepackage{minted}
 \usepackage[most]{tcolorbox}
 \usepackage{colortbl}
+\usepackage{ragged2e}
 
 \usepackage[backend=biber,
             style=authoryear,    % ou "numeric", "apa", "authoryear-comp", etc.
@@ -98,49 +99,51 @@
  \section{Checklist de Atividades (Cronograma)}
     
     \rowcolors{2}{cinzaTabela}{white}
-    \begin{longtable}{|>{\columncolor{white}}m{3.5cm}|m{5.5cm}|m{2.5cm}|m{1.2cm}|m{2.0cm}|}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{longtable}{|>{\columncolor{white}\RaggedRight}m{3.5cm}|m{5.5cm}|m{2.5cm}|m{1.2cm}|m{2.0cm}|}
     \hline
         \rowcolor{azulIFSC}
         \textbf{\color{white}Etapa} & \textbf{\color{white}Tarefa} & \textbf{\color{white}Observação} & \textbf{\color{white}Status} & \textbf{\color{white}Previsão} \\
         \hline
-        \multirow{3}{*}{\parbox{3.3cm}{\raggedright Etapa 0: Fundamentação e Preparação}} 
+        \multirow{3}{=}{Etapa 0: Fundamentação e Preparação} 
          & Revisão teórica sobre Chatbots e LLMs. & ~ & $\boxtimes$ & Abr-3 \\
          & Estruturar repositório Git e ambiente Python. & ~ & $\boxtimes$ & Abr-3 \\
          & Definir escopo inicial (perguntas frequentes). & ~ & $\boxtimes$ & Abr-4 \\
         \hline
-        \multirow{4}{*}{\parbox{3.3cm}{\raggedright Etapa 1: Mapeamento de Requisitos}} 
+        \multirow{4}{=}{Etapa 1: Mapeamento de Requisitos} 
          & Entrevistas com a secretaria do IFSC Garopaba. & ~ & $\Box$ & Mai-1 \\
          & Mapear processos repetitivos passíveis de automação. & ~ & $\Box$ & Mai-1 \\
          & Definir fluxos de geração de documentos (PDF). & ~ & $\Box$ & Mai-2 \\
          & Coletar base de conhecimento (FAQs). & ~ & $\Box$ & Mai-2 \\
         \hline
-        \multirow{3}{*}{\parbox{3.3cm}{\raggedright Etapa 2: Design e Prototipagem}} 
+        \multirow{3}{=}{Etapa 2: Design e Prototipagem} 
          & Desenhar fluxos de diálogo (árvore de decisão). & ~ & $\Box$ & Mai-3 \\
          & Protótipo visual da interface (Web/Telegram). & ~ & $\Box$ & Mai-3 \\
          & Definir persona do Chatbot. & ~ & $\Box$ & Mai-4 \\
         \hline
-        \multirow{4}{*}{\parbox{3.3cm}{\raggedright Etapa 3: Desenvolvimento do Backend}} 
+        \multirow{4}{=}{Etapa 3: Desenvolvimento do Backend} 
          & Configurar Flask e rotas iniciais. & ~ & $\Box$ & Jun-1 \\
          & Integrar lógica de PLN (Regex ou LLM API). & ~ & $\Box$ & Jun-2 \\
          & Implementar módulo de geração de documentos. & ~ & $\Box$ & Jun-3 \\
          & Testar integração Front/Back. & ~ & $\Box$ & Jun-4 \\
         \hline
-        \multirow{3}{*}{\parbox{3.3cm}{\raggedright Etapa 4: Automação e Integração}} 
+        \multirow{3}{=}{Etapa 4: Automação e Integração} 
          & Criar disparos de processos internos via bot. & ~ & $\Box$ & Jul-1 \\
          & Validar segurança e privacidade dos dados. & ~ & $\Box$ & Jul-1 \\
          & Refinar respostas baseadas na base oficial. & ~ & $\Box$ & Jul-2 \\
         \hline
-        \multirow{3}{*}{\parbox{3.3cm}{\raggedright Etapa 5: Testes e Avaliação}} 
+        \multirow{3}{=}{Etapa 5: Testes e Avaliação} 
          & Realizar testes alpha com bolsistas/servidores. & ~ & $\Box$ & Jul-3 \\
          & Coletar métricas de acurácia e satisfação. & ~ & $\Box$ & Jul-4 \\
          & Corrigir gargalos de conversação. & ~ & $\Box$ & Ago-1 \\
         \hline
-        \multirow{3}{*}{\parbox{3.3cm}{\raggedright Etapa 6: Redação Final}} 
+        \multirow{3}{=}{Etapa 6: Redação Final} 
          & Estruturar o artigo no template SBC. & ~ & $\Box$ & Ago-2 \\
          & Incluir resultados dos testes e diagramas. & ~ & $\Box$ & Ago-3 \\
          & Revisão final e submissão. & ~ & $\Box$ & Set-1 \\
     \hline
     \end{longtable}
+    \renewcommand{\arraystretch}{1.0}
 
 
 
