@@ -1,5 +1,8 @@
 \documentclass{article}
-
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
 \usepackage{longtable} % Required for tables to perpass pages
 \usepackage{amsmath, amssymb} % Required for symbols check / checked
 \usepackage{array}
@@ -9,11 +12,58 @@
 \usepackage{multirow}
 \usepackage{hyperref}
 \usepackage{minted}
+\usepackage[most]{tcolorbox}
+\usepackage{colortbl}
 
 \usepackage[backend=biber,
             style=authoryear,    % ou "numeric", "apa", "authoryear-comp", etc.
             language=portuguese]{biblatex}
 \addbibresource{references.bib} % nome do seu .bib — deve estar na mesma pasta
+
+% =====================================================
+% CONFIGURAÇÕES VISUAIS
+% =====================================================
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=3cm
+}
+
+\definecolor{azulIFSC}{RGB}{30,60,90}
+\definecolor{cinzaTabela}{RGB}{240,240,240}
+
+% Boxes estilizados
+\newtcolorbox{boxAvisos}{
+    colback=azulIFSC!5,
+    colframe=azulIFSC,
+    boxrule=0.8pt,
+    arc=4pt,
+    title=\textbf{Próximas Atividades / Foco},
+    fonttitle=\bfseries
+}
+
+\newtcolorbox{boxTutorial}[1]{
+    breakable,
+    enhanced,
+    colback=white,
+    colframe=azulIFSC,
+    boxrule=0.5pt,
+    arc=2pt,
+    title=#1,
+    coltitle=white,
+    colbacktitle=azulIFSC,
+    fonttitle=\bfseries
+}
+
+\newtcolorbox{boxDestaque}{
+    colback=orange!5,
+    colframe=orange!80!black,
+    boxrule=1pt,
+    arc=6pt,
+    title=\textbf{Checklist de Evolução},
+    fonttitle=\bfseries
+}
 
 
 \title{Chatbot p/ Secretaria Acadêmica: Notas e Planejamento}
@@ -36,20 +86,22 @@
 
 \section{Próximas atividades}
 
+\begin{boxAvisos}
     \begin{itemize}
-        \item  
+        \item Mapear os 10 processos mais comuns da secretaria acadêmica.
+        \item Configurar o ambiente Flask inicial (seguindo o Tutorial 1).
+        \item Definir a persona e o tom de voz do chatbot.
+        \item Iniciar a escrita da Fundamentação Teórica no paper principal.
     \end{itemize}
+\end{boxAvisos}
 
-
- %  ========= =========================== =========
- %  ========= CHECKLIST DE ATIVIDADES =============
- %  ========= =========================== =========
- 
  \section{Checklist de Atividades (Cronograma)}
     
+    \rowcolors{2}{cinzaTabela}{white}
     \begin{longtable}{|m{4.0cm}|m{4cm}|m{3.0cm}|m{1.2cm}|m{2.0cm}|}
     \hline
-        \textbf{Etapa} & \textbf{Tarefa} & \textbf{Observação} & \textbf{Status} & \textbf{Previsão} \\
+        \rowcolor{azulIFSC}
+        \textbf{\color{white}Etapa} & \textbf{\color{white}Tarefa} & \textbf{\color{white}Observação} & \textbf{\color{white}Status} & \textbf{\color{white}Previsão} \\
         \hline
         \multirow{3}{*}{\parbox{4.5cm}{\raggedright Etapa 0: Fundamentação e Preparação}} 
          & Revisão teórica sobre Chatbots e LLMs. & ~ & $\boxtimes$ & Abr-3 \\
@@ -105,6 +157,7 @@
     \end{itemize}
     
  
+
 
     
 
@@ -186,7 +239,7 @@ Abaixo, apresentamos o fluxo de execução do sistema proposto, desde a entrada 
 
 \section{Links importantes}
 
-    \subsection{Repositório e Materiais da Marília}
+    \subsection{Repositório e Materiali da Marília}
         \begin{itemize}
             \item \href{https://github.com/chameoandre/Marilias-notes-and-Implementation-plan.git}{Repositório de Notas e Planejamento}
             \item \href{https://flask.palletsprojects.com/}{Documentação Oficial do Flask}
@@ -205,6 +258,8 @@ Abaixo, apresentamos o fluxo de execução do sistema proposto, desde a entrada 
 
 \section{Tutorial 1: Configuração do Ambiente Flask}
 \label{sec:tut1}
+
+\begin{boxTutorial}{Configuração Inicial}
 Para iniciar o projeto, a aluna deve configurar um ambiente virtual Python isolado e instalar as dependências básicas.
 
 \begin{itemize}
@@ -226,20 +281,24 @@ def chat():
 if __name__ == '__main__':
     app.run(debug=True)
 \end{minted}
+\end{boxTutorial}
 
 
 
 \newpage
 
 \section{Tutorial 2: Lógica de Chatbot e Processamento de Intenções}
+\begin{boxTutorial}{PLN e Intenções}
 Neste tutorial, exploramos como identificar o que o aluno quer.
 \begin{itemize}
     \item \textbf{Abordagem 1}: Busca por palavras-chave (Regex).
     \item \textbf{Abordagem 2}: NLP com bibliotecas locais (SpaCy/NLTK).
     \item \textbf{Abordagem 3}: Integração com APIs Generativas.
 \end{itemize}
+\end{boxTutorial}
 
 \section{Tutorial 3: Automação e Geração de Documentos}
+\begin{boxTutorial}{Geração de Docs}
 Como gerar um "Atestado de Matrícula" ou similar automaticamente.
 Usaremos a biblioteca \texttt{python-docx} para carregar um modelo \texttt{.docx} e substituir as variáveis.
 
@@ -253,20 +312,23 @@ def gerar_documento(nome_aluno, curso):
             p.text = p.text.replace('{{NOME}}', nome_aluno)
     doc.save(f'atestado_{nome_aluno}.docx')
 \end{minted}
+\end{boxTutorial}
 
 \section{Tutorial 4: Integração com APIs de IA (Gemini/OpenAI)}
+\begin{boxTutorial}{Inteligência Artificial}
 Para um atendimento mais fluido, o bot pode consultar uma API de LLM com um "Prompt de Sistema" que contenha as regras do IFSC.
+\end{boxTutorial}
 
 \printbibliography[title={Referências}]
 
 \newpage
-\section*{Checklist para a Aluna: Evolução do Projeto}
-
+\begin{boxDestaque}
 \begin{itemize}
     \item[$\Box$] \textbf{Escrita}: Atualizar o Resumo/Abstract focando no Chatbot.
     \item[$\Box$] \textbf{Requisitos}: Listar os 10 processos mais comuns da secretaria.
     \item[$\Box$] \textbf{Código}: Implementar a primeira versão do chat funcional com Flask.
     \item[$\Box$] \textbf{Testes}: Pedir para 3 colegas testarem o bot e anotarem falhas de entendimento.
 \end{itemize}
+\end{boxDestaque}
 
 \end{document}
