@@ -1,0 +1,324 @@
+\section{Implementação dos Protótipos}
+
+Este capítulo descreve o plano de implementação progressiva do chatbot para atendimento da secretaria acadêmica do IFSC -- Câmpus Garopaba. O desenvolvimento foi estruturado em quatro protótipos incrementais, de modo que cada versão entregue um sistema funcional de ponta a ponta antes de avançar para a seguinte.
+
+O princípio central adotado é que nenhum protótipo depende de uma camada que ainda não existe. Isso reduz o risco de bloqueios técnicos, facilita checkpoints de acompanhamento e permite que o orientador avalie resultados concretos ao final de cada etapa.
+
+% -----------------------------------------------------------
+\subsection{Visão Geral dos Protótipos}
+% -----------------------------------------------------------
+
+A Tabela~\ref{tab:prototipos} apresenta a evolução dos protótipos ao longo do semestre 2026-2.
+
+\begin{table}[htbp]
+\centering
+\caption{Evolução dos protótipos de implementação}
+\label{tab:prototipos}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Protótipo} & \textbf{Foco principal} & \textbf{Período} \\
+\hline
+P1 & Fluxo completo com busca por palavras-chave & Julho -- Agosto \\
+P2 & PLN com similaridade textual (TF-IDF ou spaCy) & Agosto -- Setembro \\
+P3 & Interface aprimorada e testes com usuários reais & Setembro -- Outubro \\
+P4 & Ajustes finais, avaliação formal e artigo SBC & Outubro -- Novembro \\
+\hline
+\end{tabular}
+\fonte{Elaborado pelo autor (2026).}
+\end{table}
+
+% -----------------------------------------------------------
+\subsection{Estrutura de Arquivos do Projeto}
+% -----------------------------------------------------------
+
+A estrutura de diretórios adotada desde o Protótipo 1 organiza os componentes da aplicação de forma compatível com as convenções do \textit{framework} Flask, conforme apresentado a seguir:
+
+\begin{verbatim}
+chatbot-secretaria/
+├── app.py
+├── respostas.json
+├── requirements.txt
+├── README.md
+├── templates/
+│   └── index.html
+└── static/
+    └── style.css
+\end{verbatim}
+
+O arquivo \texttt{app.py} concentra a lógica do servidor e as rotas da aplicação. O arquivo \texttt{respostas.json} armazena a base de conhecimento com os pares de perguntas e respostas levantados junto à secretaria acadêmica. A pasta \texttt{templates/} contém a interface web, e \texttt{static/} os recursos de estilo.
+
+% -----------------------------------------------------------
+\subsection{Protótipo 1 -- Base Estática com Palavras-chave}
+% -----------------------------------------------------------
+
+\subsubsection{Objetivo}
+
+O Protótipo 1 tem como objetivo disponibilizar um chatbot funcional executando localmente, capaz de responder a dúvidas da secretaria acadêmica por correspondência de palavras-chave simples, sem o uso de técnicas de Processamento de Linguagem Natural. O foco desta etapa é validar o fluxo completo da aplicação -- da interface até o \textit{backend} -- antes de introduzir camadas de complexidade técnica.
+
+\subsubsection{Passo 1 -- Configuração do Ambiente de Desenvolvimento}
+
+A primeira sessão de trabalho é dedicada à preparação do ambiente. Os comandos a seguir devem ser executados no terminal:
+
+\begin{verbatim}
+# Criar a pasta do projeto
+mkdir chatbot-secretaria
+cd chatbot-secretaria
+
+# Criar e ativar o ambiente virtual
+python -m venv venv
+source venv/bin/activate        # Mac/Linux
+venv\Scripts\activate           # Windows
+
+# Instalar o Flask e registrar dependências
+pip install flask
+pip freeze > requirements.txt
+
+# Iniciar o repositório Git
+git init
+git add .
+git commit -m "inicial: estrutura do projeto"
+\end{verbatim}
+
+O arquivo \texttt{.gitignore} deve conter ao menos as seguintes entradas para evitar o versionamento de arquivos desnecessários:
+
+\begin{verbatim}
+venv/
+__pycache__/
+*.pyc
+.env
+\end{verbatim}
+
+\textbf{Critério de conclusão:} Flask instalado com sucesso, primeiro \textit{commit} registrado no repositório Git.
+
+\subsubsection{Passo 2 -- Criação do \texttt{app.py}}
+
+O arquivo \texttt{app.py} é o núcleo da aplicação. Ele deve conter o servidor Flask, o carregamento da base de respostas e as rotas da aplicação. A estrutura básica é apresentada no Código~\ref{cod:apppy}.
+
+\begin{lstlisting}[language=Python, caption={Estrutura básica do app.py -- Protótipo 1}, label={cod:apppy}]
+from flask import Flask, request, jsonify, render_template
+import json
+
+app = Flask(__name__)
+
+# Carrega a base de respostas do arquivo JSON
+with open("respostas.json", encoding="utf-8") as f:
+    base = json.load(f)
+
+def buscar_resposta(pergunta):
+    pergunta = pergunta.lower()
+    for item in base:
+        for palavra in item["palavras_chave"]:
+            if palavra in pergunta:
+                return item["resposta"]
+    return ("Nao encontrei essa informacao. "
+            "Entre em contato com a secretaria.")
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    dados = request.get_json()
+    pergunta = dados.get("mensagem", "")
+    resposta = buscar_resposta(pergunta)
+    return jsonify({"resposta": resposta})
+
+if __name__ == "__main__":
+    app.run(debug=True)
+\end{lstlisting}
+
+\textbf{Critério de conclusão:} servidor iniciando sem erros e rota \texttt{/chat} respondendo a requisições POST.
+
+\subsubsection{Passo 3 -- Montagem do \texttt{respostas.json}}
+
+A base de conhecimento é estruturada em um arquivo JSON com uma lista de objetos, cada um contendo identificador, categoria, palavras-chave e resposta. A estrutura de cada item é apresentada no Código~\ref{cod:json}.
+
+\begin{lstlisting}[language=Python, caption={Estrutura de um item do respostas.json}, label={cod:json}]
+[
+  {
+    "id": 1,
+    "categoria": "matricula",
+    "palavras_chave": ["matricula", "matricular", "inscricao"],
+    "resposta": "As matriculas ocorrem em [datas]. Acesse o SIGAA..."
+  }
+]
+\end{lstlisting}
+
+O levantamento dos pares de perguntas e respostas deve ser realizado diretamente com os servidores da secretaria acadêmica do IFSC Garopaba, por meio de observação do atendimento e consulta a perguntas recorrentes. A Tabela~\ref{tab:categorias} apresenta as categorias mínimas a serem cobertas na primeira versão da base.
+
+\begin{table}[htbp]
+\centering
+\caption{Categorias mínimas da base de conhecimento -- Protótipo 1}
+\label{tab:categorias}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Categoria} & \textbf{Exemplos de perguntas associadas} \\
+\hline
+Matrícula e rematrícula & Quando abre a matrícula? Como me rematricular? \\
+Emissão de documentos & Como solicitar declaração de matrícula? \\
+Horário da secretaria & Qual o horário de atendimento? \\
+Trancamento de matrícula & Como trancar o semestre? \\
+Aproveitamento de estudos & Como aproveitar disciplinas cursadas? \\
+Diploma e declarações & Quando recebo o diploma? \\
+Transferências & Como solicitar transferência interna? \\
+\hline
+\end{tabular}
+\fonte{Elaborado pelo autor (2026).}
+\end{table}
+
+\textbf{Critério de conclusão:} arquivo JSON válido com mínimo de 15 itens, verificado em ferramenta de validação de JSON (\textit{e.g.} jsonlint.com).
+
+\subsubsection{Passo 4 -- Criação do \texttt{index.html}}
+
+A interface do chatbot é implementada como um template HTML servido pelo Flask. O Código~\ref{cod:fetch} apresenta o trecho JavaScript responsável pela comunicação com o \textit{backend} sem recarregamento da página.
+
+\begin{lstlisting}[language=JavaScript, caption={Função de envio de mensagem via fetch -- index.html}, label={cod:fetch}]
+async function enviarMensagem() {
+    const texto = document.getElementById("entrada").value;
+    if (!texto.trim()) return;
+
+    adicionarMensagem(texto, "usuario");
+    document.getElementById("entrada").value = "";
+
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensagem: texto })
+    });
+    const dados = await res.json();
+    adicionarMensagem(dados.resposta, "bot");
+}
+\end{lstlisting}
+
+A interface deve apresentar distinção visual entre as mensagens do usuário e as do chatbot, além de permitir o envio com a tecla \textit{Enter} e tratar o caso de envio de mensagem vazia sem disparar requisição.
+
+\textbf{Critério de conclusão:} digitação de pergunta no campo de texto, clique em Enviar e exibição da resposta correta na tela, sem erros no console do navegador.
+
+\subsubsection{Passo 5 -- Teste Integrado e Entrega do Protótipo 1}
+
+Antes de registrar o \textit{commit} final, o sistema deve ser submetido ao roteiro de testes mínimos descrito a seguir:
+
+\begin{enumerate}
+    \item Perguntar algo presente na base de conhecimento -- a resposta correta deve ser exibida.
+    \item Perguntar algo fora da base -- a mensagem de \textit{fallback} deve ser exibida.
+    \item Enviar mensagem com a tecla \textit{Enter} -- deve funcionar da mesma forma que o botão.
+    \item Enviar mensagem vazia -- a aplicação não deve apresentar erros.
+    \item Verificar o console do navegador -- nenhum erro deve ser registrado em nenhuma das situações anteriores.
+\end{enumerate}
+
+O \textit{commit} final do Protótipo 1 deve ser registrado com a mensagem:
+
+\begin{verbatim}
+git commit -m "P1 completo: chatbot com busca por palavras-chave"
+git push origin main
+\end{verbatim}
+
+O arquivo \texttt{README.md} deve documentar os passos para instalação e execução do projeto, incluindo criação do ambiente virtual, instalação das dependências via \texttt{pip install -r requirements.txt} e execução com \texttt{python app.py}.
+
+\textbf{Checkpoint com o orientador:} demonstração ao vivo do sistema rodando localmente, respondendo corretamente a perguntas da secretaria, com o arquivo \texttt{respostas.json} revisado.
+
+% -----------------------------------------------------------
+\subsection{Protótipo 2 -- PLN com Similaridade Textual}
+% -----------------------------------------------------------
+
+\subsubsection{Objetivo}
+
+O Protótipo 2 substitui a busca por palavra-chave exata por similaridade semântica, tornando o chatbot robusto a variações de escrita, abreviações e erros ortográficos comuns. Esta etapa introduz o Processamento de Linguagem Natural na aplicação.
+
+\subsubsection{Tecnologias a avaliar}
+
+Duas abordagens serão testadas e comparadas nesta etapa:
+
+\begin{itemize}
+    \item \textbf{TF-IDF com scikit-learn:} abordagem mais leve e de fácil interpretação para o artigo científico. Calcula a similaridade de cosseno entre a pergunta do usuário e os itens da base de conhecimento.
+    \item \textbf{spaCy com modelo \texttt{pt\_core\_news\_sm}:} oferece recursos semânticos mais avançados, porém exige o download do modelo de língua portuguesa. Mais adequado caso a base de conhecimento seja expandida significativamente.
+\end{itemize}
+
+A escolha entre as duas abordagens deve ser documentada no artigo com justificativa baseada nos resultados de acurácia obtidos nos testes.
+
+\subsubsection{Bibliotecas adicionais}
+
+\begin{verbatim}
+pip install scikit-learn        # para TF-IDF
+pip install spacy               # para spaCy
+python -m spacy download pt_core_news_sm
+pip freeze > requirements.txt
+\end{verbatim}
+
+\subsubsection{Expansão da base de conhecimento}
+
+A base de respostas deve ser expandida para no mínimo 30 pares de perguntas e respostas, incluindo variações de uma mesma pergunta para enriquecer o treinamento e os testes de acurácia.
+
+\subsubsection{Métricas de avaliação}
+
+Um script de testes automatizados deve medir a acurácia do sistema em um conjunto de perguntas de teste. O resultado deve ser apresentado como percentual de acertos sobre o total de perguntas testadas.
+
+\textbf{Checkpoint com o orientador:} demonstração com perguntas propositalmente escritas com variações ortográficas -- o chatbot deve responder corretamente na maioria dos casos.
+
+% -----------------------------------------------------------
+\subsection{Protótipo 3 -- Interface Aprimorada e Testes com Usuários}
+% -----------------------------------------------------------
+
+\subsubsection{Objetivo}
+
+O Protótipo 3 evolui a interface para um produto utilizável por usuários reais, com identidade visual alinhada ao IFSC Garopaba, e realiza as primeiras sessões de teste com usuários externos.
+
+\subsubsection{Funcionalidades a implementar}
+
+\begin{itemize}
+    \item Interface responsiva para dispositivos móveis e \textit{desktop}.
+    \item Identidade visual com cores e elementos institucionais do IFSC.
+    \item Botões de acesso rápido às perguntas mais frequentes.
+    \item Indicador de digitação (\textit{``bot está digitando...''}).
+    \item Manutenção do histórico da conversa durante a sessão.
+    \item Botão para limpar o histórico da conversa.
+    \item Log automático de perguntas não respondidas em arquivo CSV para análise posterior.
+\end{itemize}
+
+\subsubsection{Testes com usuários}
+
+Ao final do Protótipo 3, deve ser realizada uma sessão de testes com no mínimo três usuários externos -- estudantes ou servidores do IFSC Garopaba. O feedback coletado deve ser documentado e utilizado como insumo para os ajustes do Protótipo 4.
+
+\textbf{Checkpoint com o orientador:} apresentação dos resultados da sessão de testes com usuários, incluindo relato das principais dificuldades identificadas e das perguntas não respondidas pelo sistema.
+
+% -----------------------------------------------------------
+\subsection{Protótipo 4 -- Validação Final e Artigo Científico}
+% -----------------------------------------------------------
+
+\subsubsection{Objetivo}
+
+O Protótipo 4 consolida o sistema com base nos resultados dos testes com usuários, realiza a avaliação formal do chatbot e produz a versão final do trabalho a ser submetida à banca examinadora.
+
+\subsubsection{Ajustes pós-teste}
+
+\begin{itemize}
+    \item Correção das perguntas identificadas como não respondidas nos logs do Protótipo 3.
+    \item Refinamento dos parâmetros da camada de PLN (\textit{threshold} de confiança).
+    \item Inclusão das novas perguntas identificadas durante os testes.
+\end{itemize}
+
+\subsubsection{Avaliação formal}
+
+A avaliação do sistema deve incluir:
+
+\begin{itemize}
+    \item \textbf{Métricas de PLN:} precisão (\textit{precision}), revocação (\textit{recall}) e F1-\textit{score}, calculadas sobre um conjunto de teste com respostas esperadas definidas previamente.
+    \item \textbf{Questionário de satisfação:} aplicação da escala SUS (\textit{System Usability Scale}) ou instrumento equivalente a um grupo de usuários, com tabulação e análise dos resultados.
+    \item \textbf{Comparativo antes/depois:} tabela comparando as métricas de acurácia do Protótipo 2 com as métricas da versão final.
+\end{itemize}
+
+\subsubsection{Entrega técnica}
+
+\begin{itemize}
+    \item Código-fonte limpo, organizado e comentado em português.
+    \item Arquivo \texttt{requirements.txt} atualizado e completo.
+    \item Guia de instalação e uso no \texttt{README.md}.
+    \item Repositório Git com histórico de \textit{commits} organizado por protótipo.
+\end{itemize}
+
+\subsubsection{Artigo científico}
+
+O artigo deve ser redigido no template \LaTeX{} da Sociedade Brasileira de Computação (SBC), disponível em \url{https://www.overleaf.com/latex/templates/tagged/sbc}, e deve contemplar as seções de introdução, trabalhos relacionados, metodologia, resultados e conclusão. A defesa perante a banca examinadora está prevista para dezembro de 2026.
+
+\textbf{Checkpoint final com o orientador:} pré-banca com leitura completa do artigo e demonstração ao vivo do sistema na versão final.
