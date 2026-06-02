@@ -210,7 +210,7 @@ Orientador: Prof. André Moraes\\
 
 \section{Diretrizes de Conteúdo para o Paper (Planejamento)}
 
-Como o objetivo final deste trabalho é a publicação de um artigo científico, as diretrizes de escrita e o conteúdo planejado para cada uma das seções estruturais do paper foram organizados na Tabela~\ref{tab:paper-guidelines}. Esta tabela serve como um guia metodológico para a redação acadêmica de forma integrada.
+Como o objetivo final deste trabalho é a publicação de um artigo científico, as diretrizes de escrita e o conteúdo planejado para cada uma das seções estruturais do paper foram organizados na Tabela~\ref{tab:paper-guidelines}. Esta tabela serve como um guia metodológico completo para a redação acadêmica de forma integrada.
 
 \rowcolors{2}{cinzaTabela}{white}
 \renewcommand{\arraystretch}{1.4}
@@ -248,6 +248,33 @@ Como o objetivo final deste trabalho é a publicação de um artigo científico,
         \item \textbf{Metodologia de Validação}: Submissão de um conjunto de perguntas reais enviadas por alunos em comparação com as intenções e respostas geradas pelo bot.
         \item \textbf{Métricas de Eficácia}: Medição de acurácia (reconhecimento correto da intenção), precisão (corretude da resposta textual) e tempo médio de resposta.
         \item \textbf{Avaliação de Usabilidade}: Condução de testes alfa em formato cego com servidores e estudantes do câmpus para computar a utilidade percebida.
+    \end{itemize} \\ \hline
+    \textbf{Results} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Métricas de PLN}: Apresentação quantitativa das métricas de PLN obtidas nos testes de regressão dos Protótipos 2 e 4 (Precisão, Revocação e F1-Score).
+        \item \textbf{Escala de Usabilidade}: Resultados consolidados dos testes de usabilidade baseados na escala SUS (System Usability Scale) aplicados aos bolsistas e servidores.
+        \item \textbf{Performance Comparativa}: Gráficos comparativos de tempo médio de resposta entre a detecção baseada em Regex (Protótipo 1) e PLN Semântico (Protótipos 2 e 4).
+        \item \textbf{Log de Falhas}: Estatísticas e taxonomia das perguntas catalogadas como não respondidas (fallbacks) nos logs do servidor para futuros treinamentos.
+    \end{itemize} \\ \hline
+    \textbf{Discussion} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Limites de Similaridade}: Análise crítica da acurácia e dos limites do modelo de similaridade semântica frente a abreviações e gírias locais.
+        \item \textbf{Análise de Gargalos}: Discussão sobre os gargalos identificados durante os testes (tempo de processamento de requisições de documentos dinâmicos e segurança de dados).
+        \item \textbf{Arquiteturas de IA}: Comparação de viabilidade e custo entre as soluções locais de PLN de baixo custo (TF-IDF, spaCy) e a migração para APIs generativas na nuvem.
+        \item \textbf{Feedback Qualitativo}: Considerações sobre o impacto da persona do chatbot na aceitação por parte dos usuários reais do câmpus.
+    \end{itemize} \\ \hline
+    \textbf{Final considerations and Future Works} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Impacto da Automação}: Avaliação geral do impacto e otimização do tempo de atendimento na rotina da secretaria do IFSC.
+        \item \textbf{Objetivos Atingidos}: Análise crítica sobre o atingimento dos objetivos específicos listados no início do trabalho.
+        \item \textbf{Trabalhos Futuros - Integração SIGAA}: Possibilidade de integração direta com o sistema acadêmico oficial via API segura para autenticação e consulta de dados em tempo real.
+        \item \textbf{Canais e Feedback}: Expansão do bot para WhatsApp Business e desenvolvimento de um módulo de feedback ativo para auto-ajuste conversacional.
+    \end{itemize} \\ \hline
+    \textbf{Conclusion} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Síntese do TCC}: Recapitulação dos principais resultados do TCC e das contribuições acadêmicas e práticas para a comunidade escolar.
+        \item \textbf{Engenharia e PLN}: Reflexões sobre o aprendizado na área de engenharia de software e processamento de linguagem natural ao longo do semestre.
+        \item \textbf{Prontidão Tecnológica}: Considerações finais sobre a robustez e prontidão do assistente para implantação oficial no câmpus do IFSC.
     \end{itemize} \\
 \hline
 \end{longtable}
@@ -256,14 +283,6 @@ Como o objetivo final deste trabalho é a publicação de um artigo científico,
 \label{tab:paper-guidelines}
 
 \input{implementacao_prototipos}
-
-\section{Results}
-
-\section{Discussion}
-
-\section{Final considerations and Future Works}
-
-\section{Conclusion}
 
 \section{Links importantes}
 
