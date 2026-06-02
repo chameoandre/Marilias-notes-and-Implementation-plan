@@ -208,92 +208,52 @@ Orientador: Prof. André Moraes\\
     \end{longtable}
     \renewcommand{\arraystretch}{1.0}
 
+\section{Diretrizes de Conteúdo para o Paper (Planejamento)}
 
+Como o objetivo final deste trabalho é a publicação de um artigo científico, as diretrizes de escrita e o conteúdo planejado para cada uma das seções estruturais do paper foram organizados na Tabela~\ref{tab:paper-guidelines}. Esta tabela serve como um guia metodológico para a redação acadêmica de forma integrada.
 
-
-\section{Introduction}
-    
-    \begin{itemize}
-        \item Transformação Digital na Administração Pública e Instituições de Ensino.
-        \item Desafios do atendimento em secretarias acadêmicas (volume de tarefas, prazos).
-        \item O papel dos Chatbots e da IA na automação de processos repetitivos.
-        \item Proposta: Um assistente inteligente para suporte a alunos e servidores do IFSC Garopaba.
-        \item Objetivos específicos: Automação de FAQs e geração dinâmica de documentos.
-        \item Estrutura do trabalho: Introdução, Fundamentação, Metodologia, Resultados e Conclusão.
-    \end{itemize}
-    
- 
-
-
-    
-
-
-\section{Background}
-
-    \begin{itemize}
-        \item Interface de Chat: UX para atendimento automatizado.
-        \item Frameworks Web Leves: Flask e sua adequação para microsserviços.
-        \item Processamento de Linguagem Natural (PLN) e Modelos de Linguagem (LLMs).
-        \item APIs de Integração: Consumo de recursos externos e segurança.
-        \item Geração Automática de Documentos em Python (PDF/DOCX).
-    \end{itemize}
-
-\section{Related Works}
-    A seção de Trabalhos Relacionados deve focar em três pilares:
-    \begin{itemize}
-        \item Chatbots no setor público e em instituições de ensino: Como outros IFs ou universidades estão automatizando o atendimento.
-        \item Tecnologias de Processamento de Linguagem Natural: Comparação entre Regex (regras fixas), BERT, GPT e outras arquiteturas.
-        \item Automação de Documentos: Ferramentas de geração de PDF e integração de processos via web.
-    \end{itemize}
-
-\section{Experiment Design}
-    O "experimento" deste projeto consiste na validação da eficácia do chatbot. Deve ser estruturado da seguinte forma:
-    \begin{itemize}
-        \item \textbf{Ambiente de Teste}: Servidor Flask local, base de conhecimento do IFSC Garopaba.
-        \item \textbf{Metodologia de Teste}: Aplicação de um conjunto de perguntas reais (secretaria) vs respostas geradas pelo bot.
-        \item \textbf{Métricas}: Acurácia (o bot entendeu a intenção?), Precisão (a resposta estava correta?) e Tempo de Resposta.
-        \item \textbf{Grupo de Avaliadores}: Teste cego com estudantes ou servidores para avaliar a utilidade percebida.
-    \end{itemize}
-
-\section{Visual Execution Pipeline}
-\label{sec:pipeline}
-
-Abaixo, apresentamos o fluxo de execução do sistema proposto, desde a entrada do usuário até o disparo de processos internos.
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  font=\small,
-  node distance=8mm and 12mm,
-  >=Latex,
-  box/.style={rectangle, draw, rounded corners=3pt, minimum width=35mm, minimum height=10mm, align=center, fill=blue!5},
-  process/.style={box, fill=orange!10},
-  decision/.style={diamond, draw, aspect=2, inner sep=0pt, fill=yellow!10, align=center},
-  line/.style={thick, ->}
-]
-
-% Nós do fluxo
-\node[box] (user) {Usuário (Input Text/Voice)};
-\node[process, below=of user] (flask) {Backend Flask\\(Recepção de Dados)};
-\node[process, below=of flask] (nlp) {Motor de PLN\\(Deteção de Intenção)};
-\node[decision, below=of nlp] (type) {Tipo de\\Demanda?};
-\node[process, below left=12mm and -10mm of type] (faq) {Resposta FAQ\\(Base de Docs)};
-\node[process, below right=12mm and -10mm of type] (action) {Geração de Doc /\\Disparo de Processo};
-\node[box, below=15mm of type] (output) {Resposta Final ao Usuário};
-
-% Conexões
-\draw[line] (user) -- (flask);
-\draw[line] (flask) -- (nlp);
-\draw[line] (nlp) -- (type);
-\draw[line] (type.west) -- ++(-1.5,0) |- (faq.west);
-\draw[line] (type.east) -- ++(1.5,0) |- (action.east);
-\draw[line] (faq.south) |- (output.west);
-\draw[line] (action.south) |- (output.east);
-
-\end{tikzpicture}
-\caption{Pipeline Visual de Execução: fluxo de processamento do Chatbot da Secretaria.}
-\label{fig:chatbot-pipeline}
-\end{figure}
+\rowcolors{2}{cinzaTabela}{white}
+\renewcommand{\arraystretch}{1.4}
+\begin{longtable}{|>{\columncolor{white}\RaggedRight}m{4.0cm}|m{13.0cm}|}
+\hline
+    \rowcolor{azulIFSC}
+    \textbf{\color{white}Seção do Artigo} & \textbf{\color{white}Diretrizes e Conteúdo Esperado} \\
+\hline
+    \textbf{Introduction} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item Contextualização da Transformação Digital na Administração Pública e nas Instituições de Ensino.
+        \item Mapeamento dos desafios de atendimento físico e manual nas secretarias acadêmicas (volume de tarefas repetitivas, gargalos de tempo e prazos apertados).
+        \item Apresentação do papel estratégico de chatbots e ferramentas de Inteligência Artificial/PLN na automação de processos internos.
+        \item Proposta de solução: O assistente virtual inteligente integrado para suporte a alunos e servidores do IFSC Câmpus Garopaba.
+        \item Definição clara dos objetivos específicos: automatização de respostas a perguntas recorrentes (FAQs) e geração dinâmica de atestados e documentos oficiais.
+        \item Descrição resumida da estrutura do trabalho (Introdução, Fundamentação, Metodologia, Resultados e Conclusão).
+    \end{itemize} \\ \hline
+    \textbf{Background} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Interfaces de Chat}: Fundamentação de UX (User Experience) voltada para atendimentos conversacionais automatizados.
+        \item \textbf{Frameworks Web}: Justificativa técnica do uso do Flask por sua flexibilidade, leveza e adequação para microsserviços leves.
+        \item \textbf{Processamento de Linguagem Natural (PLN)}: Fundamentação de técnicas de análise textual, processamento de intenções e uso de APIs de LLMs.
+        \item \textbf{APIs de Integração}: Protocolos de comunicação segura, consumo de recursos e segurança no tráfego de dados confidenciais.
+        \item \textbf{Geração de Documentos}: Bibliotecas Python para criação dinâmica de PDFs e arquivos Word (.docx) a partir de templates estruturados.
+    \end{itemize} \\ \hline
+    \textbf{Related Works} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Chatbots Educacionais}: Levantamento de soluções correlatas em outras universidades e institutos federais, focando em como automatizaram suas secretarias.
+        \item \textbf{Tecnologias de PLN Comparadas}: Análise da literatura sobre a transição de sistemas baseados em regras rígidas (Regex) para embeddings (BERT/spaCy) e APIs generativas (GPT/Gemini).
+        \item \textbf{Automação de Backoffice}: Revisão de ferramentas e pipelines web integradas à geração dinâmica de documentos oficiais.
+    \end{itemize} \\ \hline
+    \textbf{Experiment Design} & 
+    \begin{itemize}[leftmargin=*,noitemsep,topsep=0pt]
+        \item \textbf{Ambiente de Testes}: Servidor local Flask, base de dados de FAQ estruturada a partir de observações na secretaria do IFSC Garopaba.
+        \item \textbf{Metodologia de Validação}: Submissão de um conjunto de perguntas reais enviadas por alunos em comparação com as intenções e respostas geradas pelo bot.
+        \item \textbf{Métricas de Eficácia}: Medição de acurácia (reconhecimento correto da intenção), precisão (corretude da resposta textual) e tempo médio de resposta.
+        \item \textbf{Avaliação de Usabilidade}: Condução de testes alfa em formato cego com servidores e estudantes do câmpus para computar a utilidade percebida.
+    \end{itemize} \\
+\hline
+\end{longtable}
+\renewcommand{\arraystretch}{1.0}
+\fonte{Elaborado pelo autor (2026).}
+\label{tab:paper-guidelines}
 
 \input{implementacao_prototipos}
 

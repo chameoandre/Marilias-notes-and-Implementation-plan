@@ -48,6 +48,54 @@ chatbot-secretaria/
 O arquivo \texttt{app.py} concentra a lógica do servidor e as rotas da aplicação. O arquivo \texttt{respostas.json} armazena a base de conhecimento com os pares de perguntas e respostas levantados junto à secretaria acadêmica. A pasta \texttt{templates/} contém a interface web, e \texttt{static/} os recursos de estilo.
 
 % -----------------------------------------------------------
+\subsection{Pipeline Visual de Execução (Fluxo Temporal)}
+% -----------------------------------------------------------
+
+O fluxo de processamento das requisições e a respectiva resposta do chatbot são apresentados de forma sequencial na Tabela de Linha do Tempo (Figura~\ref{fig:chatbot-timeline}). Este pipeline demonstra o ciclo de vida completo de uma interação do usuário com o sistema.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  >=Latex,
+  line/.style={thick, ->},
+  milestone/.style={circle, draw=azulIFSC, fill=white, minimum size=8mm, line width=1.5pt, font=\bfseries\color{azulIFSC}},
+  card/.style={rectangle, draw=gray!30, fill=azulIFSC!5, rounded corners=4pt, text width=2.8cm, align=center, font=\small, inner sep=6pt}
+]
+
+% Linha do tempo central
+\draw[line width=3.5pt, azulIFSC, ->] (0,0) -- (14.2,0);
+
+% Milestone 1
+\node[milestone] (m1) at (1,0) {1};
+\node[above=8mm of m1, card] (c1) {\textbf{Entrada (Input)}\\Usuário fala ou digita na interface web};
+\draw[thick, azulIFSC, ->] (c1.south) -- (m1.north);
+
+% Milestone 2
+\node[milestone] (m2) at (3.8,0) {2};
+\node[below=8mm of m2, card] (c2) {\textbf{Servidor Flask}\\Recepção e validação do payload da mensagem};
+\draw[thick, azulIFSC, ->] (c2.north) -- (m2.south);
+
+% Milestone 3
+\node[milestone] (m3) at (6.6,0) {3};
+\node[above=8mm of m3, card] (c3) {\textbf{Motor PLN}\\Mapeamento de palavras-chave ou embeddings};
+\draw[thick, azulIFSC, ->] (c3.south) -- (m3.north);
+
+% Milestone 4
+\node[milestone] (m4) at (9.4,0) {4};
+\node[below=8mm of m4, card] (c4) {\textbf{Ação / Resposta}\\Consulta ao JSON ou geração de atestado DOCX};
+\draw[thick, azulIFSC, ->] (c4.north) -- (m4.south);
+
+% Milestone 5
+\node[milestone] (m5) at (12.2,0) {5};
+\node[above=8mm of m5, card] (c5) {\textbf{Saída (Output)}\\Resposta final renderizada de volta à interface};
+\draw[thick, azulIFSC, ->] (c5.south) -- (m5.north);
+
+\end{tikzpicture}
+\caption{Linha do tempo do pipeline de execução: ciclo de vida de uma requisição de atendimento.}
+\label{fig:chatbot-timeline}
+\end{figure}
+
+% -----------------------------------------------------------
 \subsection{Protótipo 1 -- Base Estática com Palavras-chave}
 % -----------------------------------------------------------
 
