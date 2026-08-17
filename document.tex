@@ -12,7 +12,7 @@
 
 \usepackage{multirow}
 \usepackage{hyperref}
-\usepackage{minted}
+%\usepackage{minted}
 \usepackage[most]{tcolorbox}
 \usepackage{colortbl}
 \usepackage{ragged2e}
@@ -315,7 +315,7 @@ Para iniciar o projeto, a aluna deve configurar um ambiente virtual Python isola
     \item Instalar pacotes: \texttt{pip install flask flask-cors python-docx fpdf}
 \end{itemize}
 
-\begin{minted}[bgcolor=gray!5, frame=single]{python}
+\begin{lstlisting}[language=Python]
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -327,10 +327,8 @@ def chat():
 
 if __name__ == '__main__':
     app.run(debug=True)
-\end{minted}
+\end{lstlisting}
 \end{boxTutorial}
-
-
 
 \newpage
 
@@ -349,7 +347,7 @@ Neste tutorial, exploramos como identificar o que o aluno quer.
 Como gerar um "Atestado de Matrícula" ou similar automaticamente.
 Usaremos a biblioteca \texttt{python-docx} para carregar um modelo \texttt{.docx} e substituir as variáveis.
 
-\begin{minted}[bgcolor=gray!5]{python}
+\begin{lstlisting}[language=Python]
 from docx import Document
 
 def gerar_documento(nome_aluno, curso):
@@ -358,7 +356,7 @@ def gerar_documento(nome_aluno, curso):
         if '{{NOME}}' in p.text:
             p.text = p.text.replace('{{NOME}}', nome_aluno)
     doc.save(f'atestado_{nome_aluno}.docx')
-\end{minted}
+\end{lstlisting}
 \end{boxTutorial}
 
 \section{Tutorial 4: Integração com APIs de IA (Gemini/OpenAI)}

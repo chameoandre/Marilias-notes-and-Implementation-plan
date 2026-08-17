@@ -1,0 +1,15 @@
+.DS_Store
+Icon?
+Icon
+Icon*
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.run.xml
+*.bcf
+_minted-*
+.venv/
+__pycache__/
