@@ -95,7 +95,6 @@ const SIGAA_DATABASE = [
     curso: "Especialização em Gestão Escolar",
     nivel: "Pós-Graduação Lato Sensu",
     fase: "2º Semestre",
-    anoIngresso: "2024/2",
     situacao: "Matriculado Regular",
     email: "camila.fagundes@aluno.ifsc.edu.br",
     ira: "9.50",
@@ -103,47 +102,184 @@ const SIGAA_DATABASE = [
   }
 ];
 
-// 2. Base de Conhecimento FAQ da Secretaria (Categoria A — Informativa)
+// 2. Matriz Oficial de Menus do IFSC Garopaba (Data-Driven com Prioridades, Perfis e Regras Temporais)
+const MENU_REGISTRY = [
+  // --- AVISO TEMPORÁRIO COM ALTA PRIORIDADE (Sazonal) ---
+  {
+    id: "rematricula_periodo",
+    titulo: "🚨 Período de Rematrícula 2026/2 Aberto no SIGAA!",
+    roles: ["aluno"],
+    priority: 10,
+    validity: { validFrom: "2026-07-01T00:00:00", validUntil: "2026-09-15T23:59:59" },
+    badge: "Prazo: 15/Set",
+    action: "FLOW_FAQ_TOPIC",
+    payload: "rematricula"
+  },
+  {
+    id: "inscricoes_vestibular",
+    titulo: "📢 Inscrições Abertas: Cursos Técnicos e Vestibular Unificado",
+    roles: ["visitante", "aluno"],
+    priority: 15,
+    validity: { validFrom: "2026-08-01T00:00:00", validUntil: "2026-10-31T23:59:59" },
+    badge: "Editais Abertos",
+    action: "FLOW_FAQ_TOPIC",
+    payload: "ingresso"
+  },
+
+  // --- SERVIÇOS EXCLUSIVOS DO ALUNO IDENTIFICADO ---
+  {
+    id: "declaracao_matricula",
+    titulo: "📜 Emitir Declaração de Matrícula (com Autenticação Digital)",
+    roles: ["aluno"],
+    priority: 20,
+    action: "FLOW_DECLARACAO"
+  },
+  {
+    id: "pendencias_sigaa",
+    titulo: "⚠️ Consultar Pendências no SIGAA (Documental / Biblioteca)",
+    roles: ["aluno"],
+    priority: 30,
+    action: "FLOW_PENDENCIAS"
+  },
+  {
+    id: "requerimentos_aluno",
+    titulo: "📝 Abertura de Requerimento (Faltas / Aproveitamento / Geral)",
+    roles: ["aluno"],
+    priority: 40,
+    action: "SUBMENU_REQUERIMENTOS"
+  },
+  {
+    id: "status_requerimentos",
+    titulo: "📋 Consultar Pareceres e Histórico de Solicitações",
+    roles: ["aluno"],
+    priority: 50,
+    action: "FLOW_CONSULTA_PARECER"
+  },
+
+  // --- INFORMAÇÕES PÚBLICAS PARA VISITANTES E ALUNOS ---
+  {
+    id: "cursos_garopaba",
+    titulo: "📚 Conhecer os Cursos Ofertados no Câmpus Garopaba",
+    roles: ["visitante", "aluno"],
+    priority: 60,
+    action: "FLOW_FAQ_TOPIC",
+    payload: "cursos"
+  },
+  {
+    id: "como_ingressar",
+    titulo: "🎓 Como Ingressar no IFSC (Vestibular, SISU, Sorteios)",
+    roles: ["visitante", "aluno"],
+    priority: 70,
+    action: "FLOW_FAQ_TOPIC",
+    payload: "ingresso"
+  },
+  {
+    id: "duvidas_frequentes",
+    titulo: "ℹ️ Dúvidas Frequentes da Secretaria (RDP, Trancamento, Horários)",
+    roles: ["visitante", "aluno"],
+    priority: 80,
+    action: "SUBMENU_FAQ"
+  },
+  {
+    id: "atendente_humano",
+    titulo: "👤 Falar com Atendente da Secretaria (Ramon / RA)",
+    roles: ["visitante", "aluno"],
+    priority: 90,
+    action: "FLOW_ATENDENTE"
+  },
+  {
+    id: "identificar_aluno",
+    titulo: "🔐 Já sou aluno do IFSC (Identificar Matrícula / CPF)",
+    roles: ["visitante"],
+    priority: 95,
+    action: "FLOW_LOGIN"
+  }
+];
+
+// 3. Base de Conhecimento FAQ da Secretaria (Dados Oficiais do IFSC Câmpus Garopaba)
 const SECRETARIA_FAQ = [
+  {
+    id: "cursos",
+    titulo: "Cursos Ofertados no Câmpus Garopaba",
+    categoria: "Institucional",
+    tags: ["cursos", "oferta", "tecnico", "superior", "graduacao", "pos", "mestrado", "fic", "guia", "administracao", "informatica", "sistemas"],
+    resposta: "O IFSC Câmpus Garopaba oferta os seguintes cursos gratuitos:\n\n• **Graduação / Superior:** CST Sistemas para a Internet (Presencial / Noturno);\n• **Pós-Graduação:** Mestrado Profissional em Clima e Ambiente (Stricto Sensu multicampi);\n• **Técnicos Integrados (Ensino Médio + Técnico):** Técnico em Administração e Técnico em Informática (Integral);\n• **Técnicos Subsequentes / PROEJA:** Guia de Turismo Regional (Subsequente) e Serviços de Restaurante e Bar (PROEJA);\n• **Qualificação (FIC) & Idiomas:** Cursos de Inglês, Espanhol e Formação Inicial e Continuada.\n\nTodos os cursos são 100% gratuitos."
+  },
+  {
+    id: "ingresso",
+    titulo: "Como Ingressar no IFSC (Formas de Ingresso)",
+    categoria: "Institucional",
+    tags: ["ingresso", "como entrar", "vestibular", "sisu", "sorteio", "edital", "inscricao", "cadastro de interesse"],
+    resposta: "O ingresso no IFSC Câmpus Garopaba ocorre através de processos seletivos públicos e gratuitos:\n\n1. **Cursos Superiores:** Vestibular Unificado UFSC/IFSC ou SiSU (com nota do ENEM), além de editais de Transferência e Retorno de Graduados;\n2. **Técnicos Integrados:** Exame de Classificação ou Sorteio Público Eletrônico;\n3. **Técnicos Subsequentes e FIC:** Sorteio Público Eletrônico oficial;\n4. **Cadastro de Interesse:** Você pode se cadastrar no portal oficial (garopaba.ifsc.edu.br) para receber alertas por e-mail quando novos editais forem publicados."
+  },
+  {
+    id: "horario",
+    titulo: "Horário de Atendimento e Contatos da Secretaria",
+    categoria: "Informativa",
+    tags: ["horario", "atendimento", "aberto", "secretaria", "funcionamento", "presencial", "telefone", "whatsapp", "email", "ramon", "registro academico"],
+    resposta: "A Secretaria Acadêmica e o Registro Acadêmico (RA) do Câmpus Garopaba atendem:\n\n• **Horário de Atendimento:** Segunda a sexta-feira, das **08h00 às 12h00** e das **13h00 às 19h00**;\n• **WhatsApp / Telefone:** (48) 3254-7336;\n• **E-mails:** `secretaria.gpb@ifsc.edu.br` e `ra.gpb@ifsc.edu.br`;\n• **Endereço:** Rua Maria Aparecida Barbosa, nº 153, Campo D'Una, Garopaba - SC;\n• **Serviços Online:** Atestados, históricos e requerimentos podem ser solicitados diretamente no SIGAA ou aqui pelo assistente virtual."
+  },
   {
     id: "rematricula",
     titulo: "Prazos e Procedimentos de Rematrícula",
     categoria: "Informativa",
-    tags: ["rematricula", "prazo", "data", "quando", "semestre", "calendario"],
-    resposta: "A rematrícula para os cursos superiores e técnicos é realizada exclusivamente pelo SIGAA. Para o semestre atual, o período de solicitação ocorre conforme o Calendário Acadêmico oficial (normalmente na última semana do semestre letivo anterior). Dúvidas específicas de turmas podem ser tratadas na Secretaria com o servidor Ramon."
+    tags: ["rematricula", "prazo", "data", "quando", "semestre", "calendario", "ajuste"],
+    resposta: "A rematrícula para estudantes veteranos é realizada obrigatoriamente pelo SIGAA em período estabelecido no Calendário Acadêmico oficial (geralmente ao término do semestre letivo anterior). Após a rematrícula ordinária, ocorre a fase de ajuste de matrícula diretamente com a coordenação ou registro acadêmico."
   },
   {
     id: "trancamento",
-    titulo: "Trancamento de Matrícula",
+    titulo: "Regras de Trancamento de Matrícula (RDP)",
     categoria: "Informativa",
-    tags: ["trancamento", "trancar", "pausar", "parar", "afastamento", "semestre"],
-    resposta: "Conforme o Regulamento Didático-Pedagógico (RDP), o estudante pode trancar sua matrícula por até 4 semestres (2 anos) ao longo do curso, não sendo permitido o trancamento no 1º semestre de ingresso. A solicitação deve ser feita via requerimento no SIGAA ou na Secretaria Acadêmica."
+    tags: ["trancamento", "trancar", "pausar", "parar", "afastamento", "semestre", "rdp"],
+    resposta: "Conforme o Regulamento Didático-Pedagógico (RDP) do IFSC:\n\n• O estudante pode trancar a matrícula por até **4 semestres letivos** (ou 2 anos) ao longo do curso;\n• **Não é permitido o trancamento no 1º semestre de ingresso** (exceto motivos excepcionais amparados em lei);\n• A solicitação deve ser feita via requerimento no SIGAA ou formalizada junto à Secretaria Acadêmica."
   },
   {
-    id: "horario",
-    titulo: "Horário de Atendimento da Secretaria",
+    id: "faltas_atestado",
+    titulo: "Justificativa de Faltas e Atestados Médicos",
     categoria: "Informativa",
-    tags: ["horario", "atendimento", "aberto", "secretaria", "funcionamento", "presencial"],
-    resposta: "A Secretaria Acadêmica do Câmpus Garopaba funciona de segunda a sexta-feira, das 08h00 às 20h30 ininterruptamente, no Bloco Administrativo. Telefone: (48) 3254-7336 | E-mail: secretaria.gpb@ifsc.edu.br."
+    tags: ["falta", "faltas", "atestado", "medico", "justificativa", "ausencia", "prazo atestado", "doenca"],
+    resposta: "De acordo com o RDP do IFSC (Art. 98), o estudante ou seu responsável tem o prazo de até **5 (cinco) dias úteis**, a contar do término do período de afastamento, para protocolar a justificativa de faltas com o atestado comprobatório (anexado via requerimento no SIGAA ou entregue na Secretaria)."
   },
   {
     id: "carteirinha",
-    titulo: "Carteirinha de Estudante (DNE)",
+    titulo: "Carteirinha de Estudante e Passe Escolar (Paulotur / DNE)",
     categoria: "Informativa",
-    tags: ["carteirinha", "estudante", "identificacao", "onibus", "passe", "dne"],
-    resposta: "O atestado de matrícula emitido aqui no chatbot com autenticação digital é o documento oficial aceito pelas empresas de transporte da região (como a Paulotur). A carteirinha nacional pode ser solicitada diretamente pelo portal DNE com o comprovante de matrícula."
+    tags: ["carteirinha", "estudante", "identificacao", "onibus", "passe", "dne", "paulotur", "transporte"],
+    resposta: "A declaração de matrícula emitida com autenticação digital pela Secretaria / Chatbot é o documento comprobatório oficial aceito pelas concessionárias de transporte intermunicipal (como a Paulotur e Santo Anjo) para requisição do passe escolar com desconto. A Carteira Nacional de Estudante (DNE) pode ser solicitada em `documentodoestudante.com.br` utilizando a mesma declaração."
   },
   {
     id: "aproveitamento_regras",
-    titulo: "Validação / Aproveitamento de Estudos",
+    titulo: "Validação / Aproveitamento de Estudos (Disciplinas)",
     categoria: "Informativa",
-    tags: ["validacao", "aproveitamento", "dispensa", "isencao", "equivalencia"],
-    resposta: "Para validar disciplinas cursadas em outra instituição ou em outro curso do IFSC, o estudante deve abrir requerimento anexando o histórico e a ementa da disciplina. O processo é analisado pela coordenação do curso."
+    tags: ["validacao", "aproveitamento", "dispensa", "isencao", "equivalencia", "unidade curricular"],
+    resposta: "Para requerer aproveitamento de unidades curriculares já cursadas no IFSC ou em outras instituições de ensino:\n1. O conteúdo programático e a carga horária devem ter equivalência mínima de **75%**;\n2. É necessário abrir requerimento anexando o **Histórico Escolar Oficial** e o **Plano de Ensino / Ementa** autenticados pela instituição de origem;\n3. O processo é encaminhado para parecer da Coordenação do Curso."
   }
 ];
 
-// 3. Funções de Consulta, Reconhecimento e Cadastro Dinâmico de Alunos
+// 4. Funções de Consulta, Reconhecimento e Gerenciamento de Menus Dinâmicos
 const IFSC_Session = {
+  // Obter catálogo de menus filtrados por perfil, prioridade e intervalo de datas
+  getAvailableMenuItems(currentTime = new Date()) {
+    const user = this.getCurrentUser();
+    const currentRole = user ? "aluno" : "visitante";
+
+    return MENU_REGISTRY
+      // Filtra por perfil
+      .filter(item => item.roles.includes(currentRole) || item.roles.includes("ambos"))
+      // Filtra por intervalo de datas se houver validade temporal
+      .filter(item => {
+        if (!item.validity) return true;
+        const from = item.validity.validFrom ? new Date(item.validity.validFrom) : null;
+        const until = item.validity.validUntil ? new Date(item.validity.validUntil) : null;
+
+        if (from && currentTime < from) return false;
+        if (until && currentTime > until) return false;
+        return true;
+      })
+      // Ordena por prioridade (menor número = maior prioridade no menu)
+      .sort((a, b) => a.priority - b.priority);
+  },
+
   // Obter todos os estudantes (Base Padrão + Estudantes Cadastrados Dinamicamente)
   getAllStudents() {
     try {

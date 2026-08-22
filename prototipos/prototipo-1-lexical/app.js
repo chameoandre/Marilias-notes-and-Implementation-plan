@@ -7,13 +7,16 @@
 let currentFlowState = "IDLE"; 
 let pendingData = {};
 
-// Instância do Fuse.js para Busca Lexical
+// Menu Ativo na Sessão Corrente
+let currentActiveMenuItems = [];
+
+// Instância do Fuse.js para Busca Lexical (alimentada com a base oficial)
 const fuseOptions = {
   includeScore: true,
   threshold: 0.4, // Tolerância a pequenos erros de digitação (typos)
   keys: ["titulo", "tags", "resposta"]
 };
-const fuseEngine = new Fuse(SECRETARIA_FAQ, fuseOptions);
+let fuseEngine = new Fuse(SECRETARIA_FAQ, fuseOptions);
 
 // Inicialização da Página
 document.addEventListener("DOMContentLoaded", () => {
@@ -45,7 +48,7 @@ function renderUserStatus() {
   } else {
     container.innerHTML = `
       <span class="user-status-anonymous">
-        <i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante)
+        <i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante / Comunidade)
       </span>
     `;
   }
@@ -53,7 +56,6 @@ function renderUserStatus() {
 
 // Iniciar mensagem de boas-vindas inteligente com Menu Principal
 function iniciarChat() {
-  const user = IFSC_Session.getCurrentUser();
   const chat = document.getElementById("chat-messages");
   chat.innerHTML = "";
   currentFlowState = "IDLE";
@@ -62,43 +64,48 @@ function iniciarChat() {
   renderMainMenu(true);
 }
 
-// Renderizar Menu Principal
+// Renderizar Menu Principal Dinâmico (Orientado por Perfil e Prioridades)
 function renderMainMenu(showGreeting = false) {
+  currentFlowState = "IDLE";
   const user = IFSC_Session.getCurrentUser();
   const saudacao = user 
     ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
-    : `Olá! Sou o assistente virtual da <strong>Secretaria Acadêmica do IFSC Garopaba</strong>.`;
+    : `Olá! Sou o assistente virtual da <strong>Secretaria Acadêmica do IFSC Câmpus Garopaba</strong>.`;
+
+  currentActiveMenuItems = IFSC_Session.getAvailableMenuItems();
+
+  const optionsHtml = currentActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    const badge = item.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${item.badge}</span>` : "";
+    return `<strong>[${num}]</strong> ${item.titulo}${badge}`;
+  }).join("<br>");
 
   const menuHtml = `
     ${showGreeting ? `${saudacao}<br><br>` : ""}
     <strong>Menu de Atendimento:</strong><br>
-    Digite o <strong>número</strong> da opção desejada ou escreva sua dúvida:<br><br>
+    Digite o <strong>número</strong> da opção desejada ou escreva sua dúvida em texto livre:<br><br>
     
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
-      <strong>[1]</strong> 📜 Emitir Declaração de Matrícula (com Chave Digital)<br>
-      <strong>[2]</strong> ⚠️ Consultar Pendências no SIGAA (Documental / Biblioteca)<br>
-      <strong>[3]</strong> 📋 Consultar Status & Parecer de Requerimentos Anteriores<br>
-      <strong>[4]</strong> 📝 Abertura de Requerimento (Falta / Aproveitamento)<br>
-      <strong>[5]</strong> ℹ️ Dúvidas Frequentes (Horário, Rematrícula, Trancamento, Carteirinha)<br>
-      <strong>[8]</strong> 👤 Falar com um Atendente (Servidor Ramon)<br>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.7;">
+      ${optionsHtml}
+      <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
   `;
 
   appendBotMessage(menuHtml);
-  document.getElementById("debug-info").innerText = `Menu Principal ativo. Aguardando seleção [1-9] ou texto livre.`;
+  document.getElementById("debug-info").innerText = `Menu Principal Dinâmico carregado (${currentActiveMenuItems.length} opções disponíveis para perfil '${user ? 'Aluno' : 'Visitante'}').`;
 }
 
-// Submenu de Requerimentos [4]
+// Submenu de Requerimentos
 function renderSubmenuRequerimentos() {
   currentFlowState = "MENU_REQUERIMENTOS";
   const html = `
-    📝 <strong>Abertura de Requerimentos — Secretaria:</strong><br>
+    📝 <strong>Abertura de Requerimentos — Secretaria Acadêmica:</strong><br>
     Selecione o tipo de solicitação:<br><br>
     
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
-      <strong>[1]</strong> Justificativa de Falta / Ausência por Atestado<br>
-      <strong>[2]</strong> Aproveitamento / Validação de Estudos<br>
+      <strong>[1]</strong> Justificativa de Falta / Ausência por Atestado (RDP Art. 98)<br>
+      <strong>[2]</strong> Aproveitamento / Validação de Estudos (75%+ compatibilidade)<br>
       <strong>[3]</strong> Requerimento Geral da Secretaria<br>
       <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.4rem 0;">
       <strong>[0]</strong> ⬅️ Voltar ao Menu Principal<br>
@@ -109,43 +116,40 @@ function renderSubmenuRequerimentos() {
   document.getElementById("debug-info").innerText = `Submenu Requerimentos ativo. Digite [1, 2, 3] ou [0] voltar.`;
 }
 
-// Submenu de FAQ [5]
+// Submenu de FAQ Dinâmico
 function renderSubmenuFAQ() {
   currentFlowState = "MENU_FAQ";
+  const faqItems = SECRETARIA_FAQ.map((f, i) => `<strong>[${i+1}]</strong> ${f.titulo}`).join("<br>");
   const html = `
     ℹ️ <strong>Dúvidas Frequentes da Secretaria Acadêmica:</strong><br>
-    Selecione o tópico de consulta:<br><br>
+    Selecione o tópico de consulta ou digite sua pergunta:<br><br>
     
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
-      <strong>[1]</strong> Prazos e Procedimentos de Rematrícula<br>
-      <strong>[2]</strong> Regras de Trancamento de Matrícula (RDP)<br>
-      <strong>[3]</strong> Horário de Atendimento e Contatos da Secretaria<br>
-      <strong>[4]</strong> Carteirinha de Estudante e Passe Escolar (DNE / Paulotur)<br>
-      <strong>[5]</strong> Regras de Aproveitamento / Validação de Disciplinas<br>
+      ${faqItems}
       <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.4rem 0;">
       <strong>[0]</strong> ⬅️ Voltar ao Menu Principal<br>
       <strong>[9]</strong> 🚪 Sair / Encerrar
     </div>
   `;
   appendBotMessage(html);
-  document.getElementById("debug-info").innerText = `Submenu FAQ ativo. Digite [1-5] ou [0] voltar.`;
+  document.getElementById("debug-info").innerText = `Submenu FAQ ativo. Digite [1-${SECRETARIA_FAQ.length}] ou [0] voltar.`;
 }
 
-// Falar com Atendente Humano [8]
+// Falar com Atendente Humano
 function renderAtendenteHumano() {
   const user = IFSC_Session.getCurrentUser();
-  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Estudante'}&body=Olá Ramon,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
+  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Visitante'}&body=Olá Equipe da Secretaria,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
   
   const html = `
-    👤 <strong>Atendimento Humano — Servidor Ramon:</strong><br><br>
-    A Secretaria Acadêmica do Câmpus Garopaba funciona presencialmente no Bloco Administrativo:<br>
-    • <strong>Horário:</strong> Segunda a Sexta, das 08h00 às 20h30 (ininterrupto)<br>
-    • <strong>Telefone / WhatsApp:</strong> (48) 3254-7336<br>
-    • <strong>E-mail Direto:</strong> <code>secretaria.gpb@ifsc.edu.br</code><br><br>
+    👤 <strong>Atendimento Humano — Secretaria Acadêmica (Ramon / RA):</strong><br><br>
+    A Secretaria Acadêmica do Câmpus Garopaba funciona no Bloco Administrativo:<br>
+    • <strong>Horário:</strong> Segunda a Sexta, das <strong>08h00 às 12h00</strong> e das <strong>13h00 às 19h00</strong><br>
+    • <strong>WhatsApp / Fone:</strong> (48) 3254-7336<br>
+    • <strong>E-mails:</strong> <code>secretaria.gpb@ifsc.edu.br</code> | <code>ra.gpb@ifsc.edu.br</code><br><br>
     
     <div style="margin-bottom: 0.75rem;">
       <a href="${mailtoRamon}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.45rem 0.8rem;">
-        <i class="bi bi-envelope-paper-heart-fill"></i> Escrever e-mail direto para o Ramon
+        <i class="bi bi-envelope-paper-heart-fill"></i> Escrever e-mail para a Secretaria
       </a>
     </div>
 
@@ -155,6 +159,10 @@ function renderAtendenteHumano() {
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
   `;
+  currentFlowState = "MENU_ATENDENTE";
+  appendBotMessage(html);
+  document.getElementById("debug-info").innerText = `Atendimento Humano exibido. Opção [1] registrar recado, [0] voltar.`;
+}
   currentFlowState = "MENU_ATENDENTE";
   appendBotMessage(html);
   document.getElementById("debug-info").innerText = `Atendimento Humano exibido. Opção [1] registrar recado, [0] voltar.`;
@@ -265,24 +273,18 @@ async function sendMessage() {
     return;
   }
 
-  // --- SUBMENU FAQ ---
+  // --- SUBMENU FAQ DINÂMICO ---
   if (currentFlowState === "MENU_FAQ") {
-    let faqKey = null;
-    if (text === "1") faqKey = "rematricula";
-    else if (text === "2") faqKey = "trancamento";
-    else if (text === "3") faqKey = "horario";
-    else if (text === "4") faqKey = "carteirinha";
-    else if (text === "5") faqKey = "aproveitamento_regras";
-
-    if (faqKey) {
-      const item = SECRETARIA_FAQ.find(f => f.id === faqKey);
-      appendBotMessage(`<strong>${item.titulo}</strong><br><br>${item.resposta}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    const faqIdx = parseInt(text, 10) - 1;
+    if (!isNaN(faqIdx) && faqIdx >= 0 && faqIdx < SECRETARIA_FAQ.length) {
+      const item = SECRETARIA_FAQ[faqIdx];
+      appendBotMessage(`<strong>${item.titulo}</strong><br><br>${item.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
       currentFlowState = "IDLE";
       return;
     }
   }
 
-  // --- MENU ATENDENTE HUMANO [8] ---
+  // --- MENU ATENDENTE HUMANO ---
   if (currentFlowState === "MENU_ATENDENTE" && (text === "1" || textLower.includes("recado") || textLower.includes("mensagem"))) {
     currentFlowState = "AWAITING_RECADO_RAMON";
     appendBotMessage(`Por favor, digite a <strong>mensagem ou dúvida</strong> que deseja registrar para o servidor Ramon:<br><br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
@@ -306,13 +308,22 @@ async function sendMessage() {
     return;
   }
 
+  // --- SELEÇÃO DE NÚMEROS DO MENU PRINCIPAL DINÂMICO (1 até N) ---
+  const selectedNum = parseInt(text, 10);
+  if (!isNaN(selectedNum) && selectedNum >= 1 && selectedNum <= currentActiveMenuItems.length && currentFlowState === "IDLE") {
+    const selectedItem = currentActiveMenuItems[selectedNum - 1];
+    executeMenuItemAction(selectedItem);
+    return;
+  }
+
   // --- VERIFICAÇÃO DE MATRÍCULA OU CPF ---
   if ((cleanId.length === 11 || cleanId.length === 10 || cleanId.length === 12) && /^\d+$/.test(cleanId) && currentFlowState === "IDLE") {
     const student = IFSC_Session.findStudent(cleanId);
     if (student) {
       IFSC_Session.setCurrentUser(student);
-      appendBotMessage(`Identificação confirmada! ✅<br>Bem-vindo(a), <strong>${student.nome}</strong> (${student.curso} • ${student.fase}). Seus dados foram validados junto ao SIGAA.<br><br>Digite o número da opção desejada no menu:<br><br>[1] Declaração | [2] Pendências | [3] Meus Pedidos | [4] Requerimento | [8] Falar com Ramon | [9] Sair`);
+      appendBotMessage(`Identificação confirmada! ✅<br>Bem-vindo(a), <strong>${student.nome}</strong> (${student.curso} • ${student.fase}). Seus dados foram validados junto ao SIGAA.<br><br>Selecione uma opção no menu de atendimento:`);
       document.getElementById("debug-info").innerText = `Aluno Identificado via SIGAA: ${student.nome}`;
+      renderMainMenu(false);
       return;
     } else {
       currentFlowState = "REG_AWAITING_NOME";
@@ -388,76 +399,98 @@ async function sendMessage() {
     return;
   }
 
-  // --- SELEÇÃO DE NÚMEROS DO MENU PRINCIPAL [1 a 8] ---
-  if (text === "1") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      currentFlowState = "AWAITING_ID_FOR_CERTIFICATE";
-      appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula oficial</strong>, por favor informe seu <strong>número de matrícula ou CPF</strong>:<br><br><small style="color:var(--text-muted);">[0] Voltar</small>`);
-      return;
-    }
-    processarEmissaoAtestado(user, "Fins acadêmicos e comprovação de passe");
-    return;
-  }
-
-  if (text === "2") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      appendBotMessage(`Para consultar suas <strong>pendências no SIGAA</strong>, digite sua <strong>Matrícula ou CPF</strong>:`);
-      return;
-    }
-    const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
-    const mailto = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
-    const btn = `<div style="margin-top:0.5rem;"><a href="${mailto}" target="_blank" class="btn-chip" style="color:#a78bfa; text-decoration:none;"><i class="bi bi-envelope-paper"></i> Enviar Pendências ao Meu E-mail</a></div>`;
-    
-    if (!pendencias.length) {
-      appendBotMessage(`Parabéns, <strong>${user.nome.split(" ")[0]}</strong>! Você <strong>não possui pendências ativas</strong> no SIGAA.${btn}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
-    } else {
-      const items = pendencias.map(p => `<li><strong style="color:var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})</li>`).join("");
-      appendBotMessage(`Constam <strong>${pendencias.length} pendência(s)</strong> no seu cadastro: ⚠️<br><ul style="margin:0.5rem 0 0.5rem 1.25rem;">${items}</ul>${btn}<br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
-    }
-    return;
-  }
-
-  if (text === "3") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      appendBotMessage(`Para rastrear o <strong>status e parecer</strong> de suas solicitações, digite sua <strong>Matrícula ou CPF</strong>:`);
-      return;
-    }
-    const demands = IFSC_Session.getStudentDemands(user.matricula);
-    if (!demands.length) {
-      appendBotMessage(`Nenhuma solicitação encontrada para sua matrícula no momento.<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
-      return;
-    }
-
-    const htmlDemands = demands.map(d => {
-      const returnMailto = IFSC_Session.generateReturnMailtoLink(user, d);
-      const parecer = d.parecer ? `<div style="margin-top:0.25rem; font-size:0.8rem; border-left:2px solid var(--accent-blue); padding-left:0.4rem;"><strong>Parecer Ramon:</strong> "${d.parecer}"</div>` : "";
-      return `<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.6rem; margin-bottom:0.5rem;"><strong>${d.id} — ${d.tipo}</strong>: ${d.status}<br><small>${d.detalhes}</small>${parecer}</div>`;
-    }).join("");
-
-    appendBotMessage(`Seu histórico de solicitações: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
-    return;
-  }
-
-  if (text === "4") {
-    renderSubmenuRequerimentos();
-    return;
-  }
-
-  if (text === "5") {
-    renderSubmenuFAQ();
-    return;
-  }
-
-  if (text === "8") {
-    renderAtendenteHumano();
-    return;
-  }
-
   // --- SE NÃO FOR NÚMERO, EXECUTA BUSCA LEXICAL / FUZZY MATCH ---
   processarBuscaLexical(text);
+}
+
+// Executar Ação Selecionada no Menu Dinâmico
+function executeMenuItemAction(item) {
+  const user = IFSC_Session.getCurrentUser();
+
+  switch (item.action) {
+    case "FLOW_DECLARACAO":
+      if (!user) {
+        currentFlowState = "AWAITING_ID_FOR_CERTIFICATE";
+        appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula oficial</strong>, por favor informe sua <strong>Matrícula ou CPF</strong>:<br><br><small style="color:var(--text-muted);">[0] Voltar</small>`);
+        return;
+      }
+      processarEmissaoAtestado(user, "Fins acadêmicos e comprovação de passe");
+      break;
+
+    case "FLOW_PENDENCIAS":
+      if (!user) {
+        appendBotMessage(`Para consultar suas <strong>pendências no SIGAA</strong>, digite sua <strong>Matrícula ou CPF</strong>:`);
+        return;
+      }
+      exibirPendenciasAluno(user);
+      break;
+
+    case "FLOW_CONSULTA_PARECER":
+      if (!user) {
+        appendBotMessage(`Para rastrear o <strong>status e parecer</strong> de suas solicitações, digite sua <strong>Matrícula ou CPF</strong>:`);
+        return;
+      }
+      exibirHistoricoSolicitacoes(user);
+      break;
+
+    case "SUBMENU_REQUERIMENTOS":
+      renderSubmenuRequerimentos();
+      break;
+
+    case "SUBMENU_FAQ":
+      renderSubmenuFAQ();
+      break;
+
+    case "FLOW_FAQ_TOPIC":
+      const topic = SECRETARIA_FAQ.find(f => f.id === item.payload);
+      if (topic) {
+        appendBotMessage(`<strong>${topic.titulo}</strong><br><br>${topic.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+      }
+      break;
+
+    case "FLOW_ATENDENTE":
+      renderAtendenteHumano();
+      break;
+
+    case "FLOW_LOGIN":
+      appendBotMessage(`Para acessar suas informações acadêmicas e serviços do SIGAA, por favor digite sua <strong>Matrícula ou CPF</strong>:<br><br><small style="color:var(--text-muted);">[0] Voltar</small>`);
+      break;
+
+    default:
+      renderMainMenu(false);
+      break;
+  }
+}
+
+// Exibir pendências acadêmicas do aluno
+function exibirPendenciasAluno(user) {
+  const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
+  const mailto = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
+  const btn = `<div style="margin-top:0.5rem;"><a href="${mailto}" target="_blank" class="btn-chip" style="color:#a78bfa; text-decoration:none;"><i class="bi bi-envelope-paper"></i> Enviar Pendências ao Meu E-mail</a></div>`;
+  
+  if (!pendencias.length) {
+    appendBotMessage(`Parabéns, <strong>${user.nome.split(" ")[0]}</strong>! Você <strong>não possui pendências ativas</strong> no SIGAA.${btn}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
+  } else {
+    const items = pendencias.map(p => `<li><strong style="color:var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})</li>`).join("");
+    appendBotMessage(`Constam <strong>${pendencias.length} pendência(s)</strong> no seu cadastro: ⚠️<br><ul style="margin:0.5rem 0 0.5rem 1.25rem;">${items}</ul>${btn}<br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
+  }
+}
+
+// Exibir histórico de requerimentos do aluno
+function exibirHistoricoSolicitacoes(user) {
+  const demands = IFSC_Session.getStudentDemands(user.matricula);
+  if (!demands.length) {
+    appendBotMessage(`Nenhuma solicitação encontrada para sua matrícula no momento.<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
+    return;
+  }
+
+  const htmlDemands = demands.map(d => {
+    const returnMailto = IFSC_Session.generateReturnMailtoLink(user, d);
+    const parecer = d.parecer ? `<div style="margin-top:0.25rem; font-size:0.8rem; border-left:2px solid var(--accent-blue); padding-left:0.4rem;"><strong>Parecer Ramon:</strong> "${d.parecer}"</div>` : "";
+    return `<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.6rem; margin-bottom:0.5rem;"><strong>${d.id} — ${d.tipo}</strong>: ${d.status}<br><small>${d.detalhes}</small>${parecer}</div>`;
+  }).join("");
+
+  appendBotMessage(`Seu histórico de solicitações: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
 }
 
 // Processador Lexical P1

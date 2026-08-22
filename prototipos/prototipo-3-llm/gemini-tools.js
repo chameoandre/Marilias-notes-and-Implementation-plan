@@ -117,45 +117,51 @@ function iniciarChat() {
   renderMainMenuP3(true);
 }
 
+let p3ActiveMenuItems = [];
+
 function renderMainMenuP3(showGreeting = false) {
   const user = IFSC_Session.getCurrentUser();
   const saudacao = user 
     ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
     : `Olá! Sou o <strong>Assistente Generativo com IA & Function Calling</strong> da Secretaria Acadêmica do IFSC Garopaba.`;
 
+  p3ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
+
+  const optionsHtml = p3ActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    const badge = item.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${item.badge}</span>` : "";
+    return `<strong>[${num}]</strong> ${item.titulo}${badge}`;
+  }).join("<br>");
+
   const menuHtml = `
     ${showGreeting ? `${saudacao}<br><br>` : ""}
     <strong>Menu Interativo de Atendimento:</strong><br>
     Você pode falar pelo microfone 🎙️, formular perguntas livres ou digitar um <strong>número</strong>:<br><br>
     
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
-      <strong>[1]</strong> 📜 Emitir Declaração de Matrícula (com Chave Digital)<br>
-      <strong>[2]</strong> ⚠️ Auditar Pendências no SIGAA (Documental / Biblioteca)<br>
-      <strong>[3]</strong> 📋 Rastrear Status & Pareceres de Requerimentos<br>
-      <strong>[4]</strong> 📝 Requerimentos (Justificativa de Falta / Aproveitamento)<br>
-      <strong>[5]</strong> ℹ️ RDP & Dúvidas (Destrancamento, Horários, Calendário)<br>
-      <strong>[8]</strong> 👤 Falar com Atendente Humano (Servidor Ramon)<br>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.7;">
+      ${optionsHtml}
+      <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
   `;
 
   appendBotMessage(menuHtml);
-  document.getElementById("llm-details").innerHTML = `Menu Ativo • Pronto para entrada de voz, texto livre ou atalhos [1-9]`;
+  document.getElementById("llm-details").innerHTML = `Menu Dinâmico Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
 }
 
 function renderAtendenteP3() {
   const user = IFSC_Session.getCurrentUser();
-  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Estudante'}&body=Olá Ramon,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
+  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Visitante'}&body=Olá Equipe da Secretaria,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
 
   appendBotMessage(`
-    👤 <strong>Atendimento Presencial e Direto — Servidor Ramon:</strong><br><br>
-    • <strong>Local:</strong> Bloco Administrativo (Secretaria Acadêmica)<br>
-    • <strong>Horário:</strong> 08h00 às 20h30 (Segunda a Sexta)<br>
+    👤 <strong>Atendimento Presencial e Direto — Secretaria Acadêmica:</strong><br><br>
+    • <strong>Local:</strong> Bloco Administrativo (Câmpus Garopaba)<br>
+    • <strong>Horário:</strong> Segunda a Sexta, das <strong>08h00 às 12h00</strong> e das <strong>13h00 às 19h00</strong><br>
     • <strong>Telefone / WhatsApp:</strong> (48) 3254-7336<br>
-    • <strong>E-mail:</strong> <code>secretaria.gpb@ifsc.edu.br</code><br><br>
+    • <strong>E-mails:</strong> <code>secretaria.gpb@ifsc.edu.br</code> | <code>ra.gpb@ifsc.edu.br</code><br><br>
     <div style="margin-bottom: 0.5rem;">
       <a href="${mailtoRamon}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.45rem 0.8rem;">
-        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para o Ramon
+        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para a Secretaria
       </a>
     </div>
     <small style="color:var(--text-muted);">[0] Voltar ao Início | [9] Sair</small>
@@ -196,6 +202,18 @@ async function sendMessage() {
   if (text === "8" || textLower.includes("atendente") || textLower.includes("ramon") || textLower.includes("humano")) {
     renderAtendenteP3();
     return;
+  }
+
+  // Atalhos Numéricos do Menu Dinâmico
+  const selectedNum = parseInt(text, 10);
+  if (!isNaN(selectedNum) && selectedNum >= 1 && selectedNum <= p3ActiveMenuItems.length) {
+    const item = p3ActiveMenuItems[selectedNum - 1];
+    if (item.action === "FLOW_FAQ_TOPIC" || item.action === "SUBMENU_FAQ") {
+      const topicId = item.payload || "horario";
+      const faq = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
+      appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
+      return;
+    }
   }
 
   const startTime = performance.now();

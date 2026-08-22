@@ -65,7 +65,27 @@ const INTENT_CORPUS = {
   "consultar_horarios": [
     "qual o horario de atendimento da secretaria",
     "que horas a secretaria abre e fecha",
-    "onde fica a secretaria e telefone de contato"
+    "onde fica a secretaria e telefone de contato",
+    "contato whatsapp da secretaria e registro academico"
+  ],
+  "consultar_cursos": [
+    "quais cursos tem no campus garopaba",
+    "o que posso estudar no ifsc em garopaba",
+    "tem sistemas para internet informatica ou administracao",
+    "quais sao os cursos tecnicos e superior",
+    "tem mestrado ou pos graduacao"
+  ],
+  "consultar_ingresso": [
+    "como entrar no ifsc",
+    "quando abre o vestibular unificado",
+    "como funciona o sisu e o sorteio publico",
+    "processos seletivos e editais abertos",
+    "cadastro de interesse para novas vagas"
+  ],
+  "consultar_faltas_atestado": [
+    "qual o prazo para entregar atestado medico",
+    "quantos dias tenho para justificar falta no rdp",
+    "regras de justificativa de ausencia por doenca"
   ]
 };
 
@@ -191,44 +211,51 @@ function iniciarChat() {
   renderMainMenuP2(true);
 }
 
+let p2ActiveMenuItems = [];
+
 function renderMainMenuP2(showGreeting = false) {
   const user = IFSC_Session.getCurrentUser();
   const saudacao = user 
     ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
     : `Olá! Sou o <strong>Chatbot Inteligente com PLN</strong> da Secretaria Acadêmica do IFSC Garopaba.`;
 
+  p2ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
+
+  const optionsHtml = p2ActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    const badge = item.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${item.badge}</span>` : "";
+    return `<strong>[${num}]</strong> ${item.titulo}${badge}`;
+  }).join("<br>");
+
   const menuHtml = `
     ${showGreeting ? `${saudacao}<br><br>` : ""}
     <strong>Menu de Atendimento (PLN & Atalhos Numéricos):</strong><br>
     Você pode falar/digitar em linguagem natural ou escolher um <strong>número</strong>:<br><br>
     
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
-      <strong>[1]</strong> 📜 Emitir Declaração de Matrícula (com Chave Digital)<br>
-      <strong>[2]</strong> ⚠️ Consultar Pendências no SIGAA (Documentos / Biblioteca)<br>
-      <strong>[3]</strong> 📋 Rastrear Status & Pareceres de Requerimentos<br>
-      <strong>[4]</strong> 📝 Requerimentos (Justificativa de Falta / Aproveitamento)<br>
-      <strong>[5]</strong> ℹ️ Dúvidas Frequentes (Horário, Rematrícula, Trancamento)<br>
-      <strong>[8]</strong> 👤 Falar com Atendente (Servidor Ramon)<br>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.7;">
+      ${optionsHtml}
+      <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
   `;
 
   appendBotMessage(menuHtml);
-  document.getElementById("pln-details").innerHTML = `Menu Ativo • Aguardando número [1-9] ou frase natural`;
+  document.getElementById("pln-details").innerHTML = `Menu Dinâmico Ativo (${p2ActiveMenuItems.length} opções disponíveis) • Digite um número [1-${p2ActiveMenuItems.length}] ou frase livre`;
 }
 
 function renderAtendenteP2() {
   const user = IFSC_Session.getCurrentUser();
-  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Estudante'}&body=Olá Ramon,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
+  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Visitante'}&body=Olá Equipe da Secretaria,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
 
   appendBotMessage(`
-    👤 <strong>Atendimento com o Servidor Ramon:</strong><br><br>
-    • <strong>Local:</strong> Bloco Administrativo (Secretaria Acadêmica)<br>
-    • <strong>Horário:</strong> 08h00 às 20h30 (Segunda a Sexta)<br>
-    • <strong>Telefone:</strong> (48) 3254-7336 | <strong>E-mail:</strong> <code>secretaria.gpb@ifsc.edu.br</code><br><br>
+    👤 <strong>Atendimento Humano — Secretaria Acadêmica:</strong><br><br>
+    • <strong>Local:</strong> Bloco Administrativo (Câmpus Garopaba)<br>
+    • <strong>Horário:</strong> Segunda a Sexta, das <strong>08h00 às 12h00</strong> e das <strong>13h00 às 19h00</strong><br>
+    • <strong>WhatsApp / Fone:</strong> (48) 3254-7336<br>
+    • <strong>E-mails:</strong> <code>secretaria.gpb@ifsc.edu.br</code> | <code>ra.gpb@ifsc.edu.br</code><br><br>
     <div style="margin-bottom: 0.5rem;">
       <a href="${mailtoRamon}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.45rem 0.8rem;">
-        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para o Ramon
+        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para a Secretaria
       </a>
     </div>
     <small style="color:var(--text-muted);">[0] Voltar ao Início | [9] Sair</small>
@@ -268,53 +295,11 @@ async function sendMessage() {
     return;
   }
 
-  if (text === "8" || textLower.includes("atendente") || textLower.includes("ramon") || textLower.includes("humano")) {
-    renderAtendenteP2();
-    return;
-  }
-
-  // Atalhos Numéricos
-  if (text === "1") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula</strong>, por favor informe sua <strong>matrícula ou CPF</strong>:`);
-      return;
-    }
-    processarEmissaoAtestadoP2(user, "Fins Acadêmicos");
-    return;
-  }
-
-  if (text === "2") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      appendBotMessage(`Para consultar suas <strong>pendências</strong>, por favor digite sua <strong>matrícula ou CPF</strong>:`);
-      return;
-    }
-    const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
-    const mailto = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
-    const btn = `<div style="margin-top:0.5rem;"><a href="${mailto}" target="_blank" class="btn-chip" style="color:#a78bfa; text-decoration:none;"><i class="bi bi-envelope-paper"></i> Enviar Pendências ao Meu E-mail</a></div>`;
-    if (!pendencias.length) {
-      appendBotMessage(`Situação Regular! 🎉 Nenhuma pendência documental ou acadêmica ativa.${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
-    } else {
-      const items = pendencias.map(p => `<li><strong style="color:var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Prazo: ${p.prazo})</li>`).join("");
-      appendBotMessage(`Constam <strong>${pendencias.length} pendência(s)</strong> no SIGAA: ⚠️<br><ul style="margin:0.5rem 0 0.5rem 1.25rem;">${items}</ul>${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
-    }
-    return;
-  }
-
-  if (text === "3") {
-    const user = IFSC_Session.getCurrentUser();
-    if (!user) {
-      appendBotMessage(`Para rastrear o <strong>status e parecer</strong> de suas solicitações, digite sua <strong>matrícula ou CPF</strong>:`);
-      return;
-    }
-    const demands = IFSC_Session.getStudentDemands(user.matricula);
-    if (!demands.length) {
-      appendBotMessage(`Nenhuma solicitação encontrada no momento.<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
-      return;
-    }
-    const htmlDemands = demands.map(d => `<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.6rem; margin-bottom:0.5rem;"><strong>${d.id} — ${d.tipo}</strong>: ${d.status}<br><small>${d.detalhes}</small>${d.parecer ? `<br><strong>Parecer:</strong> "${d.parecer}"` : ''}</div>`).join("");
-    appendBotMessage(`Status dos seus pedidos: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+  // Atalhos Numéricos Dinâmicos do Menu
+  const selectedNum = parseInt(text, 10);
+  if (!isNaN(selectedNum) && selectedNum >= 1 && selectedNum <= p2ActiveMenuItems.length && !p2CurrentIntent) {
+    const item = p2ActiveMenuItems[selectedNum - 1];
+    executeP2MenuItem(item);
     return;
   }
 
@@ -498,10 +483,79 @@ async function sendMessage() {
 
   // --- INTENÇÕES INFORMATIVAS (CATEGORIA A) ---
   if (classification.confidence >= 0.35) {
-    const faqMatch = SECRETARIA_FAQ.find(f => f.id === classification.intent.replace("consultar_", "")) || SECRETARIA_FAQ[0];
-    appendBotMessage(`<strong>${faqMatch.titulo}</strong><br><br>${faqMatch.resposta}`);
+    const topicId = classification.intent.replace("consultar_", "");
+    const faqMatch = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
+    appendBotMessage(`<strong>${faqMatch.titulo}</strong><br><br>${faqMatch.resposta.replace(/\n/g, '<br>')}`);
   } else {
-    appendBotMessage(`Não compreendi com clareza suficiente sua mensagem (Confiança PLN: ${confidencePercent}%).<br><br>💡 Você pode tentar reformular com termos mais diretos (ex: <em>"atestado de matrícula"</em>, <em>"justificar falta médica"</em>, <em>"consultar pendências"</em>, <em>"status do pedido"</em>).`);
+    appendBotMessage(`Não compreendi com clareza suficiente sua mensagem (Confiança PLN: ${confidencePercent}%).<br><br>💡 Você pode tentar reformular com termos mais diretos (ex: <em>"atestado de matrícula"</em>, <em>"justificar falta médica"</em>, <em>"consultar pendências"</em>, <em>"status do pedido"</em>, <em>"cursos ofertados"</em>).`);
+  }
+}
+
+// Executar ação selecionada no menu numérico do P2
+function executeP2MenuItem(item) {
+  const user = IFSC_Session.getCurrentUser();
+
+  switch (item.action) {
+    case "FLOW_DECLARACAO":
+      if (!user) {
+        appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula</strong>, por favor informe sua <strong>Matrícula ou CPF</strong>:`);
+        return;
+      }
+      processarEmissaoAtestadoP2(user, "Fins Acadêmicos");
+      break;
+
+    case "FLOW_PENDENCIAS":
+      if (!user) {
+        appendBotMessage(`Para consultar suas <strong>pendências</strong>, por favor digite sua <strong>Matrícula ou CPF</strong>:`);
+        return;
+      }
+      const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
+      const mailto = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
+      const btn = `<div style="margin-top:0.5rem;"><a href="${mailto}" target="_blank" class="btn-chip" style="color:#a78bfa; text-decoration:none;"><i class="bi bi-envelope-paper"></i> Enviar Pendências ao Meu E-mail</a></div>`;
+      if (!pendencias.length) {
+        appendBotMessage(`Situação Regular! 🎉 Nenhuma pendência documental ou acadêmica ativa.${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+      } else {
+        const items = pendencias.map(p => `<li><strong style="color:var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Prazo: ${p.prazo})</li>`).join("");
+        appendBotMessage(`Constam <strong>${pendencias.length} pendência(s)</strong> no SIGAA: ⚠️<br><ul style="margin:0.5rem 0 0.5rem 1.25rem;">${items}</ul>${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+      }
+      break;
+
+    case "FLOW_CONSULTA_PARECER":
+      if (!user) {
+        appendBotMessage(`Para rastrear o <strong>status e parecer</strong> de suas solicitações, digite sua <strong>Matrícula ou CPF</strong>:`);
+        return;
+      }
+      const demands = IFSC_Session.getStudentDemands(user.matricula);
+      if (!demands.length) {
+        appendBotMessage(`Nenhuma solicitação encontrada no momento.<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+        return;
+      }
+      const htmlDemands = demands.map(d => `<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.6rem; margin-bottom:0.5rem;"><strong>${d.id} — ${d.tipo}</strong>: ${d.status}<br><small>${d.detalhes}</small>${d.parecer ? `<br><strong>Parecer:</strong> "${d.parecer}"` : ''}</div>`).join("");
+      appendBotMessage(`Status dos seus pedidos: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+      break;
+
+    case "SUBMENU_REQUERIMENTOS":
+      appendBotMessage(`📝 <strong>Abertura de Requerimentos:</strong><br>Você pode digitar frases como:<br>• <em>"Quero justificar falta de consulta médica"</em><br>• <em>"Pedir aproveitamento da matéria de banco de dados"</em><br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
+      break;
+
+    case "SUBMENU_FAQ":
+    case "FLOW_FAQ_TOPIC":
+      const topicId = item.payload || "horario";
+      const faqItem = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
+      appendBotMessage(`<strong>${faqItem.titulo}</strong><br><br>${faqItem.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
+      break;
+
+    case "FLOW_ATENDENTE":
+      renderAtendenteP2();
+      break;
+
+    case "FLOW_LOGIN":
+      appendBotMessage(`Para identificar sua matrícula e consultar dados pessoais no SIGAA, por favor digite sua <strong>Matrícula ou CPF</strong>:`);
+      break;
+
+    default:
+      renderMainMenuP2(false);
+      break;
   }
 }
 
