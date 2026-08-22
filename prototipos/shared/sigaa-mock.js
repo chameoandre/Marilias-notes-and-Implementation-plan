@@ -106,8 +106,19 @@ const SECRETARIA_FAQ = [
   }
 ];
 
-// 3. Funções de Consulta e Reconhecimento do Aluno (Sessão Persistente)
+// 3. Funções de Consulta, Reconhecimento e Cadastro Dinâmico de Alunos
 const IFSC_Session = {
+  // Obter todos os estudantes (Base Padrão + Estudantes Cadastrados Dinamicamente)
+  getAllStudents() {
+    try {
+      const custom = localStorage.getItem("ifsc_custom_students");
+      const customList = custom ? JSON.parse(custom) : [];
+      return [...SIGAA_DATABASE, ...customList];
+    } catch (e) {
+      return SIGAA_DATABASE;
+    }
+  },
+
   // Limpar pontuação para comparação
   sanitize(text) {
     return String(text || "").replace(/\D/g, "");
@@ -117,11 +128,45 @@ const IFSC_Session = {
   findStudent(identifier) {
     if (!identifier) return null;
     const cleanId = this.sanitize(identifier);
-    return SIGAA_DATABASE.find(s => 
+    const all = this.getAllStudents();
+    return all.find(s => 
       this.sanitize(s.matricula) === cleanId || 
       this.sanitize(s.cpf) === cleanId ||
       s.matricula.toLowerCase() === String(identifier).trim().toLowerCase()
     ) || null;
+  },
+
+  // Cadastrar Novo Aluno Dinamicamente (Persiste no LocalStorage)
+  registerNewStudent(studentData) {
+    try {
+      const custom = localStorage.getItem("ifsc_custom_students");
+      const customList = custom ? JSON.parse(custom) : [];
+      
+      const newStudent = {
+        matricula: studentData.matricula || "2026" + Date.now().toString().slice(-6),
+        cpf: studentData.cpf || "000.000.000-00",
+        nome: studentData.nome || "Novo Estudante",
+        curso: studentData.curso || "CST Sistemas para Internet",
+        nivel: studentData.nivel || "Graduação / Superior",
+        fase: studentData.fase || "1ª Fase",
+        anoIngresso: studentData.anoIngresso || "2026/1",
+        situacao: "Matriculado Regular",
+        email: studentData.email || "aluno@ifsc.edu.br",
+        ira: "8.50"
+      };
+
+      // Remover duplicatas anteriores com mesma matrícula
+      const filtered = customList.filter(s => s.matricula !== newStudent.matricula && s.cpf !== newStudent.cpf);
+      filtered.push(newStudent);
+      localStorage.setItem("ifsc_custom_students", JSON.stringify(filtered));
+
+      // Salvar como usuário ativo
+      this.setCurrentUser(newStudent);
+      return newStudent;
+    } catch (e) {
+      console.error("Erro ao registrar aluno:", e);
+      return null;
+    }
   },
 
   // Obter usuário salvo na sessão do navegador

@@ -225,6 +225,9 @@
           <p style="color: var(--text-muted); font-size: 0.85rem;">Histórico consolidado de arquivos gerados e demandas enviadas pelos 3 protótipos de chatbot.</p>
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn-download" onclick="abrirModalNovoAluno()" style="background: var(--accent-blue); color: #0b0f19;">
+            <i class="bi bi-person-plus-fill"></i> + Cadastrar Novo Aluno
+          </button>
           <button class="btn-download" onclick="baixarCSV()" style="background: var(--ifsc-green);">
             <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV para SIGAA/Excel
           </button>
@@ -234,6 +237,28 @@
           <button class="btn-switch-user" onclick="limparHistorico()" style="padding: 0.5rem 0.85rem; color: var(--ifsc-red); border-color: rgba(220, 38, 38, 0.4);">
             <i class="bi bi-trash"></i> Limpar Fila
           </button>
+        </div>
+      </div>
+
+      <!-- Formulário de Cadastro Rápido de Aluno (Modal/Card Expansível) -->
+      <div id="form-novo-aluno" style="display: none; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--accent-blue); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 0.75rem;"><i class="bi bi-person-vcard-fill"></i> Cadastrar Novo Aluno na Base do SIGAA (Mock)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+          <input type="text" id="cad-nome" class="input-field" placeholder="Nome Completo do Aluno" style="padding: 0.6rem;">
+          <input type="text" id="cad-matricula" class="input-field" placeholder="Matrícula (ex: 20261010099)" style="padding: 0.6rem;">
+          <input type="text" id="cad-cpf" class="input-field" placeholder="CPF (ex: 123.456.789-00)" style="padding: 0.6rem;">
+          <select id="cad-curso" class="input-field" style="padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
+            <option value="CST Sistemas para Internet">CST Sistemas para Internet</option>
+            <option value="Técnico Integrado em Informática">Técnico Integrado em Informática</option>
+            <option value="Técnico Integrado em Administração">Técnico Integrado em Administração</option>
+            <option value="Especialização em Gestão">Especialização em Gestão</option>
+          </select>
+          <input type="text" id="cad-fase" class="input-field" placeholder="Fase/Ano (ex: 1ª Fase)" style="padding: 0.6rem;">
+          <input type="email" id="cad-email" class="input-field" placeholder="E-mail Institucional" style="padding: 0.6rem;">
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button class="btn-switch-user" onclick="fecharModalNovoAluno()">Cancelar</button>
+          <button class="btn-download" onclick="salvarNovoAlunoForm()" style="background: var(--accent-blue); color: #0b0f19;">Salvar no SIGAA</button>
         </div>
       </div>
 
@@ -386,6 +411,48 @@
         localStorage.removeItem("ifsc_secretaria_demands");
         renderTable();
       }
+    }
+
+    function abrirModalNovoAluno() {
+      document.getElementById("form-novo-aluno").style.display = "block";
+      document.getElementById("cad-nome").focus();
+    }
+
+    function fecharModalNovoAluno() {
+      document.getElementById("form-novo-aluno").style.display = "none";
+    }
+
+    function salvarNovoAlunoForm() {
+      const nome = document.getElementById("cad-nome").value.trim();
+      const matricula = document.getElementById("cad-matricula").value.trim();
+      const cpf = document.getElementById("cad-cpf").value.trim();
+      const curso = document.getElementById("cad-curso").value;
+      const fase = document.getElementById("cad-fase").value.trim() || "1ª Fase";
+      const email = document.getElementById("cad-email").value.trim() || "aluno@ifsc.edu.br";
+
+      if (!nome || !matricula) {
+        alert("Por favor, preencha pelo menos o Nome Completo e a Matrícula.");
+        return;
+      }
+
+      const novo = IFSC_Session.registerNewStudent({
+        nome,
+        matricula,
+        cpf,
+        curso,
+        fase,
+        email
+      });
+
+      alert(`Aluno(a) ${novo.nome} (Matrícula: ${novo.matricula}) cadastrado(a) com sucesso no SIGAA Mock!`);
+      fecharModalNovoAluno();
+
+      // Limpar campos
+      document.getElementById("cad-nome").value = "";
+      document.getElementById("cad-matricula").value = "";
+      document.getElementById("cad-cpf").value = "";
+      document.getElementById("cad-fase").value = "";
+      document.getElementById("cad-email").value = "";
     }
   </script>
 </body>

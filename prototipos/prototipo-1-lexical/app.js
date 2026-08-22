@@ -76,22 +76,59 @@ async function sendMessage() {
 
   // 1. Verificar se a entrada é uma Matrícula ou CPF
   const cleanId = IFSC_Session.sanitize(text);
-  if ((cleanId.length === 11 || cleanId.length === 10 || cleanId.length === 12) && /^\d+$/.test(cleanId)) {
+  if ((cleanId.length === 11 || cleanId.length === 10 || cleanId.length === 12) && /^\d+$/.test(cleanId) && currentFlowState === "IDLE") {
     const student = IFSC_Session.findStudent(cleanId);
     if (student) {
       IFSC_Session.setCurrentUser(student);
       appendBotMessage(`Identificação confirmada! ✅<br>Bem-vindo(a), <strong>${student.nome}</strong> (${student.curso} • ${student.fase}). Seus dados foram validados junto ao SIGAA.`);
-      document.getElementById("debug-info").innerText = `Aluno Identificado via SIGAA Mock: ${student.nome}`;
-      
-      // Se estava aguardando identificação para emitir atestado, retoma o fluxo
-      if (currentFlowState === "AWAITING_ID_FOR_CERTIFICATE") {
-        processarEmissaoAtestado(student, "Comprovação Geral");
-      }
+      document.getElementById("debug-info").innerText = `Aluno Identificado via SIGAA: ${student.nome}`;
       return;
     } else {
-      appendBotMessage(`Matrícula/CPF <code>${text}</code> não foi localizado na base simulada do SIGAA. Por favor, confira os números digitados.`);
+      // Iniciar fluxo de cadastro de novo aluno
+      currentFlowState = "REG_AWAITING_NOME";
+      pendingData = {
+        matricula: cleanId.length === 10 ? cleanId : "2026" + cleanId.slice(-6),
+        cpf: cleanId.length === 11 ? cleanId.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : "111.222.333-44"
+      };
+      appendBotMessage(`Matrícula/CPF <code>${text}</code> não foi localizado na base ativa do SIGAA.<br><br>💡 <strong>Deseja realizar seu primeiro cadastro no sistema?</strong><br>Por favor, digite seu <strong>Nome Completo</strong>:`);
+      document.getElementById("debug-info").innerText = `Iniciando fluxo de auto-cadastro para id: ${cleanId}`;
       return;
     }
+  }
+
+  // --- MÁQUINA DE ESTADOS: CADASTRO DE NOVO ALUNO ---
+  if (currentFlowState === "REG_AWAITING_NOME") {
+    pendingData.nome = text;
+    currentFlowState = "REG_AWAITING_CURSO";
+    appendBotMessage(`Prazer, <strong>${text}</strong>! Agora informe seu <strong>Curso no IFSC</strong> (ex: <em>Sistemas para Internet, Informática, Administração</em>):`);
+    return;
+  }
+
+  if (currentFlowState === "REG_AWAITING_CURSO") {
+    pendingData.curso = text.toUpperCase().includes("SPI") || text.toLowerCase().includes("sistemas") ? "CST Sistemas para Internet" :
+                        text.toLowerCase().includes("info") ? "Técnico Integrado em Informática" :
+                        text.toLowerCase().includes("adm") ? "Técnico Integrado em Administração" : text;
+    currentFlowState = "REG_AWAITING_FASE";
+    appendBotMessage(`Anotado: <strong>${pendingData.curso}</strong>.<br>Qual a sua <strong>Fase ou Ano</strong> atual (ex: <em>1ª Fase, 2º Ano, 4ª Fase</em>)?`);
+    return;
+  }
+
+  if (currentFlowState === "REG_AWAITING_FASE") {
+    pendingData.fase = text;
+    currentFlowState = "REG_AWAITING_EMAIL";
+    appendBotMessage(`Perfeito! Por fim, digite seu <strong>E-mail de contato</strong>:`);
+    return;
+  }
+
+  if (currentFlowState === "REG_AWAITING_EMAIL") {
+    pendingData.email = text;
+    const novoAluno = IFSC_Session.registerNewStudent(pendingData);
+    currentFlowState = "IDLE";
+    pendingData = {};
+
+    appendBotMessage(`Cadastro concluído com sucesso no SIGAA! 🎉<br><br>Bem-vindo(a), <strong>${novoAluno.nome}</strong>!<br><strong>Matrícula:</strong> <code>${novoAluno.matricula}</code> | <strong>Curso:</strong> ${novoAluno.curso} (${novoAluno.fase})<br><br>Agora você já pode emitir atestados e registrar requerimentos normalmente.`);
+    document.getElementById("debug-info").innerText = `Novo aluno cadastrado e salvo: ${novoAluno.nome} (${novoAluno.matricula})`;
+    return;
   }
 
   // 2. Máquina de Estados de Fluxos Guiados (Categoria B)
