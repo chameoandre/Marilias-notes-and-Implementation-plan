@@ -1,0 +1,264 @@
+/**
+ * Protótipo 1 — Lógica de Busca Lexical & Formulário Guiado
+ * Projeto TCC — Marília Stefenon
+ */
+
+// Estado da Conversação
+let currentFlowState = "IDLE"; 
+let pendingData = {};
+
+// Instância do Fuse.js para Busca Lexical
+const fuseOptions = {
+  includeScore: true,
+  threshold: 0.4, // Tolerância a pequenos erros de digitação (typos)
+  keys: ["titulo", "tags", "resposta"]
+};
+const fuseEngine = new Fuse(SECRETARIA_FAQ, fuseOptions);
+
+// Inicialização da Página
+document.addEventListener("DOMContentLoaded", () => {
+  renderUserStatus();
+  iniciarChat();
+
+  const input = document.getElementById("user-input");
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  window.addEventListener("ifsc_user_changed", () => {
+    renderUserStatus();
+  });
+});
+
+// Renderizar status do usuário no topo
+function renderUserStatus() {
+  const container = document.getElementById("user-status-container");
+  const user = IFSC_Session.getCurrentUser();
+
+  if (user) {
+    container.innerHTML = `
+      <span class="user-status-identified">
+        <i class="bi bi-person-check-fill"></i> 
+        ${user.nome} (${user.curso} • ${user.matricula})
+      </span>
+    `;
+  } else {
+    container.innerHTML = `
+      <span class="user-status-anonymous">
+        <i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante)
+      </span>
+    `;
+  }
+}
+
+// Iniciar mensagem de boas-vindas inteligente
+function iniciarChat() {
+  const user = IFSC_Session.getCurrentUser();
+  const chat = document.getElementById("chat-messages");
+  chat.innerHTML = "";
+
+  if (user) {
+    appendBotMessage(`Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋<br>Reconheci seu acesso no SIGAA (Matrícula: <code>${user.matricula}</code> - ${user.curso}).<br><br>Como posso te ajudar hoje na Secretaria do IFSC Garopaba?`);
+  } else {
+    appendBotMessage(`Olá! Sou o assistente digital da <strong>Secretaria Acadêmica do IFSC Garopaba</strong>.<br><br>Você pode tirar dúvidas rápidas sobre o câmpus ou emitir documentos acadêmicos oficiais. Se preferir, informe seu <strong>CPF ou Matrícula</strong> a qualquer momento para atendimento personalizado.`);
+  }
+}
+
+// Enviar Mensagem do Usuário
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendUserMessage(text);
+  input.value = "";
+  input.focus();
+
+  // 1. Verificar se a entrada é uma Matrícula ou CPF
+  const cleanId = IFSC_Session.sanitize(text);
+  if ((cleanId.length === 11 || cleanId.length === 10 || cleanId.length === 12) && /^\d+$/.test(cleanId)) {
+    const student = IFSC_Session.findStudent(cleanId);
+    if (student) {
+      IFSC_Session.setCurrentUser(student);
+      appendBotMessage(`Identificação confirmada! ✅<br>Bem-vindo(a), <strong>${student.nome}</strong> (${student.curso} • ${student.fase}). Seus dados foram validados junto ao SIGAA.`);
+      document.getElementById("debug-info").innerText = `Aluno Identificado via SIGAA Mock: ${student.nome}`;
+      
+      // Se estava aguardando identificação para emitir atestado, retoma o fluxo
+      if (currentFlowState === "AWAITING_ID_FOR_CERTIFICATE") {
+        processarEmissaoAtestado(student, "Comprovação Geral");
+      }
+      return;
+    } else {
+      appendBotMessage(`Matrícula/CPF <code>${text}</code> não foi localizado na base simulada do SIGAA. Por favor, confira os números digitados.`);
+      return;
+    }
+  }
+
+  // 2. Máquina de Estados de Fluxos Guiados (Categoria B)
+  if (currentFlowState === "AWAITING_JUSTIFICATION_MOTIVO") {
+    const user = IFSC_Session.getCurrentUser();
+    currentFlowState = "IDLE";
+    
+    // Registrar demanda para o Ramon
+    const req = IFSC_Session.saveDemand({
+      matricula: user ? user.matricula : "Não identificado",
+      nome: user ? user.nome : "Estudante",
+      curso: user ? user.curso : "Geral",
+      tipo: "Justificativa de Falta",
+      detalhes: `Motivo: ${text}`,
+      status: "Pendente de Análise (Ramon)",
+      arquivo: "Requerimento Formal"
+    });
+
+    appendBotMessage(`Requerimento de <strong>Justificativa de Falta</strong> registrado com sucesso! 📝<br><br><strong>Protocolo:</strong> <code>${req.id}</code><br><strong>Motivo declarado:</strong> "${text}"<br><br>A solicitação foi enviada para a fila de atendimento da Secretaria Acadêmica (Ramon). Você receberá o parecer no e-mail cadastrado.`);
+    document.getElementById("debug-info").innerText = `Protocolo ${req.id} registrado no log da Secretaria.`;
+    return;
+  }
+
+  // 3. Processamento de Busca Lexical (Fuse.js)
+  processarBuscaLexical(text);
+}
+
+// Processador Lexical P1
+function processarBuscaLexical(query) {
+  const startTime = performance.now();
+  const results = fuseEngine.search(query);
+  const elapsed = (performance.now() - startTime).toFixed(2);
+
+  // Verificar intenção direta de emissão de atestado
+  const queryLower = query.toLowerCase();
+  if (queryLower.includes("declaração") || queryLower.includes("declaracao") || queryLower.includes("atestado") || queryLower.includes("matricula") || queryLower.includes("comprovante")) {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      currentFlowState = "AWAITING_ID_FOR_CERTIFICATE";
+      appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula oficial com autenticação digital</strong>, por favor, digite seu <strong>número de matrícula ou CPF</strong>.`);
+      document.getElementById("debug-info").innerText = `Fluxo Transacional P04 ativado. Aguardando CPF/Matrícula. (${elapsed}ms)`;
+      return;
+    } else {
+      processarEmissaoAtestado(user, "Fins acadêmicos e comprovação de passe escolar");
+      return;
+    }
+  }
+
+  if (queryLower.includes("falta") || queryLower.includes("justificar") || queryLower.includes("atestado medico")) {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para abrir um <strong>Requerimento de Justificativa de Falta</strong>, primeiro identifique-se digitando sua matrícula ou CPF.`);
+      return;
+    }
+    currentFlowState = "AWAITING_JUSTIFICATION_MOTIVO";
+    appendBotMessage(`Entendido, <strong>${user.nome.split(" ")[0]}</strong>. Por favor, descreva brevemente o <strong>motivo e a data da ausência</strong> que deseja justificar:`);
+    document.getElementById("debug-info").innerText = `Fluxo Transacional P06: Coletando motivo da falta.`;
+    return;
+  }
+
+  // Resultado de FAQ Lexical
+  if (results.length > 0 && results[0].score < 0.45) {
+    const item = results[0].item;
+    appendBotMessage(`<strong>${item.titulo}</strong><br><br>${item.resposta}`);
+    document.getElementById("debug-info").innerText = `Fuse.js Match: "${item.id}" (Score: ${(1 - results[0].score).toFixed(2)}, Latência: ${elapsed}ms)`;
+  } else {
+    appendBotMessage(`Não encontrei uma resposta exata para sua busca no catálogo lexical.<br><br>💡 Você pode tentar palavras-chave como <em>rematrícula, trancamento, horário</em> ou clicar nos botões rápidos abaixo.`);
+    document.getElementById("debug-info").innerText = `Fuse.js Sem Match relevante (Score > 0.45, Latência: ${elapsed}ms)`;
+  }
+}
+
+// Emitir Declaração em PDF na hora
+async function processarEmissaoAtestado(student, finalidade) {
+  appendBotMessage(`Gerando sua <strong>Declaração de Matrícula oficial</strong> junto ao SIGAA com autenticação digital... ⏳`);
+  document.getElementById("debug-info").innerText = `Iniciando montagem de PDF com pdf-lib no cliente...`;
+
+  try {
+    const { pdfBytes, codAutenticacao } = await gerarDeclaracaoMatriculaPDF(student, finalidade);
+    
+    // Registrar Demanda
+    const req = IFSC_Session.saveDemand({
+      matricula: student.matricula,
+      nome: student.nome,
+      curso: student.curso,
+      tipo: "Emissão de Declaração de Matrícula",
+      detalhes: `Código Autenticação: ${codAutenticacao} (${finalidade})`,
+      status: "Emitido Automaticamente",
+      arquivo: "Declaracao_Matricula.pdf"
+    });
+
+    // Criar link para download do Blob
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const cardHtml = `
+      Sua declaração foi gerada com sucesso! 🎉<br>
+      <strong>Código de Autenticação:</strong> <code>${codAutenticacao}</code>
+      <div class="document-card">
+        <div class="document-info">
+          <i class="bi bi-file-earmark-pdf-fill document-icon"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">Declaracao_Matricula_${student.matricula}.pdf</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">PDF Oficial IFSC • Válido com Chave Digital</div>
+          </div>
+        </div>
+        <a href="${url}" download="Declaracao_Matricula_${student.matricula}.pdf" class="btn-download">
+          <i class="bi bi-download"></i> Baixar PDF
+        </a>
+      </div>
+    `;
+
+    appendBotMessage(cardHtml);
+    document.getElementById("debug-info").innerText = `PDF gerado com sucesso (${(blob.size/1024).toFixed(1)} KB). Protocolo: ${req.id}`;
+  } catch (error) {
+    console.error("Erro ao gerar PDF:", error);
+    appendBotMessage(`Ocorreu um erro ao compilar o PDF da declaração. Por favor, tente novamente.`);
+  }
+}
+
+// Botões de Ação Rápida
+function handleQuickReply(text) {
+  const input = document.getElementById("user-input");
+  input.value = text;
+  sendMessage();
+}
+
+// Simulações de Login/Logout
+function simularLogin(matricula) {
+  const student = IFSC_Session.findStudent(matricula);
+  if (student) {
+    IFSC_Session.setCurrentUser(student);
+    iniciarChat();
+  }
+}
+
+function simularLogout() {
+  IFSC_Session.setCurrentUser(null);
+  iniciarChat();
+}
+
+// Utilitários de Interface
+function appendUserMessage(text) {
+  const chat = document.getElementById("chat-messages");
+  const row = document.createElement("div");
+  row.className = "message-row user";
+  row.innerHTML = `
+    <div class="avatar avatar-user"><i class="bi bi-person-fill"></i></div>
+    <div class="bubble bubble-user">${escapeHtml(text)}</div>
+  `;
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function appendBotMessage(html) {
+  const chat = document.getElementById("chat-messages");
+  const row = document.createElement("div");
+  row.className = "message-row bot";
+  row.innerHTML = `
+    <div class="avatar avatar-bot"><i class="bi bi-robot"></i></div>
+    <div class="bubble bubble-bot">${html}</div>
+  `;
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  return div.innerHTML;
+}

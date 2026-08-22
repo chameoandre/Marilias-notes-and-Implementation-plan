@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel da Secretaria Acadêmica — Visão do Atendente | IFSC Garopaba</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="../shared/chat-theme.css">
+  
+  <!-- PDF-Lib & Download.js -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .kpi-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .admin-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .admin-header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .data-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .data-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-done {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--ifsc-green-light);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-pending {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Superior -->
+  <header class="prototype-header">
+    <div class="prototype-title">
+      <a href="../../index.html" style="color: var(--text-muted); text-decoration: none; font-size: 1.25rem;"><i class="bi bi-arrow-left-circle"></i></a>
+      <span class="prototype-badge badge-admin"><i class="bi bi-shield-check"></i> Painel do Servidor</span>
+      <h1 style="font-size: 1.1rem; font-weight: 700;">Secretaria Acadêmica — Fila de Atendimentos & Exportação de Dados</h1>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="../prototipo-1-lexical/index.html" class="btn-switch-user" style="text-decoration: none;">P1 (Lexical)</a>
+      <a href="../prototipo-2-pln/index.html" class="btn-switch-user" style="text-decoration: none;">P2 (PLN)</a>
+      <a href="../prototipo-3-llm/index.html" class="btn-switch-user" style="text-decoration: none;">P3 (LLM)</a>
+    </div>
+  </header>
+
+  <!-- Banner de Identificação do Atendente -->
+  <div class="user-bar">
+    <div class="user-status-identified" style="color: var(--text-main);">
+      <i class="bi bi-person-badge-fill" style="color: var(--ifsc-green-light);"></i> 
+      Servidor Responsável: <strong>Ramon (Secretaria Acadêmica — IFSC Garopaba)</strong>
+    </div>
+    <div>
+      <span style="color: var(--text-muted); font-size: 0.8rem;">Sincronização Local com os Protótipos: <strong style="color: var(--ifsc-green-light);">Ativa</strong></span>
+    </div>
+  </div>
+
+  <main class="admin-container">
+
+    <!-- Indicadores Chave de Desempenho (KPIs) -->
+    <div class="kpi-grid">
+      
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+          <i class="bi bi-headset"></i>
+        </div>
+        <div>
+          <div class="kpi-value" id="kpi-total">0</div>
+          <div class="kpi-label">Total de Demandas</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light);">
+          <i class="bi bi-file-earmark-check"></i>
+        </div>
+        <div>
+          <div class="kpi-value" id="kpi-certificados">0</div>
+          <div class="kpi-label">Declarações Emitidas</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div>
+          <div class="kpi-value" id="kpi-pendentes">0</div>
+          <div class="kpi-label">Requerimentos Pendentes</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">
+          <i class="bi bi-lightning-charge"></i>
+        </div>
+        <div>
+          <div class="kpi-value">98.4%</div>
+          <div class="kpi-label">Automação de Arquivos</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tabela de Demandas e Ações -->
+    <div class="admin-card">
+      
+      <div class="admin-header-actions">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">Registro de Solicitações Geradas</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Histórico consolidado de arquivos gerados e demandas enviadas pelos 3 protótipos de chatbot.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn-download" onclick="baixarCSV()" style="background: var(--ifsc-green);">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV para SIGAA/Excel
+          </button>
+          <button class="btn-switch-user" onclick="popularDadosExemplo()" style="padding: 0.5rem 0.85rem;">
+            <i class="bi bi-magic"></i> Gerar Demandas de Teste
+          </button>
+          <button class="btn-switch-user" onclick="limparHistorico()" style="padding: 0.5rem 0.85rem; color: var(--ifsc-red); border-color: rgba(220, 38, 38, 0.4);">
+            <i class="bi bi-trash"></i> Limpar Fila
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabela Responsiva -->
+      <div style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Data / Hora</th>
+              <th>Estudante</th>
+              <th>Curso</th>
+              <th>Tipo de Demanda</th>
+              <th>Detalhes / Autenticação</th>
+              <th>Status</th>
+              <th>Ação / Arquivo</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Linhas inseridas via JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="../shared/sigaa-mock.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTable();
+    });
+
+    function renderTable() {
+      const tbody = document.getElementById("table-body");
+      const demands = IFSC_Session.getAllDemands();
+
+      // Atualizar KPIs
+      document.getElementById("kpi-total").innerText = demands.length;
+      document.getElementById("kpi-certificados").innerText = demands.filter(d => d.tipo.includes("Declaração")).length;
+      document.getElementById("kpi-pendentes").innerText = demands.filter(d => d.status.includes("Pendente")).length;
+
+      if (!demands.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-state">
+              <i class="bi bi-inbox" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem; color: var(--text-muted);"></i>
+              Nenhuma demanda registrada ainda.<br>
+              Acesse um dos protótipos (P1, P2 ou P3) para emitir atestados e gerar solicitações em tempo real.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = demands.map(d => {
+        const isDone = d.status.includes("Concluído") || d.status.includes("Emitido");
+        const statusClass = isDone ? "status-done" : "status-pending";
+        const statusIcon = isDone ? "bi-check-circle-fill" : "bi-hourglass-split";
+
+        return `
+          <tr>
+            <td><code style="color: var(--accent-blue); font-weight: 600;">${d.id}</code></td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${d.dataHora}</td>
+            <td>
+              <div style="font-weight: 600;">${d.nome}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Mat: ${d.matricula}</div>
+            </td>
+            <td><span style="font-size: 0.8rem;">${d.curso}</span></td>
+            <td><strong>${d.tipo}</strong></td>
+            <td style="font-size: 0.8rem; max-width: 250px; color: var(--text-muted);">${d.detalhes}</td>
+            <td>
+              <span class="status-badge ${statusClass}">
+                <i class="bi ${statusIcon}"></i> ${d.status}
+              </span>
+            </td>
+            <td>
+              <button class="btn-switch-user" onclick="reemitirPDF('${d.matricula}')" style="font-size: 0.75rem; color: var(--ifsc-green-light);">
+                <i class="bi bi-file-pdf"></i> Visualizar PDF
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function reemitirPDF(matricula) {
+      const student = IFSC_Session.findStudent(matricula) || {
+        matricula: matricula || "20241010045",
+        cpf: "111.222.333-44",
+        nome: "Estudante Registrado",
+        curso: "CST Sistemas para Internet",
+        nivel: "Graduação",
+        fase: "4ª Fase",
+        situacao: "Matriculado Regular"
+      };
+
+      const { pdfBytes } = await gerarDeclaracaoMatriculaPDF(student, "Reemissão via Painel da Secretaria (Ramon)");
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      download(blob, `Declaracao_Matricula_${student.matricula}_Secretaria.pdf`, "application/pdf");
+    }
+
+    function baixarCSV() {
+      const csv = IFSC_Session.exportDemandsCSV();
+      if (!csv) {
+        alert("Nenhum registro para exportar.");
+        return;
+      }
+      download(csv, "relatorio_demandas_secretaria_garopaba.csv", "text/csv;charset=utf-8");
+    }
+
+    function popularDadosExemplo() {
+      IFSC_Session.saveDemand({
+        matricula: "20241010045",
+        nome: "Mariana Silva de Souza",
+        curso: "CST Sistemas para Internet",
+        tipo: "Emissão de Declaração de Matrícula",
+        detalhes: "Chave: IFSC-99A1-2026 (Passe Escolar Paulotur)",
+        status: "Emitido Automaticamente",
+        arquivo: "Declaracao_Matricula.pdf"
+      });
+
+      IFSC_Session.saveDemand({
+        matricula: "20232010012",
+        nome: "Lucas Pereira dos Santos",
+        curso: "Técnico Integrado em Informática",
+        tipo: "Justificativa de Falta (Atestado)",
+        detalhes: "Atestado médico de 2 dias (Consulta odontológica)",
+        status: "Pendente de Análise (Ramon)",
+        arquivo: "Requerimento_Justificativa.pdf"
+      });
+
+      IFSC_Session.saveDemand({
+        matricula: "20251010088",
+        nome: "Beatriz Lima Rocha",
+        curso: "Técnico Integrado em Administração",
+        tipo: "Aproveitamento de Estudos",
+        detalhes: "Matéria: Matemática Financeira (Origem: IFSC Florianópolis)",
+        status: "Pendente de Análise (Ramon)",
+        arquivo: "Formulario_Validacao.docx"
+      });
+
+      renderTable();
+    }
+
+    function limparHistorico() {
+      if (confirm("Deseja realmente limpar todos os registros de teste?")) {
+        localStorage.removeItem("ifsc_secretaria_demands");
+        renderTable();
+      }
+    }
+  </script>
+</body>
+</html>

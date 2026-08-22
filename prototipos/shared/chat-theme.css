@@ -1,0 +1,344 @@
+/* =========================================================
+   DESIGN SYSTEM COMPILADO — PROTÓTIPOS CHATBOT IFSC GAROPABA
+   ========================================================= */
+
+:root {
+  --ifsc-green: #16a34a;
+  --ifsc-green-dark: #15803d;
+  --ifsc-green-light: #22c55e;
+  --ifsc-red: #dc2626;
+  
+  --bg-dark: #0b0f19;
+  --bg-surface: #111827;
+  --bg-card: #1f2937;
+  --bg-card-hover: #374151;
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --accent-blue: #38bdf8;
+  --accent-purple: #c084fc;
+  --accent-amber: #fbbf24;
+  
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(22, 163, 74, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Superior */
+.prototype-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.prototype-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.prototype-badge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-p1 { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+.badge-p2 { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+.badge-p3 { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.badge-admin { background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light); border: 1px solid var(--ifsc-green-light); }
+
+/* Banner de Reconhecimento do Usuário (Identificação Persistente) */
+.user-bar {
+  background: rgba(31, 41, 55, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.user-status-identified {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ifsc-green-light);
+  font-weight: 600;
+}
+
+.user-status-anonymous {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+}
+
+.btn-switch-user {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-switch-user:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+/* Layout Principal */
+.chat-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100vh - 160px);
+}
+
+.chat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Área de Mensagens */
+.messages-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  scroll-behavior: smooth;
+}
+
+.message-row {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 85%;
+}
+
+.message-row.bot {
+  align-self: flex-start;
+}
+
+.message-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.avatar-bot {
+  background: var(--ifsc-green);
+  color: white;
+}
+
+.avatar-user {
+  background: var(--accent-blue);
+  color: #0b0f19;
+  font-weight: 700;
+}
+
+.bubble {
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.bubble-bot {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-top-left-radius: 4px;
+}
+
+.bubble-user {
+  background: var(--ifsc-green-dark);
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+/* Cards de Ação e Arquivo Gerado no Chat */
+.document-card {
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid var(--ifsc-green);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.document-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.document-icon {
+  font-size: 2rem;
+  color: var(--ifsc-green-light);
+}
+
+.btn-download {
+  background: var(--ifsc-green);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.btn-download:hover {
+  background: var(--ifsc-green-light);
+}
+
+/* Botões Rápidos (Quick Replies) */
+.quick-replies-container {
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  background: rgba(17, 24, 39, 0.8);
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-chip {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-chip:hover {
+  background: var(--ifsc-green);
+  border-color: var(--ifsc-green);
+  color: white;
+}
+
+/* Barra de Entrada de Texto */
+.input-area {
+  padding: 1rem 1.5rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.input-field {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  border-color: var(--ifsc-green);
+}
+
+.btn-send {
+  background: var(--ifsc-green);
+  color: white;
+  border: none;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.2s;
+}
+
+.btn-send:hover {
+  background: var(--ifsc-green-light);
+  transform: scale(1.03);
+}
+
+/* Painel Lateral / Inspector de PLN & Debug */
+.debug-panel {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 1.5rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--accent-blue);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

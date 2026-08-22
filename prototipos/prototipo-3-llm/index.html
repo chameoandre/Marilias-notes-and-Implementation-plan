@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protótipo 3 — IA Generativa & Function Calling | TCC Marília Stefenon</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="../shared/chat-theme.css">
+  
+  <!-- PDF-Lib & Download.js -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+</head>
+<body>
+
+  <!-- Header Superior -->
+  <header class="prototype-header">
+    <div class="prototype-title">
+      <a href="../../index.html" style="color: var(--text-muted); text-decoration: none; font-size: 1.25rem;"><i class="bi bi-arrow-left-circle"></i></a>
+      <span class="prototype-badge badge-p3">Protótipo 3 • IA & Tools</span>
+      <h1 style="font-size: 1.1rem; font-weight: 700;">Chatbot Secretaria — LLM Generativo & Function Calling</h1>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="../prototipo-2-pln/index.html" class="btn-switch-user" style="text-decoration: none;">&larr; P2 (PLN)</a>
+      <a href="../painel-secretaria/index.html" class="btn-switch-user" style="text-decoration: none; color: var(--ifsc-green-light);"><i class="bi bi-person-badge"></i> Painel do Ramon</a>
+    </div>
+  </header>
+
+  <!-- Barra de Reconhecimento do Usuário e Configurações de IA -->
+  <div class="user-bar">
+    <div id="user-status-container">
+      <span class="user-status-anonymous"><i class="bi bi-incognito"></i> Aluno não identificado</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="color: var(--text-muted); font-size: 0.75rem;">Modo de Execução:</span>
+      <select id="select-mode" class="btn-switch-user" style="background: var(--bg-card); color: var(--text-main); outline: none;">
+        <option value="simulated">⚡ Simulação de Raciocínio (Offline / Grátis)</option>
+        <option value="gemini_live">🌐 Gemini API Live (Requer Chave)</option>
+      </select>
+      <button class="btn-switch-user" onclick="simularLogin('20241010045')">Mariana (SPI)</button>
+      <button class="btn-switch-user" onclick="simularLogout()"><i class="bi bi-x-circle"></i></button>
+    </div>
+  </div>
+
+  <!-- Container do Chat -->
+  <div class="chat-container">
+    <div class="chat-card">
+      
+      <!-- Caixa de Mensagens -->
+      <div class="messages-box" id="chat-messages">
+        <!-- Mensagens inseridas via JS -->
+      </div>
+
+      <!-- Inspector Técnico de Function Calling (Raciocínio da IA) -->
+      <div class="debug-panel" style="flex-direction: column; align-items: flex-start; gap: 0.35rem;">
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+          <span><i class="bi bi-robot"></i> Pipeline: <strong>LLM Reasoning + Autonomous Tool Execution</strong></span>
+          <span id="llm-latency" style="color: var(--accent-amber); font-weight: 600;">Latência: --</span>
+        </div>
+        <div id="llm-details" style="font-size: 0.75rem; color: var(--text-muted);">
+          Tool Executada: <span style="color: var(--text-main);">Nenhuma</span> | Contexto Injetado: <span style="color: var(--text-main);">RDP IFSC + SIGAA Database</span>
+        </div>
+      </div>
+
+      <!-- Sugestões Rápidas de Cenários Complexos -->
+      <div class="quick-replies-container" id="quick-replies">
+        <button class="btn-chip" onclick="handleQuickReply('Tranquei meu curso em 2024 e quero voltar agora. O que preciso fazer e quais meus direitos?')">🔄 Cenário Complexo: Destrancamento</button>
+        <button class="btn-chip" onclick="handleQuickReply('Gere meu atestado de matrícula com chave de autenticação para a empresa de estágio')">📑 Atestado com Tool Call</button>
+        <button class="btn-chip" onclick="handleQuickReply('Qual o processo completo de validação de disciplina vinda de outra faculdade?')">🎓 Aproveitamento com RDP</button>
+      </div>
+
+      <!-- Área de Digitação com Suporte a Microfone (Voz) -->
+      <div class="input-area">
+        <button id="btn-mic" class="btn-send" style="background: var(--bg-card); color: var(--text-muted);" onclick="toggleVoiceRecognition()" title="Falar por voz"><i class="bi bi-mic-fill"></i></button>
+        <input type="text" id="user-input" class="input-field" placeholder="Converse livremente ou use o microfone..." autocomplete="off">
+        <button id="btn-send" class="btn-send" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/sigaa-mock.js"></script>
+  <script src="gemini-tools.js"></script>
+</body>
+</html>

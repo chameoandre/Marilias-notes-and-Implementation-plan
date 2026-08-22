@@ -1,0 +1,330 @@
+/**
+ * Protótipo 3 — IA Generativa com Function Calling & Áudio
+ * Projeto TCC — Marília Stefenon
+ */
+
+// Estado e Ferramentas (Tools) da IA
+const IFSC_AGENT_TOOLS = [
+  {
+    name: "consultarAlunoSIGAA",
+    description: "Consulta situação cadastral, curso e dados de um estudante no SIGAA via Matrícula ou CPF.",
+    execute: (params) => {
+      const student = IFSC_Session.findStudent(params.identifier);
+      if (student) IFSC_Session.setCurrentUser(student);
+      return student ? { status: "sucesso", aluno: student } : { status: "nao_encontrado" };
+    }
+  },
+  {
+    name: "emitirDeclaracaoMatricula",
+    description: "Gera automaticamente a Declaração de Matrícula oficial em PDF com código de autenticidade.",
+    execute: async (params) => {
+      const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
+      if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
+      const { pdfBytes, codAutenticacao } = await gerarDeclaracaoMatriculaPDF(student, params.finalidade || "Comprovação Geral");
+      
+      const req = IFSC_Session.saveDemand({
+        matricula: student.matricula,
+        nome: student.nome,
+        curso: student.curso,
+        tipo: "Emissão de Declaração (LLM Tool)",
+        detalhes: `Autenticação: ${codAutenticacao} (${params.finalidade || "Geral"})`,
+        status: "Emitido Automaticamente",
+        arquivo: "Declaracao_Matricula.pdf"
+      });
+
+      return { status: "sucesso", pdfBytes, codAutenticacao, student, reqId: req.id };
+    }
+  },
+  {
+    name: "abrirRequerimentoSecretaria",
+    description: "Abre um requerimento formal na fila de atendimento da Secretaria Acadêmica (Ramon).",
+    execute: (params) => {
+      const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
+      const req = IFSC_Session.saveDemand({
+        matricula: student ? student.matricula : "Não identificado",
+        nome: student ? student.nome : "Estudante",
+        curso: student ? student.curso : "Geral",
+        tipo: params.tipo || "Requerimento Geral",
+        detalhes: params.motivo || "Solicitação via IA",
+        status: "Pendente de Análise (Ramon)",
+        arquivo: "Requerimento_Formal.pdf"
+      });
+      return { status: "sucesso", protocolo: req.id };
+    }
+  }
+];
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", () => {
+  renderUserStatus();
+  iniciarChat();
+
+  const input = document.getElementById("user-input");
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  window.addEventListener("ifsc_user_changed", () => {
+    renderUserStatus();
+  });
+});
+
+function renderUserStatus() {
+  const container = document.getElementById("user-status-container");
+  const user = IFSC_Session.getCurrentUser();
+
+  if (user) {
+    container.innerHTML = `
+      <span class="user-status-identified">
+        <i class="bi bi-person-check-fill"></i> 
+        ${user.nome} (${user.curso} • ${user.matricula})
+      </span>
+    `;
+  } else {
+    container.innerHTML = `
+      <span class="user-status-anonymous">
+        <i class="bi bi-incognito"></i> Aluno não identificado
+      </span>
+    `;
+  }
+}
+
+function iniciarChat() {
+  const user = IFSC_Session.getCurrentUser();
+  const chat = document.getElementById("chat-messages");
+  chat.innerHTML = "";
+
+  if (user) {
+    appendBotMessage(`Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋<br>Agente de IA Generativa conectado com suporte a chamadas de ferramentas e consulta institucional ao RDP e SIGAA.<br><br>Você pode falar pelo microfone ou digitar qualquer dúvida complexa ou pedido acadêmico.`);
+  } else {
+    appendBotMessage(`Olá! Sou o <strong>Assistente Generativo Inteligente</strong> da Secretaria Acadêmica do IFSC Garopaba.<br><br>Estou capacitado com ferramentas autônomas para emitir documentos, abrir requerimentos e analisar situações com base no Regulamento Acadêmico. Como posso te auxiliar?`);
+  }
+}
+
+// Processar Mensagem com IA
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendUserMessage(text);
+  input.value = "";
+  input.focus();
+
+  const mode = document.getElementById("select-mode").value;
+  const startTime = performance.now();
+
+  // Simulação de Raciocínio (Chain of Thought & Tool Call)
+  document.getElementById("llm-latency").innerText = `Processando raciocínio... ⏳`;
+  
+  setTimeout(async () => {
+    await executarRaciocinioIA(text, startTime);
+  }, 400);
+}
+
+// Motor de Raciocínio e Function Calling Simulado
+async function executarRaciocinioIA(prompt, startTime) {
+  const promptLower = prompt.toLowerCase();
+  const currentUser = IFSC_Session.getCurrentUser();
+
+  // 1. Identificar se há Matrícula ou CPF no prompt
+  const matMatch = prompt.match(/\b202[0-9]{7,9}\b/);
+  const cpfMatch = prompt.match(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/);
+  if (matMatch || cpfMatch) {
+    const student = IFSC_Session.findStudent(matMatch ? matMatch[0] : cpfMatch[0]);
+    if (student) IFSC_Session.setCurrentUser(student);
+  }
+
+  const activeStudent = IFSC_Session.getCurrentUser();
+
+  // --- CENÁRIO 1: TOOL CALL DE DECLARAÇÃO DE MATRÍCULA ---
+  if (promptLower.includes("declaração") || promptLower.includes("declaracao") || promptLower.includes("atestado") || promptLower.includes("comprovante")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>emitirDeclaracaoMatricula()</strong> | Parâmetros: <code>{ matricula: "${activeStudent ? activeStudent.matricula : 'solicitar'}" }</code>`;
+    
+    if (!activeStudent) {
+      const elapsed = (performance.now() - startTime).toFixed(0);
+      document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+      appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula oficial</strong> com autenticação digital no SIGAA, preciso que você informe seu <strong>número de matrícula ou CPF</strong>.`);
+      return;
+    }
+
+    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "emitirDeclaracaoMatricula");
+    const result = await tool.execute({ matricula: activeStudent.matricula, finalidade: "Comprovação e Estágio" });
+
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const blob = new Blob([result.pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const botReply = `
+      Consultei seus dados ativos no SIGAA para o curso <strong>${activeStudent.curso}</strong> (${activeStudent.fase}) e gerei sua declaração oficial com validade institucional.<br><br>
+      <strong>Chave de Autenticação Digital:</strong> <code>${result.codAutenticacao}</code>
+      <div class="document-card">
+        <div class="document-info">
+          <i class="bi bi-file-earmark-pdf-fill document-icon"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">Declaracao_Matricula_${activeStudent.matricula}.pdf</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Emitido por Tool Execution • Validade Nacional</div>
+          </div>
+        </div>
+        <a href="${url}" download="Declaracao_Matricula_${activeStudent.matricula}.pdf" class="btn-download">
+          <i class="bi bi-download"></i> Baixar PDF
+        </a>
+      </div>
+    `;
+    appendBotMessage(botReply);
+    return;
+  }
+
+  // --- CENÁRIO 2: CENÁRIO COMPLEXO DE RDP (DESTRANCAMENTO / RETORNO) ---
+  if (promptLower.includes("tranquei") || promptLower.includes("voltar") || promptLower.includes("destrancamento") || promptLower.includes("reabrir")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarRegulamentoRDP()</strong> + Análise Contextual`;
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const respostaRDP = `
+      Com base no <strong>Regulamento Didático-Pedagógico (RDP) do IFSC</strong>, eis a síntese das orientações para seu retorno aos estudos:<br><br>
+      1. <strong>Prazo Máximo de Trancamento:</strong> O RDP autoriza o trancamento por até 4 semestres (2 anos letivos). Caso seu período de trancamento não tenha expirado, seu vínculo permanece preservado.<br>
+      2. <strong>Procedimento de Retorno:</strong> O destrancamento deve ser solicitado no período de rematrícula oficial via SIGAA ou através de requerimento presencial na Secretaria com o servidor Ramon.<br>
+      3. <strong>Matriz Curricular:</strong> Caso a matriz do curso tenha passado por reformulação durante o período de afastamento, a coordenação realizará o estudo de equivalência das disciplinas cursadas.<br><br>
+      Deseja que eu abra uma solicitação de orientação junto à Secretaria Acadêmica?
+    `;
+    appendBotMessage(respostaRDP);
+    return;
+  }
+
+  // --- CENÁRIO 3: APROVEITAMENTO E VALIDAÇÃO ---
+  if (promptLower.includes("aproveitamento") || promptLower.includes("validacao") || promptLower.includes("dispensa")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Contexto: RDP Art. 46`;
+    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
+    const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Validação de Estudos", motivo: prompt });
+
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    appendBotMessage(`
+      Analisei as diretrizes para aproveitamento de estudos do IFSC. Foi gerado o protocolo preliminar de atendimento <code>${result.protocolo}</code> para seu acompanhamento.<br><br>
+      📌 <strong>Documentação necessária para deferimento:</strong><br>
+      • Histórico escolar oficial assinado pela instituição de origem;<br>
+      • Ementas das disciplinas cursadas com carga horária compatível ($\ge 75\\%$ de similaridade);<br>
+      • Entrega física na Secretaria Acadêmica (Câmpus Garopaba).
+    `);
+    return;
+  }
+
+  // Resposta Padrão com Síntese
+  const elapsed = (performance.now() - startTime).toFixed(0);
+  document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+  document.getElementById("llm-details").innerHTML = `Raciocínio Generativo Direto (Sem Tool Call)`;
+
+  appendBotMessage(`
+    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te ajudar a emitir declarações de matrícula, formalizar requerimentos de justificativa de falta e consultar o regulamento acadêmico.<br><br>
+    Caso queira emitir um documento ou abrir uma solicitação com o servidor Ramon, informe seus dados ou digite seu pedido específico.
+  `);
+}
+
+// Reconhecimento de Voz (Web Speech API)
+let isListening = false;
+let recognition = null;
+
+function toggleVoiceRecognition() {
+  const btn = document.getElementById("btn-mic");
+  
+  if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+    alert("Seu navegador não suporta reconhecimento de voz. Recomendamos o Google Chrome.");
+    return;
+  }
+
+  if (isListening) {
+    if (recognition) recognition.stop();
+    isListening = false;
+    btn.style.background = "var(--bg-card)";
+    btn.style.color = "var(--text-muted)";
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = "pt-BR";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    isListening = true;
+    btn.style.background = "var(--ifsc-red)";
+    btn.style.color = "white";
+    document.getElementById("user-input").placeholder = "Ouvindo sua voz... Fale agora...";
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("user-input").value = transcript;
+    sendMessage();
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    btn.style.background = "var(--bg-card)";
+    btn.style.color = "var(--text-muted)";
+    document.getElementById("user-input").placeholder = "Converse livremente ou use o microfone...";
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Erro no reconhecimento de voz:", event.error);
+    isListening = false;
+    btn.style.background = "var(--bg-card)";
+    btn.style.color = "var(--text-muted)";
+  };
+
+  recognition.start();
+}
+
+function handleQuickReply(text) {
+  const input = document.getElementById("user-input");
+  input.value = text;
+  sendMessage();
+}
+
+function simularLogin(matricula) {
+  const student = IFSC_Session.findStudent(matricula);
+  if (student) {
+    IFSC_Session.setCurrentUser(student);
+    iniciarChat();
+  }
+}
+
+function simularLogout() {
+  IFSC_Session.setCurrentUser(null);
+  iniciarChat();
+}
+
+function appendUserMessage(text) {
+  const chat = document.getElementById("chat-messages");
+  const row = document.createElement("div");
+  row.className = "message-row user";
+  row.innerHTML = `
+    <div class="avatar avatar-user"><i class="bi bi-person-fill"></i></div>
+    <div class="bubble bubble-user">${escapeHtml(text)}</div>
+  `;
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function appendBotMessage(html) {
+  const chat = document.getElementById("chat-messages");
+  const row = document.createElement("div");
+  row.className = "message-row bot";
+  row.innerHTML = `
+    <div class="avatar avatar-bot" style="background: var(--accent-amber); color: #0b0f19;"><i class="bi bi-robot"></i></div>
+    <div class="bubble bubble-bot">${html}</div>
+  `;
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  return div.innerHTML;
+}

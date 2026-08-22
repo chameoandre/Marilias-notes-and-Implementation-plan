@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protótipo 1 — Busca Lexical & Formulário Guiado | TCC Marília Stefenon</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="../shared/chat-theme.css">
+  
+  <!-- CDNs: Fuse.js & PDF-Lib & Download.js -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
+</head>
+<body>
+
+  <!-- Header Superior -->
+  <header class="prototype-header">
+    <div class="prototype-title">
+      <a href="../../index.html" style="color: var(--text-muted); text-decoration: none; font-size: 1.25rem;"><i class="bi bi-arrow-left-circle"></i></a>
+      <span class="prototype-badge badge-p1">Protótipo 1 • Sem PLN</span>
+      <h1 style="font-size: 1.1rem; font-weight: 700;">Chatbot Secretaria — Base Determinística & Busca Lexical</h1>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="../prototipo-2-pln/index.html" class="btn-switch-user" style="text-decoration: none;">Ir para P2 (PLN) &rarr;</a>
+      <a href="../painel-secretaria/index.html" class="btn-switch-user" style="text-decoration: none; color: var(--ifsc-green-light);"><i class="bi bi-person-badge"></i> Painel do Ramon</a>
+    </div>
+  </header>
+
+  <!-- Barra de Reconhecimento do Usuário (Sessão Persistente) -->
+  <div class="user-bar">
+    <div id="user-status-container">
+      <span class="user-status-anonymous"><i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante)</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="color: var(--text-muted); font-size: 0.75rem;">Simulação SIGAA:</span>
+      <button class="btn-switch-user" onclick="simularLogin('20241010045')">Mariana (SPI)</button>
+      <button class="btn-switch-user" onclick="simularLogin('20232010012')">Lucas (Info)</button>
+      <button class="btn-switch-user" onclick="simularLogout()"><i class="bi bi-x-circle"></i> Sair</button>
+    </div>
+  </div>
+
+  <!-- Container do Chat -->
+  <div class="chat-container">
+    <div class="chat-card">
+      
+      <!-- Caixa de Mensagens -->
+      <div class="messages-box" id="chat-messages">
+        <!-- Mensagens inseridas via JS -->
+      </div>
+
+      <!-- Inspector Técnico (Para avaliação e defesa de TCC) -->
+      <div class="debug-panel">
+        <div><i class="bi bi-cpu"></i> Motor: <strong>Fuse.js (Fuzzy Match Lexical)</strong></div>
+        <div id="debug-info">Aguardando entrada do usuário...</div>
+      </div>
+
+      <!-- Sugestões Rápidas (Quick Replies) -->
+      <div class="quick-replies-container" id="quick-replies">
+        <button class="btn-chip" onclick="handleQuickReply('Emitir Declaração de Matrícula')"><i class="bi bi-file-earmark-pdf"></i> Declaração de Matrícula</button>
+        <button class="btn-chip" onclick="handleQuickReply('Justificativa de Falta')"><i class="bi bi-calendar-x"></i> Justificativa de Falta</button>
+        <button class="btn-chip" onclick="handleQuickReply('Prazos de Rematrícula')"><i class="bi bi-clock-history"></i> Prazos de Rematrícula</button>
+        <button class="btn-chip" onclick="handleQuickReply('Horário da Secretaria')"><i class="bi bi-building"></i> Horário da Secretaria</button>
+        <button class="btn-chip" onclick="handleQuickReply('Trancamento de Curso')"><i class="bi bi-pause-circle"></i> Trancamento</button>
+      </div>
+
+      <!-- Área de Digitação -->
+      <div class="input-area">
+        <input type="text" id="user-input" class="input-field" placeholder="Digite sua dúvida ou informe sua Matrícula/CPF..." autocomplete="off">
+        <button id="btn-send" class="btn-send" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/sigaa-mock.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
