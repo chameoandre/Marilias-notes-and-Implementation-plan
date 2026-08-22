@@ -338,9 +338,14 @@
               </span>
             </td>
             <td>
-              <button class="btn-switch-user" onclick="reemitirPDF('${d.matricula}')" style="font-size: 0.75rem; color: var(--ifsc-green-light);">
-                <i class="bi bi-file-pdf"></i> Visualizar PDF
-              </button>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button class="btn-switch-user" onclick="reemitirPDF('${d.matricula}')" style="font-size: 0.75rem; color: var(--ifsc-green-light);">
+                  <i class="bi bi-file-pdf"></i> PDF
+                </button>
+                <a href="${IFSC_Session.generateMailtoLink({ nome: d.nome, matricula: d.matricula, curso: d.curso, fase: 'Regular', email: 'aluno@ifsc.edu.br' }, d.id, d.tipo, d.detalhes)}" target="_blank" class="btn-switch-user" style="font-size: 0.75rem; color: var(--accent-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-envelope-at-fill"></i> E-mail
+                </a>
+              </div>
             </td>
           </tr>
         `;

@@ -147,8 +147,17 @@ async function sendMessage() {
       arquivo: "Requerimento Formal"
     });
 
-    appendBotMessage(`Requerimento de <strong>Justificativa de Falta</strong> registrado com sucesso! 📝<br><br><strong>Protocolo:</strong> <code>${req.id}</code><br><strong>Motivo declarado:</strong> "${text}"<br><br>A solicitação foi enviada para a fila de atendimento da Secretaria Acadêmica (Ramon). Você receberá o parecer no e-mail cadastrado.`);
-    document.getElementById("debug-info").innerText = `Protocolo ${req.id} registrado no log da Secretaria.`;
+    const mailtoLink = user ? IFSC_Session.generateMailtoLink(user, req.id, "Justificativa de Falta", `Motivo: ${text}`) : null;
+    const emailButton = mailtoLink ? `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-arrow-up-fill"></i> Abrir e Enviar Comprovante para Meu E-mail (${user.email})
+        </a>
+      </div>
+    ` : "";
+
+    appendBotMessage(`Requerimento de <strong>Justificativa de Falta</strong> registrado com sucesso! 📝<br><br><strong>Protocolo:</strong> <code>${req.id}</code><br><strong>Motivo declarado:</strong> "${text}"<br><br>A solicitação foi enviada para a fila de atendimento da Secretaria Acadêmica (Ramon).${emailButton}`);
+    document.getElementById("debug-info").innerText = `Protocolo ${req.id} registrado no log da Secretaria. Notificação pronta para ${user ? user.email : 'aluno'}.`;
     return;
   }
 
