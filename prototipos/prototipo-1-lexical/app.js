@@ -75,29 +75,47 @@ function iniciarChat() {
   renderMainMenu(true);
 }
 
-// Renderizar Menu Principal Dinâmico (Orientado por Perfil e Prioridades)
+// Renderizar Menu Principal Categorizado e Humanizado
 function renderMainMenu(showGreeting = false) {
   currentFlowState = "IDLE";
   const user = IFSC_Session.getCurrentUser();
+  
   const saudacao = user 
-    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
-    : `Olá! Sou o assistente virtual da <strong>Secretaria Acadêmica do IFSC Câmpus Garopaba</strong>.`;
+    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo ativo no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>). Como posso te ajudar hoje?`
+    : `Olá! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o assistente virtual da Secretaria Acadêmica e estou aqui para te ajudar com informações sobre nossos cursos, processos seletivos e serviços acadêmicos.`;
 
   currentActiveMenuItems = IFSC_Session.getAvailableMenuItems();
 
-  const optionsHtml = currentActiveMenuItems.map((item, index) => {
-    const num = index + 1;
-    const badge = item.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${item.badge}</span>` : "";
-    return `<strong>[${num}]</strong> ${item.titulo}${badge}`;
-  }).join("<br>");
+  // Agrupar itens por categoria
+  const categories = {};
+  currentActiveMenuItems.forEach((item, index) => {
+    const cat = item.category || "Opções Gerais";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push({ ...item, menuIndex: index + 1 });
+  });
+
+  let categoryBlocksHtml = "";
+  for (const [catName, items] of Object.entries(categories)) {
+    const itemsList = items.map(it => {
+      const badge = it.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${it.badge}</span>` : "";
+      return `<strong>[${it.menuIndex}]</strong> ${it.titulo}${badge}`;
+    }).join("<br>");
+
+    categoryBlocksHtml += `
+      <div style="margin-top: 0.5rem; margin-bottom: 0.35rem;">
+        <span style="color: var(--accent-blue); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">${catName}</span><br>
+        ${itemsList}
+      </div>
+    `;
+  }
 
   const menuHtml = `
     ${showGreeting ? `${saudacao}<br><br>` : ""}
-    <strong>Menu de Atendimento:</strong><br>
-    Digite o <strong>número</strong> da opção desejada ou escreva sua dúvida em texto livre:<br><br>
+    <strong>Como posso te orientar agora?</strong><br>
+    Escolha uma opção pelo <strong>número</strong> ou digite sua dúvida com suas próprias palavras:<br>
     
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.7;">
-      ${optionsHtml}
+      ${categoryBlocksHtml}
       <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
@@ -105,7 +123,7 @@ function renderMainMenu(showGreeting = false) {
 
   appendBotMessage(menuHtml);
   renderQuickReplies();
-  document.getElementById("debug-info").innerText = `Menu Principal Dinâmico carregado (${currentActiveMenuItems.length} opções disponíveis para perfil '${user ? 'Aluno' : 'Visitante'}').`;
+  document.getElementById("debug-info").innerText = `Menu Categorizado Carregado (${currentActiveMenuItems.length} opções disponíveis para ${user ? 'Aluno' : 'Visitante'}).`;
 }
 
 // Renderizar Botões de Atalhos Rápidos Dinâmicos
@@ -124,7 +142,7 @@ function renderQuickReplies() {
     else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
     else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
 
-    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ")[0];
+    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ").slice(0, 2).join(" ");
     return `<button class="btn-chip" onclick="handleQuickReply('${num}')"><i class="bi ${icon}"></i> [${num}] ${labelCurto}</button>`;
   });
 
@@ -205,15 +223,26 @@ function renderAtendenteHumano() {
 // Encerrar Atendimento [9]
 function renderEncerrarSessao() {
   currentFlowState = "CLOSED";
+  const user = IFSC_Session.getCurrentUser();
+  const nomeUser = user ? user.nome.split(" ")[0] : "você";
+
   const html = `
     🚪 <strong>Atendimento Encerrado!</strong><br><br>
-    Obrigado por utilizar o assistente digital da Secretaria Acadêmica do IFSC Garopaba.<br>
-    Seus protocolos e documentos foram devidamente sincronizados.<br><br>
+    Foi um prazer atender ${nomeUser}! Espero ter ajudado com suas dúvidas.<br>
+    Seus protocolos e solicitações foram devidamente registrados.<br><br>
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; font-size: 0.85rem;">
-      Digite <strong>[0]</strong> ou <strong>[início]</strong> a qualquer momento para abrir um novo atendimento.
+      Tenha um excelente dia! 🌱<br>
+      Para iniciar uma nova conversa, digite <strong>[0]</strong> ou clique no botão abaixo.
     </div>
   `;
   appendBotMessage(html);
+
+  // Atualizar Quick Replies para exibir apenas opção de reiniciar
+  const container = document.getElementById("quick-replies");
+  if (container) {
+    container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+  }
+
   document.getElementById("debug-info").innerText = `Sessão finalizada. Digite [0] para reiniciar.`;
 }
 
@@ -230,6 +259,21 @@ async function sendMessage() {
   const textLower = text.toLowerCase();
   const cleanId = IFSC_Session.sanitize(text);
 
+  // Se a sessão estiver encerrada
+  if (currentFlowState === "CLOSED") {
+    if (text === "0" || textLower === "inicio" || textLower === "início" || textLower === "voltar" || textLower === "menu" || textLower === "oi" || textLower === "olá") {
+      currentFlowState = "IDLE";
+      renderMainMenu(true);
+    } else {
+      appendBotMessage(`O atendimento anterior foi finalizado. 😊<br>Digite <strong>[0]</strong> ou clique no botão abaixo para iniciar uma nova conversa.`);
+      const container = document.getElementById("quick-replies");
+      if (container) {
+        container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+      }
+    }
+    return;
+  }
+
   // --- NAVEGAÇÃO UNIVERSAL EM TODOS OS NÍVEIS ---
   if (text === "0" || textLower === "voltar" || textLower === "inicio" || textLower === "início" || textLower === "menu") {
     currentFlowState = "IDLE";
@@ -240,12 +284,6 @@ async function sendMessage() {
 
   if (text === "9" || textLower === "sair" || textLower === "encerrar" || textLower === "tchau" || textLower === "fechar") {
     renderEncerrarSessao();
-    return;
-  }
-
-  if (currentFlowState === "CLOSED") {
-    currentFlowState = "IDLE";
-    renderMainMenu(true);
     return;
   }
 

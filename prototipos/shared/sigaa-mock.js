@@ -102,14 +102,15 @@ const SIGAA_DATABASE = [
   }
 ];
 
-// 2. Matriz Oficial de Menus do IFSC Garopaba (Data-Driven com Prioridades, Perfis e Regras Temporais)
+// 2. Matriz Oficial de Menus do IFSC Garopaba (Data-Driven com Categorias, Prioridades e Regras Temporais)
 const MENU_REGISTRY = [
-  // --- AVISO TEMPORÁRIO COM ALTA PRIORIDADE (Sazonal) ---
+  // --- AVISOS & DESTAQUES TEMPORÁRIOS (Sazonal) ---
   {
     id: "rematricula_periodo",
-    titulo: "🚨 Período de Rematrícula 2026/2 Aberto no SIGAA!",
+    category: "🚨 Avisos & Destaques",
+    titulo: "Período de Rematrícula 2026/2 Aberto no SIGAA!",
     roles: ["aluno"],
-    priority: 10,
+    priority: 5,
     validity: { validFrom: "2026-07-01T00:00:00", validUntil: "2026-09-15T23:59:59" },
     badge: "Prazo: 15/Set",
     action: "FLOW_FAQ_TOPIC",
@@ -117,82 +118,113 @@ const MENU_REGISTRY = [
   },
   {
     id: "inscricoes_vestibular",
-    titulo: "📢 Inscrições Abertas: Cursos Técnicos e Vestibular Unificado",
-    roles: ["visitante", "aluno"],
-    priority: 15,
+    category: "🚨 Avisos & Destaques",
+    titulo: "Inscrições Abertas: Cursos Técnicos e Vestibular Unificado",
+    roles: ["visitante"],
+    priority: 8,
     validity: { validFrom: "2026-08-01T00:00:00", validUntil: "2026-10-31T23:59:59" },
     badge: "Editais Abertos",
     action: "FLOW_FAQ_TOPIC",
     payload: "ingresso"
   },
 
-  // --- SERVIÇOS EXCLUSIVOS DO ALUNO IDENTIFICADO ---
+  // --- CATEGORIA: INFORMAÇÕES & CURSOS (VISITANTE) ---
+  {
+    id: "cursos_garopaba",
+    category: "📚 Informações & Cursos",
+    titulo: "Conhecer os Cursos Ofertados (Técnicos, Superior e FIC)",
+    roles: ["visitante"],
+    priority: 20,
+    action: "FLOW_FAQ_TOPIC",
+    payload: "cursos"
+  },
+  {
+    id: "como_ingressar",
+    category: "📚 Informações & Cursos",
+    titulo: "Como Ingressar no IFSC (Vestibular, SiSU, Sorteios e Editais)",
+    roles: ["visitante"],
+    priority: 30,
+    action: "FLOW_FAQ_TOPIC",
+    payload: "ingresso"
+  },
+  {
+    id: "horario_secretaria",
+    category: "📚 Informações & Cursos",
+    titulo: "Horário de Atendimento e Localização da Secretaria",
+    roles: ["visitante"],
+    priority: 40,
+    action: "FLOW_FAQ_TOPIC",
+    payload: "horario"
+  },
+
+  // --- CATEGORIA: SERVIÇOS & ATENDIMENTO (VISITANTE) ---
+  {
+    id: "identificar_aluno",
+    category: "💼 Serviços & Atendimento",
+    titulo: "Já sou estudante do IFSC (Identificar Matrícula / CPF)",
+    roles: ["visitante"],
+    priority: 50,
+    action: "FLOW_LOGIN"
+  },
+  {
+    id: "atendente_visitante",
+    category: "💼 Serviços & Atendimento",
+    titulo: "Falar com a Secretaria Acadêmica / Enviar Dúvida",
+    roles: ["visitante"],
+    priority: 60,
+    action: "FLOW_ATENDENTE"
+  },
+
+  // --- CATEGORIA: SERVIÇOS & DOCUMENTOS DO SIGAA (ALUNO IDENTIFICADO) ---
   {
     id: "declaracao_matricula",
-    titulo: "📜 Emitir Declaração de Matrícula (com Autenticação Digital)",
+    category: "📜 Serviços & Documentos (SIGAA)",
+    titulo: "Emitir Declaração de Matrícula (Autenticação Digital)",
     roles: ["aluno"],
     priority: 20,
     action: "FLOW_DECLARACAO"
   },
   {
     id: "pendencias_sigaa",
-    titulo: "⚠️ Consultar Pendências no SIGAA (Documental / Biblioteca)",
+    category: "📜 Serviços & Documentos (SIGAA)",
+    titulo: "Consultar Pendências no SIGAA (Documental / Biblioteca)",
     roles: ["aluno"],
     priority: 30,
     action: "FLOW_PENDENCIAS"
   },
   {
     id: "requerimentos_aluno",
-    titulo: "📝 Abertura de Requerimento (Faltas / Aproveitamento / Geral)",
+    category: "📜 Serviços & Documentos (SIGAA)",
+    titulo: "Abertura de Requerimento (Faltas / Aproveitamento / Geral)",
     roles: ["aluno"],
     priority: 40,
     action: "SUBMENU_REQUERIMENTOS"
   },
   {
     id: "status_requerimentos",
-    titulo: "📋 Consultar Pareceres e Histórico de Solicitações",
+    category: "📜 Serviços & Documentos (SIGAA)",
+    titulo: "Consultar Meus Pedidos e Pareceres da Secretaria",
     roles: ["aluno"],
     priority: 50,
     action: "FLOW_CONSULTA_PARECER"
   },
 
-  // --- INFORMAÇÕES PÚBLICAS PARA VISITANTES E ALUNOS ---
+  // --- CATEGORIA: INFORMAÇÕES & SUPORTE (ALUNO IDENTIFICADO) ---
   {
-    id: "cursos_garopaba",
-    titulo: "📚 Conhecer os Cursos Ofertados no Câmpus Garopaba",
-    roles: ["visitante", "aluno"],
+    id: "duvidas_frequentes_aluno",
+    category: "ℹ️ Informações & Suporte",
+    titulo: "Dúvidas Frequentes (Rematrícula, Trancamento, Carteirinha)",
+    roles: ["aluno"],
     priority: 60,
-    action: "FLOW_FAQ_TOPIC",
-    payload: "cursos"
-  },
-  {
-    id: "como_ingressar",
-    titulo: "🎓 Como Ingressar no IFSC (Vestibular, SISU, Sorteios)",
-    roles: ["visitante", "aluno"],
-    priority: 70,
-    action: "FLOW_FAQ_TOPIC",
-    payload: "ingresso"
-  },
-  {
-    id: "duvidas_frequentes",
-    titulo: "ℹ️ Dúvidas Frequentes da Secretaria (RDP, Trancamento, Horários)",
-    roles: ["visitante", "aluno"],
-    priority: 80,
     action: "SUBMENU_FAQ"
   },
   {
-    id: "atendente_humano",
-    titulo: "👤 Falar com Atendente da Secretaria (Ramon / RA)",
-    roles: ["visitante", "aluno"],
-    priority: 90,
+    id: "atendente_aluno",
+    category: "ℹ️ Informações & Suporte",
+    titulo: "Falar com Atendente da Secretaria (Ramon / RA)",
+    roles: ["aluno"],
+    priority: 70,
     action: "FLOW_ATENDENTE"
-  },
-  {
-    id: "identificar_aluno",
-    titulo: "🔐 Já sou aluno do IFSC (Identificar Matrícula / CPF)",
-    roles: ["visitante"],
-    priority: 95,
-    action: "FLOW_LOGIN"
   }
 ];
 

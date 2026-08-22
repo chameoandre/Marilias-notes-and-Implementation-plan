@@ -128,24 +128,41 @@ let p3ActiveMenuItems = [];
 function renderMainMenuP3(showGreeting = false) {
   const user = IFSC_Session.getCurrentUser();
   const saudacao = user 
-    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
-    : `Olá! Sou o <strong>Assistente Generativo com IA & Function Calling</strong> da Secretaria Acadêmica do IFSC Garopaba.`;
+    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>). Como posso te orientar hoje?`
+    : `Olá! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Generativo Inteligente (LLM & Function Calling)</strong> da Secretaria Acadêmica.`;
 
   p3ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
 
-  const optionsHtml = p3ActiveMenuItems.map((item, index) => {
-    const num = index + 1;
-    const badge = item.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${item.badge}</span>` : "";
-    return `<strong>[${num}]</strong> ${item.titulo}${badge}`;
-  }).join("<br>");
+  // Agrupar itens por categoria
+  const categories = {};
+  p3ActiveMenuItems.forEach((item, index) => {
+    const cat = item.category || "Opções Gerais";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push({ ...item, menuIndex: index + 1 });
+  });
+
+  let categoryBlocksHtml = "";
+  for (const [catName, items] of Object.entries(categories)) {
+    const itemsList = items.map(it => {
+      const badge = it.badge ? `<span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.75rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.4rem; border: 1px solid rgba(239,68,68,0.3);">${it.badge}</span>` : "";
+      return `<strong>[${it.menuIndex}]</strong> ${it.titulo}${badge}`;
+    }).join("<br>");
+
+    categoryBlocksHtml += `
+      <div style="margin-top: 0.5rem; margin-bottom: 0.35rem;">
+        <span style="color: var(--accent-blue); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">${catName}</span><br>
+        ${itemsList}
+      </div>
+    `;
+  }
 
   const menuHtml = `
     ${showGreeting ? `${saudacao}<br><br>` : ""}
     <strong>Menu Interativo de Atendimento:</strong><br>
-    Você pode falar pelo microfone 🎙️, formular perguntas livres ou digitar um <strong>número</strong>:<br><br>
+    Você pode falar pelo microfone 🎙️, formular perguntas livres ou digitar um <strong>número</strong>:<br>
     
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.7;">
-      ${optionsHtml}
+      ${categoryBlocksHtml}
       <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.5rem 0;">
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
@@ -153,7 +170,7 @@ function renderMainMenuP3(showGreeting = false) {
 
   appendBotMessage(menuHtml);
   renderQuickRepliesP3();
-  document.getElementById("llm-details").innerHTML = `Menu Dinâmico Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
+  document.getElementById("llm-details").innerHTML = `Menu Categorizado Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
 }
 
 // Renderizar Botões de Atalhos Rápidos Dinâmicos no P3
@@ -172,7 +189,7 @@ function renderQuickRepliesP3() {
     else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
     else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
 
-    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ")[0];
+    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ").slice(0, 2).join(" ");
     return `<button class="btn-chip" onclick="handleQuickReply('${num}')"><i class="bi ${icon}"></i> [${num}] ${labelCurto}</button>`;
   });
 
@@ -201,12 +218,26 @@ function renderAtendenteP3() {
   `);
 }
 
+let p3IsClosed = false;
+
 function renderEncerrarP3() {
+  p3IsClosed = true;
+  const user = IFSC_Session.getCurrentUser();
+  const nomeUser = user ? user.nome.split(" ")[0] : "você";
+
   appendBotMessage(`
     🚪 <strong>Atendimento Concluído!</strong><br><br>
-    Obrigado por utilizar o Agente Generativo da Secretaria Acadêmica do IFSC Garopaba. Tenha um excelente dia! 👋<br><br>
-    <small style="color:var(--text-muted);">Digite <strong>[0]</strong> para reiniciar o menu a qualquer momento.</small>
+    Foi ótimo atender ${nomeUser}! Seus dados e protocolos permanecem salvos no SIGAA.<br>
+    Tenha um excelente dia! 🌱<br><br>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; font-size: 0.85rem;">
+      Digite <strong>[0]</strong> ou clique no botão abaixo para reiniciar o atendimento a qualquer momento.
+    </div>
   `);
+
+  const container = document.getElementById("quick-replies");
+  if (container) {
+    container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+  }
 }
 
 // Processar Mensagem com IA
@@ -221,13 +252,28 @@ async function sendMessage() {
 
   const textLower = text.toLowerCase();
 
+  // Se a sessão estiver encerrada
+  if (p3IsClosed) {
+    if (text === "0" || textLower === "inicio" || textLower === "início" || textLower === "voltar" || textLower === "menu" || textLower === "oi" || textLower === "olá") {
+      p3IsClosed = false;
+      renderMainMenuP3(true);
+    } else {
+      appendBotMessage(`O atendimento anterior foi finalizado. 😊<br>Digite <strong>[0]</strong> ou clique no botão abaixo para reiniciar.`);
+      const container = document.getElementById("quick-replies");
+      if (container) {
+        container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+      }
+    }
+    return;
+  }
+
   // Navegação Universal
   if (text === "0" || textLower === "voltar" || textLower === "inicio" || textLower === "início" || textLower === "menu") {
     renderMainMenuP3(false);
     return;
   }
 
-  if (text === "9" || textLower === "sair" || textLower === "encerrar" || textLower === "tchau") {
+  if (text === "9" || textLower === "sair" || textLower === "encerrar" || textLower === "tchau" || textLower === "fechar") {
     renderEncerrarP3();
     return;
   }
