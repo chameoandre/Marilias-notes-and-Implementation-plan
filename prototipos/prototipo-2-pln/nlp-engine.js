@@ -176,12 +176,18 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarChat();
 
   const input = document.getElementById("user-input");
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
 
   window.addEventListener("ifsc_user_changed", () => {
     renderUserStatus();
+    renderMainMenuP2(false);
   });
 });
 
@@ -199,7 +205,7 @@ function renderUserStatus() {
   } else {
     container.innerHTML = `
       <span class="user-status-anonymous">
-        <i class="bi bi-incognito"></i> Aluno não identificado
+        <i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante / Comunidade)
       </span>
     `;
   }
@@ -240,7 +246,34 @@ function renderMainMenuP2(showGreeting = false) {
   `;
 
   appendBotMessage(menuHtml);
+  renderQuickRepliesP2();
   document.getElementById("pln-details").innerHTML = `Menu Dinâmico Ativo (${p2ActiveMenuItems.length} opções disponíveis) • Digite um número [1-${p2ActiveMenuItems.length}] ou frase livre`;
+}
+
+// Renderizar Botões de Atalhos Rápidos Dinâmicos no P2
+function renderQuickRepliesP2() {
+  const container = document.getElementById("quick-replies");
+  if (!container) return;
+
+  const chips = p2ActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    let icon = "bi-arrow-right-circle";
+    if (item.action.includes("DECLARACAO")) icon = "bi-file-earmark-pdf";
+    else if (item.action.includes("PENDENCIAS")) icon = "bi-exclamation-triangle";
+    else if (item.action.includes("PARECER")) icon = "bi-card-checklist";
+    else if (item.action.includes("REQUERIMENTO")) icon = "bi-pencil-square";
+    else if (item.action.includes("FAQ")) icon = "bi-question-circle";
+    else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
+    else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
+
+    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ")[0];
+    return `<button class="btn-chip" onclick="handleQuickReply('${num}')"><i class="bi ${icon}"></i> [${num}] ${labelCurto}</button>`;
+  });
+
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-house-door"></i> [0] Início</button>`);
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('9')"><i class="bi bi-box-arrow-right"></i> [9] Sair</button>`);
+
+  container.innerHTML = chips.join(" ");
 }
 
 function renderAtendenteP2() {
@@ -491,6 +524,14 @@ async function sendMessage() {
   }
 }
 
+function formatBotReply(text) {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/•/g, "&bull;")
+    .replace(/\n/g, "<br>");
+}
+
 // Executar ação selecionada no menu numérico do P2
 function executeP2MenuItem(item) {
   const user = IFSC_Session.getCurrentUser();
@@ -542,7 +583,7 @@ function executeP2MenuItem(item) {
     case "FLOW_FAQ_TOPIC":
       const topicId = item.payload || "horario";
       const faqItem = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
-      appendBotMessage(`<strong>${faqItem.titulo}</strong><br><br>${faqItem.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
+      appendBotMessage(`<strong>${faqItem.titulo}</strong><br><br>${formatBotReply(faqItem.resposta)}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
       break;
 
     case "FLOW_ATENDENTE":

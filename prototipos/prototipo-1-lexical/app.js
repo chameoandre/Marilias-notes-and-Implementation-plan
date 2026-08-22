@@ -13,8 +13,13 @@ let currentActiveMenuItems = [];
 // Instância do Fuse.js para Busca Lexical (alimentada com a base oficial)
 const fuseOptions = {
   includeScore: true,
-  threshold: 0.4, // Tolerância a pequenos erros de digitação (typos)
-  keys: ["titulo", "tags", "resposta"]
+  threshold: 0.55,
+  ignoreLocation: true,
+  keys: [
+    { name: "tags", weight: 0.5 },
+    { name: "titulo", weight: 0.3 },
+    { name: "resposta", weight: 0.2 }
+  ]
 };
 let fuseEngine = new Fuse(SECRETARIA_FAQ, fuseOptions);
 
@@ -24,12 +29,18 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarChat();
 
   const input = document.getElementById("user-input");
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
 
   window.addEventListener("ifsc_user_changed", () => {
     renderUserStatus();
+    renderMainMenu(false);
   });
 });
 
@@ -93,7 +104,34 @@ function renderMainMenu(showGreeting = false) {
   `;
 
   appendBotMessage(menuHtml);
+  renderQuickReplies();
   document.getElementById("debug-info").innerText = `Menu Principal Dinâmico carregado (${currentActiveMenuItems.length} opções disponíveis para perfil '${user ? 'Aluno' : 'Visitante'}').`;
+}
+
+// Renderizar Botões de Atalhos Rápidos Dinâmicos
+function renderQuickReplies() {
+  const container = document.getElementById("quick-replies");
+  if (!container) return;
+
+  const chips = currentActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    let icon = "bi-arrow-right-circle";
+    if (item.action.includes("DECLARACAO")) icon = "bi-file-earmark-pdf";
+    else if (item.action.includes("PENDENCIAS")) icon = "bi-exclamation-triangle";
+    else if (item.action.includes("PARECER")) icon = "bi-card-checklist";
+    else if (item.action.includes("REQUERIMENTO")) icon = "bi-pencil-square";
+    else if (item.action.includes("FAQ")) icon = "bi-question-circle";
+    else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
+    else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
+
+    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ")[0];
+    return `<button class="btn-chip" onclick="handleQuickReply('${num}')"><i class="bi ${icon}"></i> [${num}] ${labelCurto}</button>`;
+  });
+
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-house-door"></i> [0] Início</button>`);
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('9')"><i class="bi bi-box-arrow-right"></i> [9] Sair</button>`);
+
+  container.innerHTML = chips.join(" ");
 }
 
 // Submenu de Requerimentos
@@ -159,10 +197,6 @@ function renderAtendenteHumano() {
       <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
     </div>
   `;
-  currentFlowState = "MENU_ATENDENTE";
-  appendBotMessage(html);
-  document.getElementById("debug-info").innerText = `Atendimento Humano exibido. Opção [1] registrar recado, [0] voltar.`;
-}
   currentFlowState = "MENU_ATENDENTE";
   appendBotMessage(html);
   document.getElementById("debug-info").innerText = `Atendimento Humano exibido. Opção [1] registrar recado, [0] voltar.`;
@@ -493,11 +527,18 @@ function exibirHistoricoSolicitacoes(user) {
   appendBotMessage(`Seu histórico de solicitações: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar ao Menu | [9] Sair</small>`);
 }
 
-// Processador Lexical P1
+// Formatador de Markdown/HTML para mensagens do bot
+function formatBotReply(text) {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/•/g, "&bull;")
+    .replace(/\n/g, "<br>");
+}
+
+// Processador Lexical P1 (Fuse.js + Fallback de Tags)
 function processarBuscaLexical(query) {
   const startTime = performance.now();
-  const results = fuseEngine.search(query);
-  const elapsed = (performance.now() - startTime).toFixed(2);
   const queryLower = query.toLowerCase();
 
   if (queryLower.includes("atendente") || queryLower.includes("humano") || queryLower.includes("ramon")) {
@@ -505,20 +546,51 @@ function processarBuscaLexical(query) {
     return;
   }
 
-  if (queryLower.includes("sair") || queryLower.includes("encerrar")) {
+  if (queryLower.includes("sair") || queryLower.includes("encerrar") || queryLower.includes("tchau")) {
     renderEncerrarSessao();
     return;
   }
 
-  // Resultado de FAQ Lexical
-  if (results.length > 0 && results[0].score < 0.45) {
-    const item = results[0].item;
-    appendBotMessage(`<strong>${item.titulo}</strong><br><br>${item.resposta}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
-    document.getElementById("debug-info").innerText = `Fuse.js Match: "${item.id}" (Score: ${(1 - results[0].score).toFixed(2)}, Latência: ${elapsed}ms)`;
-  } else {
-    appendBotMessage(`Não encontrei uma resposta exata para sua busca lexical.<br><br>💡 Digite <strong>[0]</strong> para ver o Menu de Opções ou selecione uma opção abaixo.`);
-    document.getElementById("debug-info").innerText = `Fuse.js Sem Match relevante (Score > 0.45, Latência: ${elapsed}ms)`;
+  // Atalhos de serviços diretos por palavras-chave
+  if (queryLower.includes("declaração") || queryLower.includes("declaracao") || queryLower.includes("atestado de matricula")) {
+    executeMenuItemAction({ action: "FLOW_DECLARACAO" });
+    return;
   }
+  if (queryLower.includes("pendencia") || queryLower.includes("pendência") || queryLower.includes("debito")) {
+    executeMenuItemAction({ action: "FLOW_PENDENCIAS" });
+    return;
+  }
+  if (queryLower.includes("meus pedidos") || queryLower.includes("parecer") || queryLower.includes("meu requerimento")) {
+    executeMenuItemAction({ action: "FLOW_CONSULTA_PARECER" });
+    return;
+  }
+
+  // 1. Busca Lexical via Fuse.js
+  const results = fuseEngine.search(query);
+  const elapsed = (performance.now() - startTime).toFixed(2);
+
+  if (results.length > 0 && results[0].score < 0.6) {
+    const item = results[0].item;
+    appendBotMessage(`<strong>${item.titulo}</strong><br><br>${formatBotReply(item.resposta)}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    document.getElementById("debug-info").innerText = `Fuse.js Match: "${item.id}" (Score: ${(1 - results[0].score).toFixed(2)}, Latência: ${elapsed}ms)`;
+    return;
+  }
+
+  // 2. Fallback por correspondência direta em tags do FAQ
+  const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+  const tagMatch = SECRETARIA_FAQ.find(f => 
+    f.tags.some(t => queryLower.includes(t)) ||
+    queryWords.some(w => f.tags.includes(w) || f.titulo.toLowerCase().includes(w))
+  );
+
+  if (tagMatch) {
+    appendBotMessage(`<strong>${tagMatch.titulo}</strong><br><br>${formatBotReply(tagMatch.resposta)}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    document.getElementById("debug-info").innerText = `Fallback Keyword Match: "${tagMatch.id}" (Latência: ${elapsed}ms)`;
+    return;
+  }
+
+  appendBotMessage(`Não encontrei uma resposta exata para sua busca lexical.<br><br>💡 Digite <strong>[0]</strong> para ver o Menu de Opções ou selecione uma das opções abaixo.`);
+  document.getElementById("debug-info").innerText = `Fuse.js Sem Match relevante (Score > 0.6, Latência: ${elapsed}ms)`;
 }
 
 // Emitir Declaração em PDF na hora

@@ -82,12 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarChat();
 
   const input = document.getElementById("user-input");
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
 
   window.addEventListener("ifsc_user_changed", () => {
     renderUserStatus();
+    renderMainMenuP3(false);
   });
 });
 
@@ -105,7 +111,7 @@ function renderUserStatus() {
   } else {
     container.innerHTML = `
       <span class="user-status-anonymous">
-        <i class="bi bi-incognito"></i> Aluno não identificado
+        <i class="bi bi-incognito"></i> Aluno não identificado (Acesso Visitante / Comunidade)
       </span>
     `;
   }
@@ -146,7 +152,34 @@ function renderMainMenuP3(showGreeting = false) {
   `;
 
   appendBotMessage(menuHtml);
+  renderQuickRepliesP3();
   document.getElementById("llm-details").innerHTML = `Menu Dinâmico Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
+}
+
+// Renderizar Botões de Atalhos Rápidos Dinâmicos no P3
+function renderQuickRepliesP3() {
+  const container = document.getElementById("quick-replies");
+  if (!container) return;
+
+  const chips = p3ActiveMenuItems.map((item, index) => {
+    const num = index + 1;
+    let icon = "bi-arrow-right-circle";
+    if (item.action.includes("DECLARACAO")) icon = "bi-file-earmark-pdf";
+    else if (item.action.includes("PENDENCIAS")) icon = "bi-exclamation-triangle";
+    else if (item.action.includes("PARECER")) icon = "bi-card-checklist";
+    else if (item.action.includes("REQUERIMENTO")) icon = "bi-pencil-square";
+    else if (item.action.includes("FAQ")) icon = "bi-question-circle";
+    else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
+    else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
+
+    const labelCurto = item.titulo.replace(/^[^\w\s]+/, '').trim().split(" ")[0];
+    return `<button class="btn-chip" onclick="handleQuickReply('${num}')"><i class="bi ${icon}"></i> [${num}] ${labelCurto}</button>`;
+  });
+
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-house-door"></i> [0] Início</button>`);
+  chips.push(`<button class="btn-chip" onclick="handleQuickReply('9')"><i class="bi bi-box-arrow-right"></i> [9] Sair</button>`);
+
+  container.innerHTML = chips.join(" ");
 }
 
 function renderAtendenteP3() {
@@ -421,7 +454,47 @@ async function executarRaciocinioIA(prompt, startTime) {
       </div>
     ` : "";
 
-    appendBotMessage(`Requerimento de <strong>Justificativa de Ausência</strong> aberto com sucesso! ✅<br><br><strong>Protocolo:</strong> <code>${result.protocolo}</code><br><strong>Status:</strong> Pendente de Análise (Ramon)<br><br>Sua justificativa foi indexada e encaminhada para a mesa de atendimento da Secretaria Acadêmica.${emailBtn}`);
+  // --- CENÁRIO 7: CURSOS OFERTADOS NO CÂMPUS GAROPABA ---
+  if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("sistemas para internet")) {
+    document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Matriz de Cursos do Câmpus Garopaba</strong>`;
+    const faq = SECRETARIA_FAQ.find(f => f.id === "cursos");
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    return;
+  }
+
+  // --- CENÁRIO 8: INGRESSO & PROCESSOS SELETIVOS ---
+  if (promptLower.includes("ingresso") || promptLower.includes("vestibular") || promptLower.includes("sisu") || promptLower.includes("sorteio") || promptLower.includes("entrar") || promptLower.includes("inscricao") || promptLower.includes("inscrição")) {
+    document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Processos Seletivos & Ingresso</strong>`;
+    const faq = SECRETARIA_FAQ.find(f => f.id === "ingresso");
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    return;
+  }
+
+  // --- CENÁRIO 9: HORÁRIO & CONTATOS DA SECRETARIA ---
+  if (promptLower.includes("horario") || promptLower.includes("horário") || promptLower.includes("telefone") || promptLower.includes("whatsapp") || promptLower.includes("email") || promptLower.includes("e-mail") || promptLower.includes("aberto") || promptLower.includes("secretaria")) {
+    document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Atendimento e Contatos da Secretaria</strong>`;
+    const faq = SECRETARIA_FAQ.find(f => f.id === "horario");
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    return;
+  }
+
+  // --- CENÁRIO 10: CARTEIRINHA / PASSE ESCOLAR ---
+  if (promptLower.includes("carteirinha") || promptLower.includes("passe") || promptLower.includes("onibus") || promptLower.includes("ônibus") || promptLower.includes("paulotur") || promptLower.includes("transporte")) {
+    document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Carteirinha & Passe Escolar</strong>`;
+    const faq = SECRETARIA_FAQ.find(f => f.id === "carteirinha");
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
     return;
   }
 
@@ -431,7 +504,7 @@ async function executarRaciocinioIA(prompt, startTime) {
   document.getElementById("llm-details").innerHTML = `Raciocínio Generativo Direto (Sem Tool Call)`;
 
   appendBotMessage(`
-    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te ajudar a emitir declarações de matrícula com autenticidade digital, consultar pendências no SIGAA, verificar o parecer do servidor Ramon sobre seus requerimentos ou orientar sobre as normas do RDP.<br><br>
+    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te orientar sobre cursos ofertados no Câmpus Garopaba, vestibular e processos seletivos, emitir declarações de matrícula com autenticidade digital no SIGAA, consultar pendências, verificar o parecer do servidor Ramon sobre seus requerimentos ou explicar regras do RDP.<br><br>
     Como posso te ajudar agora?
   `);
 }
