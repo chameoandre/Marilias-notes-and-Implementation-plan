@@ -186,15 +186,61 @@ function renderUserStatus() {
 }
 
 function iniciarChat() {
-  const user = IFSC_Session.getCurrentUser();
   const chat = document.getElementById("chat-messages");
   chat.innerHTML = "";
+  renderMainMenuP2(true);
+}
 
-  if (user) {
-    appendBotMessage(`Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋<br>Motor de PLN pronto. Você pode digitar ou falar sua demanda em linguagem natural (ex: pedir atestados, justificar faltas ou consultar regras).`);
-  } else {
-    appendBotMessage(`Olá! Sou o <strong>Chatbot Inteligente com PLN</strong> da Secretaria Acadêmica do IFSC Garopaba.<br><br>Você pode conversar comigo naturalmente como falaria com um atendente. Como posso te orientar hoje?`);
-  }
+function renderMainMenuP2(showGreeting = false) {
+  const user = IFSC_Session.getCurrentUser();
+  const saudacao = user 
+    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
+    : `Olá! Sou o <strong>Chatbot Inteligente com PLN</strong> da Secretaria Acadêmica do IFSC Garopaba.`;
+
+  const menuHtml = `
+    ${showGreeting ? `${saudacao}<br><br>` : ""}
+    <strong>Menu de Atendimento (PLN & Atalhos Numéricos):</strong><br>
+    Você pode falar/digitar em linguagem natural ou escolher um <strong>número</strong>:<br><br>
+    
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
+      <strong>[1]</strong> 📜 Emitir Declaração de Matrícula (com Chave Digital)<br>
+      <strong>[2]</strong> ⚠️ Consultar Pendências no SIGAA (Documentos / Biblioteca)<br>
+      <strong>[3]</strong> 📋 Rastrear Status & Pareceres de Requerimentos<br>
+      <strong>[4]</strong> 📝 Requerimentos (Justificativa de Falta / Aproveitamento)<br>
+      <strong>[5]</strong> ℹ️ Dúvidas Frequentes (Horário, Rematrícula, Trancamento)<br>
+      <strong>[8]</strong> 👤 Falar com Atendente (Servidor Ramon)<br>
+      <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
+    </div>
+  `;
+
+  appendBotMessage(menuHtml);
+  document.getElementById("pln-details").innerHTML = `Menu Ativo • Aguardando número [1-9] ou frase natural`;
+}
+
+function renderAtendenteP2() {
+  const user = IFSC_Session.getCurrentUser();
+  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Estudante'}&body=Olá Ramon,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
+
+  appendBotMessage(`
+    👤 <strong>Atendimento com o Servidor Ramon:</strong><br><br>
+    • <strong>Local:</strong> Bloco Administrativo (Secretaria Acadêmica)<br>
+    • <strong>Horário:</strong> 08h00 às 20h30 (Segunda a Sexta)<br>
+    • <strong>Telefone:</strong> (48) 3254-7336 | <strong>E-mail:</strong> <code>secretaria.gpb@ifsc.edu.br</code><br><br>
+    <div style="margin-bottom: 0.5rem;">
+      <a href="${mailtoRamon}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.45rem 0.8rem;">
+        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para o Ramon
+      </a>
+    </div>
+    <small style="color:var(--text-muted);">[0] Voltar ao Início | [9] Sair</small>
+  `);
+}
+
+function renderEncerrarP2() {
+  appendBotMessage(`
+    🚪 <strong>Atendimento Finalizado!</strong><br><br>
+    Obrigado por utilizar o assistente PLN da Secretaria Acadêmica do IFSC Garopaba. Tenha um ótimo dia! 👋<br><br>
+    <small style="color:var(--text-muted);">Digite <strong>[0]</strong> para iniciar um novo atendimento.</small>
+  `);
 }
 
 // Processar Mensagem do Usuário no P2
@@ -206,6 +252,71 @@ async function sendMessage() {
   appendUserMessage(text);
   input.value = "";
   input.focus();
+
+  const textLower = text.toLowerCase();
+
+  // Navegação Universal
+  if (text === "0" || textLower === "voltar" || textLower === "inicio" || textLower === "início" || textLower === "menu") {
+    p2CurrentIntent = null;
+    p2ActiveSlots = {};
+    renderMainMenuP2(false);
+    return;
+  }
+
+  if (text === "9" || textLower === "sair" || textLower === "encerrar" || textLower === "tchau") {
+    renderEncerrarP2();
+    return;
+  }
+
+  if (text === "8" || textLower.includes("atendente") || textLower.includes("ramon") || textLower.includes("humano")) {
+    renderAtendenteP2();
+    return;
+  }
+
+  // Atalhos Numéricos
+  if (text === "1") {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para emitir sua <strong>Declaração de Matrícula</strong>, por favor informe sua <strong>matrícula ou CPF</strong>:`);
+      return;
+    }
+    processarEmissaoAtestadoP2(user, "Fins Acadêmicos");
+    return;
+  }
+
+  if (text === "2") {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para consultar suas <strong>pendências</strong>, por favor digite sua <strong>matrícula ou CPF</strong>:`);
+      return;
+    }
+    const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
+    const mailto = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
+    const btn = `<div style="margin-top:0.5rem;"><a href="${mailto}" target="_blank" class="btn-chip" style="color:#a78bfa; text-decoration:none;"><i class="bi bi-envelope-paper"></i> Enviar Pendências ao Meu E-mail</a></div>`;
+    if (!pendencias.length) {
+      appendBotMessage(`Situação Regular! 🎉 Nenhuma pendência documental ou acadêmica ativa.${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+    } else {
+      const items = pendencias.map(p => `<li><strong style="color:var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Prazo: ${p.prazo})</li>`).join("");
+      appendBotMessage(`Constam <strong>${pendencias.length} pendência(s)</strong> no SIGAA: ⚠️<br><ul style="margin:0.5rem 0 0.5rem 1.25rem;">${items}</ul>${btn}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+    }
+    return;
+  }
+
+  if (text === "3") {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para rastrear o <strong>status e parecer</strong> de suas solicitações, digite sua <strong>matrícula ou CPF</strong>:`);
+      return;
+    }
+    const demands = IFSC_Session.getStudentDemands(user.matricula);
+    if (!demands.length) {
+      appendBotMessage(`Nenhuma solicitação encontrada no momento.<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+      return;
+    }
+    const htmlDemands = demands.map(d => `<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.6rem; margin-bottom:0.5rem;"><strong>${d.id} — ${d.tipo}</strong>: ${d.status}<br><small>${d.detalhes}</small>${d.parecer ? `<br><strong>Parecer:</strong> "${d.parecer}"` : ''}</div>`).join("");
+    appendBotMessage(`Status dos seus pedidos: 📋<br><br>${htmlDemands}<br><small style="color:var(--text-muted);">[0] Voltar | [9] Sair</small>`);
+    return;
+  }
 
   const startTime = performance.now();
 

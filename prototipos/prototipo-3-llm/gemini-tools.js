@@ -112,15 +112,62 @@ function renderUserStatus() {
 }
 
 function iniciarChat() {
-  const user = IFSC_Session.getCurrentUser();
   const chat = document.getElementById("chat-messages");
   chat.innerHTML = "";
+  renderMainMenuP3(true);
+}
 
-  if (user) {
-    appendBotMessage(`Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋<br>Agente de IA Generativa conectado com suporte a chamadas de ferramentas e consulta institucional ao RDP e SIGAA.<br><br>Você pode falar pelo microfone ou digitar qualquer dúvida complexa ou pedido acadêmico.`);
-  } else {
-    appendBotMessage(`Olá! Sou o <strong>Assistente Generativo Inteligente</strong> da Secretaria Acadêmica do IFSC Garopaba.<br><br>Estou capacitado com ferramentas autônomas para emitir documentos, abrir requerimentos e analisar situações com base no Regulamento Acadêmico. Como posso te auxiliar?`);
-  }
+function renderMainMenuP3(showGreeting = false) {
+  const user = IFSC_Session.getCurrentUser();
+  const saudacao = user 
+    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 (Matrícula: <code>${user.matricula}</code> - ${user.curso})`
+    : `Olá! Sou o <strong>Assistente Generativo com IA & Function Calling</strong> da Secretaria Acadêmica do IFSC Garopaba.`;
+
+  const menuHtml = `
+    ${showGreeting ? `${saudacao}<br><br>` : ""}
+    <strong>Menu Interativo de Atendimento:</strong><br>
+    Você pode falar pelo microfone 🎙️, formular perguntas livres ou digitar um <strong>número</strong>:<br><br>
+    
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; font-size: 0.88rem; line-height: 1.6;">
+      <strong>[1]</strong> 📜 Emitir Declaração de Matrícula (com Chave Digital)<br>
+      <strong>[2]</strong> ⚠️ Auditar Pendências no SIGAA (Documental / Biblioteca)<br>
+      <strong>[3]</strong> 📋 Rastrear Status & Pareceres de Requerimentos<br>
+      <strong>[4]</strong> 📝 Requerimentos (Justificativa de Falta / Aproveitamento)<br>
+      <strong>[5]</strong> ℹ️ RDP & Dúvidas (Destrancamento, Horários, Calendário)<br>
+      <strong>[8]</strong> 👤 Falar com Atendente Humano (Servidor Ramon)<br>
+      <strong>[9]</strong> 🚪 Sair / Encerrar Atendimento
+    </div>
+  `;
+
+  appendBotMessage(menuHtml);
+  document.getElementById("llm-details").innerHTML = `Menu Ativo • Pronto para entrada de voz, texto livre ou atalhos [1-9]`;
+}
+
+function renderAtendenteP3() {
+  const user = IFSC_Session.getCurrentUser();
+  const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Estudante'}&body=Olá Ramon,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
+
+  appendBotMessage(`
+    👤 <strong>Atendimento Presencial e Direto — Servidor Ramon:</strong><br><br>
+    • <strong>Local:</strong> Bloco Administrativo (Secretaria Acadêmica)<br>
+    • <strong>Horário:</strong> 08h00 às 20h30 (Segunda a Sexta)<br>
+    • <strong>Telefone / WhatsApp:</strong> (48) 3254-7336<br>
+    • <strong>E-mail:</strong> <code>secretaria.gpb@ifsc.edu.br</code><br><br>
+    <div style="margin-bottom: 0.5rem;">
+      <a href="${mailtoRamon}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.45rem 0.8rem;">
+        <i class="bi bi-envelope-paper-heart-fill"></i> Abrir E-mail para o Ramon
+      </a>
+    </div>
+    <small style="color:var(--text-muted);">[0] Voltar ao Início | [9] Sair</small>
+  `);
+}
+
+function renderEncerrarP3() {
+  appendBotMessage(`
+    🚪 <strong>Atendimento Concluído!</strong><br><br>
+    Obrigado por utilizar o Agente Generativo da Secretaria Acadêmica do IFSC Garopaba. Tenha um excelente dia! 👋<br><br>
+    <small style="color:var(--text-muted);">Digite <strong>[0]</strong> para reiniciar o menu a qualquer momento.</small>
+  `);
 }
 
 // Processar Mensagem com IA
@@ -133,7 +180,24 @@ async function sendMessage() {
   input.value = "";
   input.focus();
 
-  const mode = document.getElementById("select-mode").value;
+  const textLower = text.toLowerCase();
+
+  // Navegação Universal
+  if (text === "0" || textLower === "voltar" || textLower === "inicio" || textLower === "início" || textLower === "menu") {
+    renderMainMenuP3(false);
+    return;
+  }
+
+  if (text === "9" || textLower === "sair" || textLower === "encerrar" || textLower === "tchau") {
+    renderEncerrarP3();
+    return;
+  }
+
+  if (text === "8" || textLower.includes("atendente") || textLower.includes("ramon") || textLower.includes("humano")) {
+    renderAtendenteP3();
+    return;
+  }
+
   const startTime = performance.now();
 
   // Simulação de Raciocínio (Chain of Thought & Tool Call)
@@ -141,7 +205,7 @@ async function sendMessage() {
   
   setTimeout(async () => {
     await executarRaciocinioIA(text, startTime);
-  }, 400);
+  }, 350);
 }
 
 // Motor de Raciocínio e Function Calling Simulado
