@@ -173,6 +173,90 @@ function processarBuscaLexical(query) {
 
   // Verificar intenção direta de emissão de atestado
   const queryLower = query.toLowerCase();
+
+  // 1. Consulta de Pendências Acadêmicas / Documentais
+  if (queryLower.includes("pendencia") || queryLower.includes("pendência") || queryLower.includes("debito") || queryLower.includes("débito") || queryLower.includes("documentos pendentes")) {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para consultar se você possui <strong>pendências documentais ou acadêmicas</strong> no SIGAA, por favor informe seu <strong>CPF ou Matrícula</strong>:`);
+      document.getElementById("debug-info").innerText = `Consulta de pendências solicitada. Aguardando identificação.`;
+      return;
+    }
+
+    const pendencias = IFSC_Session.getStudentPendencies(user.matricula);
+    const mailtoLink = IFSC_Session.generatePendenciesMailtoLink(user, pendencias);
+    const emailBtn = `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(167, 139, 250, 0.2); border-color: #a78bfa; color: #a78bfa; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-paper-fill"></i> Enviar Relatório de Pendências para Meu E-mail (${user.email})
+        </a>
+      </div>
+    `;
+
+    if (!pendencias.length) {
+      appendBotMessage(`Ótimas notícias, <strong>${user.nome.split(" ")[0]}</strong>! 🎉<br><br>Você <strong>não possui nenhuma pendência</strong> documental, acadêmica ou na Biblioteca registrada no SIGAA. Sua situação está 100% regular.${emailBtn}`);
+    } else {
+      let pendListHtml = pendencias.map(p => `
+        <li style="margin-bottom: 0.4rem;">
+          <strong style="color: var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao}<br>
+          <small style="color: var(--text-muted);"><i class="bi bi-clock-history"></i> Prazo: ${p.prazo} | Setor: ${p.setor}</small>
+        </li>
+      `).join("");
+
+      appendBotMessage(`Localizei <strong>${pendencias.length} pendência(s)</strong> no seu cadastro do SIGAA: ⚠️<br><ul style="margin: 0.5rem 0 0.5rem 1.25rem; padding: 0;">${pendListHtml}</ul>${emailBtn}`);
+    }
+    document.getElementById("debug-info").innerText = `Pendências consultadas para ${user.nome} (${pendencias.length} encontradas).`;
+    return;
+  }
+
+  // 2. Consulta de Status / Parecer de Requerimentos Anteriores
+  if (queryLower.includes("status") || queryLower.includes("solicitac") || queryLower.includes("solicitaç") || queryLower.includes("protocolo") || queryLower.includes("parecer") || queryLower.includes("andamento") || queryLower.includes("retorno") || queryLower.includes("meus pedidos")) {
+    const user = IFSC_Session.getCurrentUser();
+    if (!user) {
+      appendBotMessage(`Para consultar o <strong>andamento e o parecer da Secretaria</strong> sobre suas solicitações, por favor digite seu <strong>CPF ou Matrícula</strong>:`);
+      document.getElementById("debug-info").innerText = `Consulta de status solicitada. Aguardando identificação.`;
+      return;
+    }
+
+    const demands = IFSC_Session.getStudentDemands(user.matricula);
+    if (!demands.length) {
+      appendBotMessage(`Olá, <strong>${user.nome.split(" ")[0]}</strong>! Você ainda não possui requerimentos ou atestados registrados nesta sessão.`);
+      document.getElementById("debug-info").innerText = `Nenhum requerimento encontrado para ${user.matricula}.`;
+      return;
+    }
+
+    let demandsHtml = demands.map(d => {
+      const returnMailto = IFSC_Session.generateReturnMailtoLink(user, d);
+      const parecerBlock = d.parecer ? `
+        <div style="margin-top: 0.4rem; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.04); border-left: 2px solid var(--accent-blue); font-size: 0.8rem;">
+          <strong>Despacho do Atendente (Ramon):</strong> "${d.parecer}"<br>
+          <small style="color: var(--text-muted);">${d.dataParecer || ''}</small>
+          <div style="margin-top: 0.35rem;">
+            <a href="${returnMailto}" target="_blank" style="color: #a78bfa; text-decoration: none; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+              <i class="bi bi-envelope-at"></i> Abrir Notificação Oficial por E-mail
+            </a>
+          </div>
+        </div>
+      ` : `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Aguardando despacho do atendente Ramon.</div>`;
+
+      return `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem; margin-bottom: 0.6rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: var(--accent-blue); font-size: 0.85rem;"><code>${d.id}</code> — ${d.tipo}</strong>
+            <span style="font-size: 0.75rem; font-weight: 600; color: ${d.status.includes('Deferido') ? 'var(--ifsc-green-light)' : d.status.includes('Indeferido') ? '#f87171' : 'var(--accent-amber)'};">${d.status}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Data: ${d.dataHora} • ${d.detalhes}</div>
+          ${parecerBlock}
+        </div>
+      `;
+    }).join("");
+
+    appendBotMessage(`Encontrei <strong>${demands.length} solicitação(ões)</strong> em seu histórico: 📋<br><br>${demandsHtml}`);
+    document.getElementById("debug-info").innerText = `Listando ${demands.length} solicitações para ${user.nome}.`;
+    return;
+  }
+
+  // 3. Emissão de Declaração
   if (queryLower.includes("declaração") || queryLower.includes("declaracao") || queryLower.includes("atestado") || queryLower.includes("matricula") || queryLower.includes("comprovante")) {
     const user = IFSC_Session.getCurrentUser();
     if (!user) {
@@ -204,7 +288,7 @@ function processarBuscaLexical(query) {
     appendBotMessage(`<strong>${item.titulo}</strong><br><br>${item.resposta}`);
     document.getElementById("debug-info").innerText = `Fuse.js Match: "${item.id}" (Score: ${(1 - results[0].score).toFixed(2)}, Latência: ${elapsed}ms)`;
   } else {
-    appendBotMessage(`Não encontrei uma resposta exata para sua busca no catálogo lexical.<br><br>💡 Você pode tentar palavras-chave como <em>rematrícula, trancamento, horário</em> ou clicar nos botões rápidos abaixo.`);
+    appendBotMessage(`Não encontrei uma resposta exata para sua busca no catálogo lexical.<br><br>💡 Você pode consultar <em>pendências, status de pedidos, rematrícula, horários</em> ou digitar sua dúvida.`);
     document.getElementById("debug-info").innerText = `Fuse.js Sem Match relevante (Score > 0.45, Latência: ${elapsed}ms)`;
   }
 }

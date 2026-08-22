@@ -15,7 +15,16 @@ const SIGAA_DATABASE = [
     anoIngresso: "2024/1",
     situacao: "Matriculado Regular",
     email: "mariana.silva@aluno.ifsc.edu.br",
-    ira: "8.75"
+    ira: "8.75",
+    pendencias: [
+      {
+        id: "PEND-01",
+        tipo: "Documental",
+        descricao: "Comprovante de Quitação Eleitoral 2024 pendente de homologação na Secretaria.",
+        prazo: "Até o encerramento do semestre",
+        setor: "Secretaria Acadêmica"
+      }
+    ]
   },
   {
     matricula: "20232010012",
@@ -27,7 +36,16 @@ const SIGAA_DATABASE = [
     anoIngresso: "2023/1",
     situacao: "Matriculado Regular",
     email: "lucas.pereira@aluno.ifsc.edu.br",
-    ira: "9.10"
+    ira: "9.10",
+    pendencias: [
+      {
+        id: "PEND-02",
+        tipo: "Acadêmica",
+        descricao: "Histórico Escolar do Ensino Fundamental original com carimbo para conferência.",
+        prazo: "30 dias",
+        setor: "Secretaria Acadêmica"
+      }
+    ]
   },
   {
     matricula: "20251010088",
@@ -39,7 +57,8 @@ const SIGAA_DATABASE = [
     anoIngresso: "2025/1",
     situacao: "Matriculado Regular",
     email: "beatriz.rocha@aluno.ifsc.edu.br",
-    ira: "8.40"
+    ira: "8.40",
+    pendencias: []
   },
   {
     matricula: "20221010003",
@@ -51,7 +70,23 @@ const SIGAA_DATABASE = [
     anoIngresso: "2022/1",
     situacao: "Trancamento de Matrícula",
     email: "rodrigo.guimaraes@aluno.ifsc.edu.br",
-    ira: "7.80"
+    ira: "7.80",
+    pendencias: [
+      {
+        id: "PEND-03",
+        tipo: "Biblioteca",
+        descricao: "Devolução de exemplar: 'Engenharia de Software (Pressman, 8ª ed.)' na Biblioteca do Câmpus.",
+        prazo: "Imediato",
+        setor: "Biblioteca do Câmpus Garopaba"
+      },
+      {
+        id: "PEND-04",
+        tipo: "Administrativa",
+        descricao: "Assinatura do Termo de Trancamento Voluntário na Secretaria Acadêmica.",
+        prazo: "15 dias",
+        setor: "Secretaria Acadêmica"
+      }
+    ]
   },
   {
     matricula: "20242010099",
@@ -63,7 +98,8 @@ const SIGAA_DATABASE = [
     anoIngresso: "2024/2",
     situacao: "Matriculado Regular",
     email: "camila.fagundes@aluno.ifsc.edu.br",
-    ira: "9.50"
+    ira: "9.50",
+    pendencias: []
   }
 ];
 
@@ -152,7 +188,8 @@ const IFSC_Session = {
         anoIngresso: studentData.anoIngresso || "2026/1",
         situacao: "Matriculado Regular",
         email: studentData.email || "aluno@ifsc.edu.br",
-        ira: "8.50"
+        ira: "8.50",
+        pendencias: []
       };
 
       // Remover duplicatas anteriores com mesma matrícula
@@ -167,6 +204,13 @@ const IFSC_Session = {
       console.error("Erro ao registrar aluno:", e);
       return null;
     }
+  },
+
+  // Obter pendências de um aluno
+  getStudentPendencies(identifier) {
+    const student = this.findStudent(identifier);
+    if (!student) return [];
+    return student.pendencias || [];
   },
 
   // Obter usuário salvo na sessão do navegador
@@ -198,6 +242,10 @@ const IFSC_Session = {
         id: "REQ-" + Date.now().toString().slice(-6),
         dataHora: new Date().toLocaleString("pt-BR"),
         timestamp: Date.now(),
+        status: "Pendente de Análise (Ramon)",
+        parecer: "",
+        atendente: "Ramon (Secretaria Acadêmica)",
+        dataParecer: null,
         ...demandData
       };
       demands.unshift(newDemand);
@@ -219,12 +267,43 @@ const IFSC_Session = {
     }
   },
 
+  // Obter demandas específicas de um aluno
+  getStudentDemands(identifier) {
+    if (!identifier) return [];
+    const cleanId = this.sanitize(identifier);
+    const demands = this.getAllDemands();
+    return demands.filter(d => 
+      this.sanitize(d.matricula) === cleanId || 
+      (d.matricula && d.matricula.toLowerCase() === String(identifier).trim().toLowerCase())
+    );
+  },
+
+  // Atualizar parecer e status de uma demanda pelo Atendente (Ramon)
+  updateDemandStatus(demandId, status, parecer, atendente = "Ramon (Secretaria Acadêmica)") {
+    try {
+      const demands = this.getAllDemands();
+      const index = demands.findIndex(d => d.id === demandId);
+      if (index === -1) return null;
+
+      demands[index].status = status;
+      demands[index].parecer = parecer;
+      demands[index].atendente = atendente;
+      demands[index].dataParecer = new Date().toLocaleString("pt-BR");
+
+      localStorage.setItem("ifsc_secretaria_demands", JSON.stringify(demands));
+      return demands[index];
+    } catch (e) {
+      console.error("Erro ao atualizar status da demanda:", e);
+      return null;
+    }
+  },
+
   // Exportar todas as demandas para CSV
   exportDemandsCSV() {
     const demands = this.getAllDemands();
     if (!demands.length) return null;
 
-    const headers = ["Protocolo", "Data/Hora", "Matricula", "Nome do Aluno", "Curso", "Tipo de Demanda", "Detalhes/Finalidade", "Status", "Arquivo Gerado"];
+    const headers = ["Protocolo", "Data/Hora", "Matricula", "Nome do Aluno", "Curso", "Tipo de Demanda", "Detalhes/Finalidade", "Status", "Parecer do Atendente", "Data Parecer"];
     const rows = demands.map(d => [
       d.id,
       `"${d.dataHora}"`,
@@ -234,20 +313,21 @@ const IFSC_Session = {
       `"${d.tipo || ''}"`,
       `"${(d.detalhes || '').replace(/"/g, '""')}"`,
       `"${d.status || 'Concluído'}"`,
-      `"${d.arquivo || 'Sim'}"`
+      `"${(d.parecer || '').replace(/"/g, '""')}"`,
+      `"${d.dataParecer || ''}"`
     ]);
 
     const csvContent = "\uFEFF" + [headers.join(";"), ...rows.map(r => r.join(";"))].join("\r\n");
     return csvContent;
   },
 
-  // Gerar Link Mailto Pré-formatado para Envio Real de E-mail pelo Navegador
+  // Gerar Link Mailto de Comprovante de Abertura de Solicitação
   generateMailtoLink(student, protocol, demandType, details) {
     const to = student.email || "aluno@ifsc.edu.br";
     const subject = encodeURIComponent(`[IFSC Garopaba] Comprovante de Solicitação - Protocolo ${protocol}`);
     const body = encodeURIComponent(
 `INSTITUTO FEDERAL DE SANTA CATARINA — IFSC CÂMPUS GAROPABA
-SECRETARIA ACADÊMICA — COMPROVANTE DE ATENDIMENTO DIGITAL
+SECRETARIA ACADÊMICA — COMPROVANTE DE ABERTURA DIGITAL
 
 Prezado(a) ${student.nome},
 
@@ -255,7 +335,7 @@ Sua solicitação foi registrada no sistema digital da Secretaria Acadêmica:
 
 • Protocolo de Atendimento: ${protocol}
 • Matrícula: ${student.matricula}
-• Curso: ${student.curso} (${student.fase})
+• Curso: ${student.curso} (${student.fase || 'Regular'})
 • Tipo de Demanda: ${demandType}
 • Detalhes da Solicitação: ${details}
 • Data e Hora de Registro: ${new Date().toLocaleString("pt-BR")}
@@ -265,6 +345,77 @@ Para acompanhar ou sanar dúvidas sobre este protocolo, entre em contato:
 E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336
 
 Documento emitido eletronicamente via Chatbot da Secretaria Acadêmica do IFSC Garopaba.`
+    );
+
+    return `mailto:${to}?cc=secretaria.gpb@ifsc.edu.br&subject=${subject}&body=${body}`;
+  },
+
+  // Gerar Link Mailto de RETORNO DE PARECER / PENDÊNCIA enviado pela Secretaria
+  generateReturnMailtoLink(student, demand) {
+    const to = student.email || "aluno@ifsc.edu.br";
+    const subject = encodeURIComponent(`[IFSC Garopaba] Retorno de Solicitação / Parecer - Protocolo ${demand.id} (${demand.status})`);
+    const body = encodeURIComponent(
+`INSTITUTO FEDERAL DE SANTA CATARINA — IFSC CÂMPUS GAROPABA
+SECRETARIA ACADÊMICA — RETORNO OFICIAL DE SOLICITAÇÃO
+
+Prezado(a) ${student.nome},
+
+Informamos o parecer emitido pela Secretaria Acadêmica referente ao seu requerimento:
+
+• Protocolo: ${demand.id}
+• Tipo de Solicitação: ${demand.tipo}
+• Situação Atual: ${demand.status.toUpperCase()}
+• Data do Parecer: ${demand.dataParecer || new Date().toLocaleString("pt-BR")}
+• Atendente Responsável: ${demand.atendente || 'Ramon (Secretaria Acadêmica)'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESPACHO / PARECER DA SECRETARIA:
+"${demand.parecer || 'Solicitação processada e atualizada no sistema acadêmico.'}"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Instruções Adicionais:
+Caso haja pendências a regularizar, dirija-se à Secretaria Acadêmica no horário das 08h00 às 20h30 ou responda a este e-mail anexando a documentação solicitada.
+
+Atenciosamente,
+Secretaria Acadêmica — IFSC Câmpus Garopaba
+E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336`
+    );
+
+    return `mailto:${to}?cc=secretaria.gpb@ifsc.edu.br&subject=${subject}&body=${body}`;
+  },
+
+  // Gerar Link Mailto de Notificação de Pendências Ativas no SIGAA
+  generatePendenciesMailtoLink(student, pendencias) {
+    const to = student.email || "aluno@ifsc.edu.br";
+    const subject = encodeURIComponent(`[IFSC Garopaba] Notificação de Pendências Acadêmicas - Matrícula ${student.matricula}`);
+    
+    let listaTxt = "";
+    if (!pendencias || pendencias.length === 0) {
+      listaTxt = "• Nenhuma pendência documental ou acadêmica ativa no momento. Situação Regular.";
+    } else {
+      listaTxt = pendencias.map((p, idx) => `• [${p.tipo}] ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})`).join("\n");
+    }
+
+    const body = encodeURIComponent(
+`INSTITUTO FEDERAL DE SANTA CATARINA — IFSC CÂMPUS GAROPABA
+SECRETARIA ACADÊMICA — RELATÓRIO DE PENDÊNCIAS ACADÊMICAS
+
+Prezado(a) ${student.nome} (Matrícula: ${student.matricula} - ${student.curso}),
+
+Conforme consulta realizada junto aos registros acadêmicos do SIGAA, segue a situação de pendências ativas:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUADRO DE PENDÊNCIAS:
+${listaTxt}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Para regularizar qualquer pendência documental ou acadêmica:
+1. Compareça à Secretaria Acadêmica (Segunda a Sexta, das 08h00 às 20h30);
+2. Ou envie a documentação comprobatória respondendo a este e-mail.
+
+Atenciosamente,
+Secretaria Acadêmica — IFSC Câmpus Garopaba
+E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336`
     );
 
     return `mailto:${to}?cc=secretaria.gpb@ifsc.edu.br&subject=${subject}&body=${body}`;

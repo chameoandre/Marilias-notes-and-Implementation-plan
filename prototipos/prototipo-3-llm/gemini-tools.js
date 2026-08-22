@@ -15,6 +15,26 @@ const IFSC_AGENT_TOOLS = [
     }
   },
   {
+    name: "consultarPendenciasAcademicas",
+    description: "Consulta pendências documentais, de biblioteca e cadastrais de um aluno no SIGAA.",
+    execute: (params) => {
+      const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
+      if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
+      const pendencias = IFSC_Session.getStudentPendencies(student.matricula);
+      return { status: "sucesso", student, pendencias };
+    }
+  },
+  {
+    name: "consultarStatusRequerimentos",
+    description: "Consulta o andamento, parecer e despacho emitido pela Secretaria Acadêmica (Ramon) para as solicitações do estudante.",
+    execute: (params) => {
+      const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
+      if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
+      const demands = IFSC_Session.getStudentDemands(student.matricula);
+      return { status: "sucesso", student, demands };
+    }
+  },
+  {
     name: "emitirDeclaracaoMatricula",
     description: "Gera automaticamente a Declaração de Matrícula oficial em PDF com código de autenticidade.",
     execute: async (params) => {
@@ -28,7 +48,8 @@ const IFSC_AGENT_TOOLS = [
         curso: student.curso,
         tipo: "Emissão de Declaração (LLM Tool)",
         detalhes: `Autenticação: ${codAutenticacao} (${params.finalidade || "Geral"})`,
-        status: "Emitido Automaticamente",
+        status: "Deferido ✅",
+        parecer: "Documento emitido automaticamente com validação digital.",
         arquivo: "Declaracao_Matricula.pdf"
       });
 
@@ -47,9 +68,10 @@ const IFSC_AGENT_TOOLS = [
         tipo: params.tipo || "Requerimento Geral",
         detalhes: params.motivo || "Solicitação via IA",
         status: "Pendente de Análise (Ramon)",
+        parecer: "",
         arquivo: "Requerimento_Formal.pdf"
       });
-      return { status: "sucesso", protocolo: req.id };
+      return { status: "sucesso", protocolo: req.id, req };
     }
   }
 ];
@@ -194,7 +216,93 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 3: APROVEITAMENTO E VALIDAÇÃO ---
+  // --- CENÁRIO 3: TOOL CALL DE CONSULTA DE PENDÊNCIAS ---
+  if (promptLower.includes("pendencia") || promptLower.includes("pendência") || promptLower.includes("debito") || promptLower.includes("débito") || promptLower.includes("documentos pendentes")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarPendenciasAcademicas()</strong> | Parâmetros: <code>{ matricula: "${activeStudent ? activeStudent.matricula : 'solicitar'}" }</code>`;
+    
+    if (!activeStudent) {
+      const elapsed = (performance.now() - startTime).toFixed(0);
+      document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+      appendBotMessage(`Para consultar se há pendências no seu histórico do SIGAA, por favor informe sua <strong>matrícula ou CPF</strong>.`);
+      return;
+    }
+
+    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "consultarPendenciasAcademicas");
+    const result = tool.execute({ matricula: activeStudent.matricula });
+
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const mailtoLink = IFSC_Session.generatePendenciesMailtoLink(activeStudent, result.pendencias);
+    const emailBtn = `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(167, 139, 250, 0.2); border-color: #a78bfa; color: #a78bfa; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-paper-fill"></i> Despachar Relatório de Pendências para Meu E-mail (${activeStudent.email})
+        </a>
+      </div>
+    `;
+
+    if (!result.pendencias.length) {
+      appendBotMessage(`Excelente notícia, <strong>${activeStudent.nome.split(" ")[0]}</strong>! 🎉<br><br>Executei a ferramenta de auditoria de pendências no SIGAA e confirmo que seu vínculo com o curso <strong>${activeStudent.curso}</strong> está <strong>100% regular</strong>, sem débitos documentais ou de biblioteca.${emailBtn}`);
+    } else {
+      const pItems = result.pendencias.map(p => `<li><strong style="color: var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})</li>`).join("");
+      appendBotMessage(`Identifiquei <strong>${result.pendencias.length} pendência(s)</strong> no seu registro acadêmico: ⚠️<br><ul style="margin: 0.5rem 0 0.5rem 1.25rem;">${pItems}</ul>${emailBtn}`);
+    }
+    return;
+  }
+
+  // --- CENÁRIO 4: TOOL CALL DE CONSULTA DE STATUS E RETORNO DA SECRETARIA ---
+  if (promptLower.includes("status") || promptLower.includes("solicitac") || promptLower.includes("protocolo") || promptLower.includes("parecer") || promptLower.includes("retorno") || promptLower.includes("andamento") || promptLower.includes("meus pedidos")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarStatusRequerimentos()</strong> | Function Calling`;
+    
+    if (!activeStudent) {
+      const elapsed = (performance.now() - startTime).toFixed(0);
+      document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+      appendBotMessage(`Para rastrear o andamento e o parecer da Secretaria sobre seus requerimentos, por favor informe sua <strong>matrícula ou CPF</strong>.`);
+      return;
+    }
+
+    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "consultarStatusRequerimentos");
+    const result = tool.execute({ matricula: activeStudent.matricula });
+
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    if (!result.demands.length) {
+      appendBotMessage(`Olá, <strong>${activeStudent.nome.split(" ")[0]}</strong>! Nenhuma solicitação ativa encontrada para a matrícula <code>${activeStudent.matricula}</code>.`);
+      return;
+    }
+
+    const cards = result.demands.map(d => {
+      const returnMailto = IFSC_Session.generateReturnMailtoLink(activeStudent, d);
+      const parecerBlock = d.parecer ? `
+        <div style="margin-top: 0.35rem; padding: 0.35rem 0.5rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent-blue); font-size: 0.8rem;">
+          <strong>Despacho do Ramon:</strong> "${d.parecer}" (${d.dataParecer || 'Hoje'})
+          <div style="margin-top: 0.25rem;">
+            <a href="${returnMailto}" target="_blank" style="color: #a78bfa; font-size: 0.75rem; text-decoration: none;">
+              <i class="bi bi-envelope-at"></i> Abrir Notificação Oficial por E-mail
+            </a>
+          </div>
+        </div>
+      ` : `<div style="font-size: 0.75rem; color: var(--text-muted);">Aguardando parecer do servidor Ramon.</div>`;
+
+      return `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <strong style="color: var(--accent-blue); font-size: 0.85rem;">${d.id} — ${d.tipo}</strong>
+            <span style="font-size: 0.75rem; font-weight: 600;">${d.status}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">${d.detalhes}</div>
+          ${parecerBlock}
+        </div>
+      `;
+    }).join("");
+
+    appendBotMessage(`Recuperei o status dos seus <strong>requerimentos na Secretaria</strong>: 📋<br><br>${cards}`);
+    return;
+  }
+
+  // --- CENÁRIO 5: APROVEITAMENTO E VALIDAÇÃO ---
   if (promptLower.includes("aproveitamento") || promptLower.includes("validacao") || promptLower.includes("dispensa")) {
     document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Contexto: RDP Art. 46`;
     const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
@@ -213,14 +321,36 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
+  // --- CENÁRIO 6: JUSTIFICATIVA DE FALTA ---
+  if (promptLower.includes("falta") || promptLower.includes("justificar") || promptLower.includes("ausencia") || promptLower.includes("atestado medico")) {
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Justificativa de Falta`;
+    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
+    const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Justificativa de Falta (LLM)", motivo: prompt });
+
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const mailtoLink = activeStudent ? IFSC_Session.generateMailtoLink(activeStudent, result.protocolo, "Justificativa de Falta", prompt) : null;
+    const emailBtn = mailtoLink ? `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-arrow-up-fill"></i> Abrir e Enviar Comprovante para Meu E-mail
+        </a>
+      </div>
+    ` : "";
+
+    appendBotMessage(`Requerimento de <strong>Justificativa de Ausência</strong> aberto com sucesso! ✅<br><br><strong>Protocolo:</strong> <code>${result.protocolo}</code><br><strong>Status:</strong> Pendente de Análise (Ramon)<br><br>Sua justificativa foi indexada e encaminhada para a mesa de atendimento da Secretaria Acadêmica.${emailBtn}`);
+    return;
+  }
+
   // Resposta Padrão com Síntese
   const elapsed = (performance.now() - startTime).toFixed(0);
   document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
   document.getElementById("llm-details").innerHTML = `Raciocínio Generativo Direto (Sem Tool Call)`;
 
   appendBotMessage(`
-    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te ajudar a emitir declarações de matrícula, formalizar requerimentos de justificativa de falta e consultar o regulamento acadêmico.<br><br>
-    Caso queira emitir um documento ou abrir uma solicitação com o servidor Ramon, informe seus dados ou digite seu pedido específico.
+    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te ajudar a emitir declarações de matrícula com autenticidade digital, consultar pendências no SIGAA, verificar o parecer do servidor Ramon sobre seus requerimentos ou orientar sobre as normas do RDP.<br><br>
+    Como posso te ajudar agora?
   `);
 }
 

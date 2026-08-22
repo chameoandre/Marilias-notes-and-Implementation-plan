@@ -34,6 +34,22 @@ const INTENT_CORPUS = {
     "dispensa de unidade curricular aproveitamento de estudos",
     "como validar cadeira e equivalencia"
   ],
+  "consultar_pendencias": [
+    "tenho alguma pendencia no sigaa",
+    "quais documentos estao pendentes",
+    "verificar pendencias na biblioteca ou secretaria",
+    "meus debitos documentais",
+    "minha situacao tem pendencia",
+    "relatorio de pendencias"
+  ],
+  "consultar_status_solicitacao": [
+    "qual o status do meu requerimento",
+    "o ramon ja deu parecer",
+    "ver andamento da minha justificativa",
+    "consultar protocolo req",
+    "como esta meu pedido",
+    "retorno da secretaria e despacho"
+  ],
   "consultar_rematricula": [
     "quando comeca a rematricula",
     "prazos de inscricao de disciplinas no sigaa",
@@ -282,12 +298,90 @@ async function sendMessage() {
       curso: currentUser ? currentUser.curso : "Geral",
       tipo: "Aproveitamento de Estudos",
       detalhes: `Disciplina solicitada: ${p2ActiveSlots.disciplina || "Geral"}`,
-      status: "Aguardando Ementas",
+      status: "Pendente de Documento ⚠️",
+      parecer: "Aguardando entrega de ementa e histórico oficial.",
       arquivo: "Formulario_Validacao.docx"
     });
 
-    appendBotMessage(`Olá, ${userMsg}! Para dar entrada no pedido de <strong>aproveitamento/validação ${disc}</strong>, foi gerado o protocolo <code>${req.id}</code>.<br><br>📋 <strong>Próximo passo:</strong> Entregue o histórico oficial e a ementa da instituição de origem na Secretaria Acadêmica.`);
+    const mailtoLink = currentUser ? IFSC_Session.generateMailtoLink(currentUser, req.id, "Aproveitamento de Estudos", `Disciplina: ${p2ActiveSlots.disciplina || "Geral"}`) : null;
+    const emailButton = mailtoLink ? `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(56, 189, 248, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-arrow-up-fill"></i> Abrir Comprovante de Solicitação por E-mail
+        </a>
+      </div>
+    ` : "";
+
+    appendBotMessage(`Olá, ${userMsg}! Para dar entrada no pedido de <strong>aproveitamento/validação ${disc}</strong>, registrei o protocolo <code>${req.id}</code>.<br><br>📋 <strong>Próximo passo:</strong> Entregue o histórico oficial e a ementa da instituição de origem na Secretaria Acadêmica (Ramon).${emailButton}`);
     p2ActiveSlots = {};
+    return;
+  }
+
+  // --- INTENÇÃO: CONSULTAR PENDÊNCIAS ACADÊMICAS / DOCUMENTAIS ---
+  if (classification.intent === "consultar_pendencias") {
+    if (!currentUser) {
+      appendBotMessage(`Para checar suas <strong>pendências no SIGAA</strong>, por favor informe sua <strong>matrícula ou CPF</strong>:`);
+      return;
+    }
+
+    const pendencias = IFSC_Session.getStudentPendencies(currentUser.matricula);
+    const mailtoLink = IFSC_Session.generatePendenciesMailtoLink(currentUser, pendencias);
+    const emailBtn = `
+      <div style="margin-top: 0.75rem;">
+        <a href="${mailtoLink}" target="_blank" class="btn-chip" style="background: rgba(167, 139, 250, 0.2); border-color: #a78bfa; color: #a78bfa; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; padding: 0.4rem 0.75rem;">
+          <i class="bi bi-envelope-paper-fill"></i> Encaminhar Quadro de Pendências para Meu E-mail (${currentUser.email})
+        </a>
+      </div>
+    `;
+
+    if (!pendencias.length) {
+      appendBotMessage(`Tudo em dia, <strong>${currentUser.nome.split(" ")[0]}</strong>! 🎉<br><br>O motor de PLN consultou o SIGAA e não identificou nenhuma pendência ativa para sua matrícula <code>${currentUser.matricula}</code>.${emailBtn}`);
+    } else {
+      const items = pendencias.map(p => `<li><strong style="color: var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})</li>`).join("");
+      appendBotMessage(`Atenção, <strong>${currentUser.nome.split(" ")[0]}</strong>! Constam <strong>${pendencias.length} pendência(s)</strong> no seu cadastro do SIGAA: ⚠️<br><ul style="margin: 0.5rem 0 0.5rem 1.25rem;">${items}</ul>${emailBtn}`);
+    }
+    return;
+  }
+
+  // --- INTENÇÃO: CONSULTAR STATUS / RETORNO DE SOLICITAÇÃO ---
+  if (classification.intent === "consultar_status_solicitacao") {
+    if (!currentUser) {
+      appendBotMessage(`Para consultar o <strong>parecer e andamento</strong> de suas solicitações, digite sua <strong>matrícula ou CPF</strong>:`);
+      return;
+    }
+
+    const demands = IFSC_Session.getStudentDemands(currentUser.matricula);
+    if (!demands.length) {
+      appendBotMessage(`Olá, <strong>${currentUser.nome.split(" ")[0]}</strong>! Nenhuma solicitação ativa vinculada à matrícula <code>${currentUser.matricula}</code> no momento.`);
+      return;
+    }
+
+    const demandsHtml = demands.map(d => {
+      const returnMailto = IFSC_Session.generateReturnMailtoLink(currentUser, d);
+      const parecerBlock = d.parecer ? `
+        <div style="margin-top: 0.35rem; padding: 0.35rem 0.5rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent-blue); font-size: 0.8rem;">
+          <strong>Parecer Ramon:</strong> "${d.parecer}" (${d.dataParecer || 'Hoje'})
+          <div style="margin-top: 0.25rem;">
+            <a href="${returnMailto}" target="_blank" style="color: #a78bfa; font-size: 0.75rem; text-decoration: none;">
+              <i class="bi bi-envelope-at"></i> Abrir Parecer por E-mail
+            </a>
+          </div>
+        </div>
+      ` : `<div style="font-size: 0.75rem; color: var(--text-muted);">Aguardando parecer do servidor Ramon.</div>`;
+
+      return `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <strong style="color: var(--accent-blue); font-size: 0.85rem;">${d.id} — ${d.tipo}</strong>
+            <span style="font-size: 0.75rem; font-weight: 600;">${d.status}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">${d.detalhes}</div>
+          ${parecerBlock}
+        </div>
+      `;
+    }).join("");
+
+    appendBotMessage(`Aqui está o status das suas <strong>solicitações registradas</strong>: 📋<br><br>${demandsHtml}`);
     return;
   }
 
@@ -296,7 +390,7 @@ async function sendMessage() {
     const faqMatch = SECRETARIA_FAQ.find(f => f.id === classification.intent.replace("consultar_", "")) || SECRETARIA_FAQ[0];
     appendBotMessage(`<strong>${faqMatch.titulo}</strong><br><br>${faqMatch.resposta}`);
   } else {
-    appendBotMessage(`Não compreendi com clareza suficiente sua mensagem (Confiança PLN: ${confidencePercent}%).<br><br>💡 Você pode tentar reformular com termos mais diretos (ex: <em>"atestado de matrícula"</em>, <em>"justificar falta médica"</em>, <em>"trancamento"</em>).`);
+    appendBotMessage(`Não compreendi com clareza suficiente sua mensagem (Confiança PLN: ${confidencePercent}%).<br><br>💡 Você pode tentar reformular com termos mais diretos (ex: <em>"atestado de matrícula"</em>, <em>"justificar falta médica"</em>, <em>"consultar pendências"</em>, <em>"status do pedido"</em>).`);
   }
 }
 

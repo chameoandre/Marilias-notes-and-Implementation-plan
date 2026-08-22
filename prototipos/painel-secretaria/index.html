@@ -123,16 +123,28 @@
       font-weight: 600;
     }
 
-    .status-done {
+    .status-done, .status-deferido {
       background: rgba(34, 197, 94, 0.15);
       color: var(--ifsc-green-light);
       border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
-    .status-pending {
+    .status-pending, .status-pendente-doc {
       background: rgba(251, 191, 36, 0.15);
       color: var(--accent-amber);
       border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .status-indeferido {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-analise {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
     }
 
     .empty-state {
@@ -149,7 +161,7 @@
     <div class="prototype-title">
       <a href="../../index.html" style="color: var(--text-muted); text-decoration: none; font-size: 1.25rem;"><i class="bi bi-arrow-left-circle"></i></a>
       <span class="prototype-badge badge-admin"><i class="bi bi-shield-check"></i> Painel do Servidor</span>
-      <h1 style="font-size: 1.1rem; font-weight: 700;">Secretaria Acadêmica — Fila de Atendimentos & Exportação de Dados</h1>
+      <h1 style="font-size: 1.1rem; font-weight: 700;">Secretaria Acadêmica — Fila de Atendimentos & Gestão de Pareceres</h1>
     </div>
     <div style="display: flex; gap: 0.5rem;">
       <a href="../prototipo-1-lexical/index.html" class="btn-switch-user" style="text-decoration: none;">P1 (Lexical)</a>
@@ -190,7 +202,7 @@
         </div>
         <div>
           <div class="kpi-value" id="kpi-certificados">0</div>
-          <div class="kpi-label">Declarações Emitidas</div>
+          <div class="kpi-label">Deferidos / Emitidos</div>
         </div>
       </div>
 
@@ -200,7 +212,7 @@
         </div>
         <div>
           <div class="kpi-value" id="kpi-pendentes">0</div>
-          <div class="kpi-label">Requerimentos Pendentes</div>
+          <div class="kpi-label">Pendentes / Análise</div>
         </div>
       </div>
 
@@ -262,6 +274,60 @@
         </div>
       </div>
 
+      <!-- Modal de Análise e Parecer do Servidor (Ramon) -->
+      <div id="modal-analise-demanda" style="display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--ifsc-green); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--ifsc-green-light); margin: 0;">
+            <i class="bi bi-clipboard2-check-fill"></i> Análise e Parecer da Secretaria Acadêmica (Servidor Ramon)
+          </h3>
+          <span id="modal-protocolo-badge" style="font-family: monospace; font-weight: bold; color: var(--accent-blue); background: rgba(56,189,248,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">REQ-000000</span>
+        </div>
+
+        <input type="hidden" id="modal-demand-id">
+        <input type="hidden" id="modal-student-matricula">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; background: var(--bg-card); padding: 0.75rem; border-radius: var(--radius-md);">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Estudante / Matrícula:</div>
+            <div id="modal-student-info" style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">-</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Tipo de Solicitação & Detalhes:</div>
+            <div id="modal-demand-details" style="font-size: 0.85rem; color: var(--text-main);">-</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Decisão / Parecer:</label>
+            <select id="modal-status-select" class="input-field" style="width: 100%; padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
+              <option value="Deferido ✅">Deferido ✅ (Aprovado)</option>
+              <option value="Pendente de Documento ⚠️">Pendente de Documento ⚠️</option>
+              <option value="Indeferido ❌">Indeferido ❌ (Recusado)</option>
+              <option value="Em Análise ⏳">Em Análise ⏳</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Despacho / Parecer do Atendente (Ramon):</label>
+            <textarea id="modal-parecer-text" class="input-field" rows="3" style="width: 100%; font-family: inherit; font-size: 0.85rem;" placeholder="Descreva o despacho detalhado da solicitação..."></textarea>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Modelos Rápidos:</span>
+          <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('deferido')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Aprovação Regular</button>
+          <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('pendencia_medica')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Falta Atestado</button>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button class="btn-switch-user" onclick="fecharModalAnalise()">Cancelar</button>
+          <button class="btn-download" onclick="salvarParecerEDespachar(true)" style="background: var(--ifsc-green); color: white;">
+            <i class="bi bi-envelope-check-fill"></i> Salvar e Despachar E-mail
+          </button>
+        </div>
+      </div>
+
       <!-- Tabela Responsiva -->
       <div style="overflow-x: auto;">
         <table class="data-table">
@@ -272,7 +338,7 @@
               <th>Estudante</th>
               <th>Curso</th>
               <th>Tipo de Demanda</th>
-              <th>Detalhes / Autenticação</th>
+              <th>Detalhes</th>
               <th>Status</th>
               <th>Ação / Arquivo</th>
             </tr>
@@ -289,19 +355,41 @@
 
   <!-- Scripts -->
   <script src="../shared/sigaa-mock.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/download.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       renderTable();
     });
 
+    function getStatusClass(status) {
+      if (!status) return "status-pending";
+      const s = status.toLowerCase();
+      if (s.includes("deferido") || s.includes("emitido") || s.includes("concluído")) return "status-deferido";
+      if (s.includes("indeferido") || s.includes("recusado")) return "status-indeferido";
+      if (s.includes("pendência") || s.includes("documento")) return "status-pendente-doc";
+      if (s.includes("análise")) return "status-analise";
+      return "status-pending";
+    }
+
+    function getStatusIcon(status) {
+      if (!status) return "bi-hourglass-split";
+      const s = status.toLowerCase();
+      if (s.includes("deferido") || s.includes("emitido") || s.includes("concluído")) return "bi-check-circle-fill";
+      if (s.includes("indeferido") || s.includes("recusado")) return "bi-x-circle-fill";
+      if (s.includes("pendência") || s.includes("documento")) return "bi-exclamation-triangle-fill";
+      if (s.includes("análise")) return "bi-person-gear";
+      return "bi-hourglass-split";
+    }
+
     function renderTable() {
       const tbody = document.getElementById("table-body");
       const demands = IFSC_Session.getAllDemands();
 
-      // Atualizar KPIs
       document.getElementById("kpi-total").innerText = demands.length;
-      document.getElementById("kpi-certificados").innerText = demands.filter(d => d.tipo.includes("Declaração")).length;
-      document.getElementById("kpi-pendentes").innerText = demands.filter(d => d.status.includes("Pendente")).length;
+      document.getElementById("kpi-certificados").innerText = demands.filter(d => d.status && (d.status.includes("Deferido") || d.status.includes("Emitido"))).length;
+      document.getElementById("kpi-pendentes").innerText = demands.filter(d => d.status && (d.status.includes("Pendente") || d.status.includes("Análise"))).length;
 
       if (!demands.length) {
         tbody.innerHTML = `
@@ -317,9 +405,16 @@
       }
 
       tbody.innerHTML = demands.map(d => {
-        const isDone = d.status.includes("Concluído") || d.status.includes("Emitido");
-        const statusClass = isDone ? "status-done" : "status-pending";
-        const statusIcon = isDone ? "bi-check-circle-fill" : "bi-hourglass-split";
+        const statusClass = getStatusClass(d.status);
+        const statusIcon = getStatusIcon(d.status);
+        const student = IFSC_Session.findStudent(d.matricula) || { nome: d.nome, matricula: d.matricula, curso: d.curso, email: "aluno@ifsc.edu.br" };
+
+        const parecerHtml = d.parecer ? `
+          <div style="margin-top: 0.35rem; padding: 0.3rem 0.5rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--ifsc-green); font-size: 0.75rem; color: var(--text-main);">
+            <strong>Parecer Ramon:</strong> "${d.parecer}"
+            <div style="font-size: 0.7rem; color: var(--text-muted);">${d.dataParecer || ''}</div>
+          </div>
+        ` : "";
 
         return `
           <tr>
@@ -331,7 +426,10 @@
             </td>
             <td><span style="font-size: 0.8rem;">${d.curso}</span></td>
             <td><strong>${d.tipo}</strong></td>
-            <td style="font-size: 0.8rem; max-width: 250px; color: var(--text-muted);">${d.detalhes}</td>
+            <td style="font-size: 0.8rem; max-width: 250px; color: var(--text-muted);">
+              <div>${d.detalhes}</div>
+              ${parecerHtml}
+            </td>
             <td>
               <span class="status-badge ${statusClass}">
                 <i class="bi ${statusIcon}"></i> ${d.status}
@@ -339,17 +437,82 @@
             </td>
             <td>
               <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button class="btn-switch-user" onclick="abrirModalAnalise('${d.id}')" style="font-size: 0.75rem; color: var(--accent-blue); border-color: var(--accent-blue);">
+                  <i class="bi bi-pencil-square"></i> Parecer
+                </button>
                 <button class="btn-switch-user" onclick="reemitirPDF('${d.matricula}')" style="font-size: 0.75rem; color: var(--ifsc-green-light);">
                   <i class="bi bi-file-pdf"></i> PDF
                 </button>
-                <a href="${IFSC_Session.generateMailtoLink({ nome: d.nome, matricula: d.matricula, curso: d.curso, fase: 'Regular', email: 'aluno@ifsc.edu.br' }, d.id, d.tipo, d.detalhes)}" target="_blank" class="btn-switch-user" style="font-size: 0.75rem; color: var(--accent-blue); text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
-                  <i class="bi bi-envelope-at-fill"></i> E-mail
+                <a href="${IFSC_Session.generateReturnMailtoLink(student, d)}" target="_blank" class="btn-switch-user" style="font-size: 0.75rem; color: #a78bfa; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <i class="bi bi-envelope-at-fill"></i> Retorno
                 </a>
               </div>
             </td>
           </tr>
         `;
       }).join("");
+    }
+
+    function abrirModalAnalise(id) {
+      const d = IFSC_Session.getAllDemands().find(item => item.id === id);
+      if (!d) return;
+      document.getElementById("modal-demand-id").value = d.id;
+      document.getElementById("modal-protocolo-badge").innerText = d.id;
+      document.getElementById("modal-student-info").innerText = `${d.nome} (${d.matricula})`;
+      document.getElementById("modal-demand-details").innerText = `${d.tipo} — ${d.detalhes}`;
+      
+      document.getElementById("modal-status-select").value = d.status.includes("Deferido") ? "Deferido ✅" :
+                                                           d.status.includes("Indeferido") ? "Indeferido ❌" :
+                                                           d.status.includes("Documento") ? "Pendente de Documento ⚠️" : "Deferido ✅";
+      
+      document.getElementById("modal-parecer-text").value = d.parecer || "Requerimento analisado pela Secretaria Acadêmica. Procedimento deferido e homologado no SIGAA.";
+      document.getElementById("modal-analise-demanda").style.display = "block";
+      document.getElementById("modal-parecer-text").focus();
+    }
+
+    function fecharModalAnalise() { 
+      document.getElementById("modal-analise-demanda").style.display = "none"; 
+    }
+
+    function aplicarModeloParecer(tipo) {
+      const text = document.getElementById("modal-parecer-text");
+      const statusSel = document.getElementById("modal-status-select");
+      if (tipo === 'deferido') {
+        statusSel.value = "Deferido ✅";
+        text.value = "Requerimento analisado e DEFERIDO. Registro acadêmico atualizado no SIGAA sem pendências.";
+      } else if (tipo === 'pendencia_medica') {
+        statusSel.value = "Pendente de Documento ⚠️";
+        text.value = "PENDÊNCIA DOCUMENTAL: Favor apresentar o atestado original com CRM legível na Secretaria Acadêmica em até 5 dias úteis.";
+      }
+    }
+
+    function salvarParecerEDespachar(enviarEmail) {
+      const id = document.getElementById("modal-demand-id").value;
+      const status = document.getElementById("modal-status-select").value;
+      const parecer = document.getElementById("modal-parecer-text").value.trim();
+      
+      const updated = IFSC_Session.updateDemandStatus(id, status, parecer, "Ramon (Secretaria Acadêmica)");
+      if (!updated) {
+        alert("Erro ao atualizar o parecer da demanda.");
+        return;
+      }
+
+      fecharModalAnalise();
+      renderTable();
+
+      const student = IFSC_Session.findStudent(updated.matricula) || {
+        nome: updated.nome,
+        matricula: updated.matricula,
+        curso: updated.curso,
+        email: "aluno@ifsc.edu.br"
+      };
+
+      if (enviarEmail) {
+        const mailtoUrl = IFSC_Session.generateReturnMailtoLink(student, updated);
+        window.open(mailtoUrl, "_blank");
+      } else {
+        alert(`Parecer do protocolo ${updated.id} salvo com sucesso!`);
+      }
     }
 
     async function reemitirPDF(matricula) {
@@ -362,10 +525,8 @@
         fase: "4ª Fase",
         situacao: "Matriculado Regular"
       };
-
-      const { pdfBytes } = await gerarDeclaracaoMatriculaPDF(student, "Reemissão via Painel da Secretaria (Ramon)");
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      download(blob, `Declaracao_Matricula_${student.matricula}_Secretaria.pdf`, "application/pdf");
+      const { pdfBytes } = await gerarDeclaracaoMatriculaPDF(student, "Reemissão Painel Ramon");
+      download(new Blob([pdfBytes]), `Declaracao_${student.matricula}.pdf`, "application/pdf");
     }
 
     function baixarCSV() {
@@ -374,7 +535,7 @@
         alert("Nenhum registro para exportar.");
         return;
       }
-      download(csv, "relatorio_demandas_secretaria_garopaba.csv", "text/csv;charset=utf-8");
+      download(csv, "demandas_secretaria_garopaba.csv", "text/csv");
     }
 
     function popularDadosExemplo() {
@@ -383,8 +544,9 @@
         nome: "Mariana Silva de Souza",
         curso: "CST Sistemas para Internet",
         tipo: "Emissão de Declaração de Matrícula",
-        detalhes: "Chave: IFSC-99A1-2026 (Passe Escolar Paulotur)",
-        status: "Emitido Automaticamente",
+        detalhes: "Chave: IFSC-99A1-2026 (Passe Escolar)",
+        status: "Deferido ✅",
+        parecer: "Declaração emitida com autenticação digital por QR Code.",
         arquivo: "Declaracao_Matricula.pdf"
       });
 
@@ -394,7 +556,8 @@
         curso: "Técnico Integrado em Informática",
         tipo: "Justificativa de Falta (Atestado)",
         detalhes: "Atestado médico de 2 dias (Consulta odontológica)",
-        status: "Pendente de Análise (Ramon)",
+        status: "Pendente de Documento ⚠️",
+        parecer: "Apresentar o atestado original com carimbo na Secretaria.",
         arquivo: "Requerimento_Justificativa.pdf"
       });
 
@@ -403,28 +566,29 @@
         nome: "Beatriz Lima Rocha",
         curso: "Técnico Integrado em Administração",
         tipo: "Aproveitamento de Estudos",
-        detalhes: "Matéria: Matemática Financeira (Origem: IFSC Florianópolis)",
+        detalhes: "Matéria: Matemática Financeira",
         status: "Pendente de Análise (Ramon)",
+        parecer: "Encaminhado para parecer do colegiado do curso.",
         arquivo: "Formulario_Validacao.docx"
       });
 
       renderTable();
     }
 
-    function limparHistorico() {
-      if (confirm("Deseja realmente limpar todos os registros de teste?")) {
-        localStorage.removeItem("ifsc_secretaria_demands");
-        renderTable();
+    function limparHistorico() { 
+      if (confirm("Deseja limpar todos os registros de teste?")) {
+        localStorage.removeItem("ifsc_secretaria_demands"); 
+        renderTable(); 
       }
     }
 
-    function abrirModalNovoAluno() {
-      document.getElementById("form-novo-aluno").style.display = "block";
+    function abrirModalNovoAluno() { 
+      document.getElementById("form-novo-aluno").style.display = "block"; 
       document.getElementById("cad-nome").focus();
     }
 
-    function fecharModalNovoAluno() {
-      document.getElementById("form-novo-aluno").style.display = "none";
+    function fecharModalNovoAluno() { 
+      document.getElementById("form-novo-aluno").style.display = "none"; 
     }
 
     function salvarNovoAlunoForm() {
@@ -436,28 +600,14 @@
       const email = document.getElementById("cad-email").value.trim() || "aluno@ifsc.edu.br";
 
       if (!nome || !matricula) {
-        alert("Por favor, preencha pelo menos o Nome Completo e a Matrícula.");
+        alert("Por favor, preencha pelo menos Nome e Matrícula.");
         return;
       }
 
-      const novo = IFSC_Session.registerNewStudent({
-        nome,
-        matricula,
-        cpf,
-        curso,
-        fase,
-        email
-      });
-
-      alert(`Aluno(a) ${novo.nome} (Matrícula: ${novo.matricula}) cadastrado(a) com sucesso no SIGAA Mock!`);
+      const novo = IFSC_Session.registerNewStudent({ nome, matricula, cpf, curso, fase, email });
+      alert(`Aluno(a) ${novo.nome} cadastrado(a) com sucesso!`);
       fecharModalNovoAluno();
-
-      // Limpar campos
-      document.getElementById("cad-nome").value = "";
-      document.getElementById("cad-matricula").value = "";
-      document.getElementById("cad-cpf").value = "";
-      document.getElementById("cad-fase").value = "";
-      document.getElementById("cad-email").value = "";
+      renderTable();
     }
   </script>
 </body>
