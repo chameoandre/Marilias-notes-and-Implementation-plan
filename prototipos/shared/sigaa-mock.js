@@ -610,6 +610,112 @@ E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336`
     }
 
     return { success: true, mode: "mailto_fallback" };
+  },
+
+  // ==========================================
+  // RECURSOS DE HUMANIZAÇÃO & EXPERIÊNCIA (IHC)
+  // ==========================================
+
+  // Obter saudação contextual baseada no horário local real
+  getTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return "Bom dia";
+    if (hour >= 12 && hour < 18) return "Boa tarde";
+    return "Boa noite";
+  },
+
+  // Gerar notas empáticas e acolhedoras para o perfil do estudante
+  getEmpathyNote(student, type) {
+    if (!student) return "";
+    if (type === "saudacao") {
+      if (student.fase && (student.fase.includes("5ª") || student.fase.includes("6ª"))) {
+        return `<br><small style="color: var(--accent-amber);"><i class="bi bi-mortarboard-fill"></i> Você já está na reta final do curso! Parabéns pela sua trajetória e dedicação! 🎓</small>`;
+      }
+      if (student.fase && (student.fase.includes("1ª") || student.fase.includes("2ª"))) {
+        return `<br><small style="color: var(--ifsc-green-light);"><i class="bi bi-stars"></i> Bem-vindo(a) ao início da sua jornada acadêmica no IFSC Garopaba! 🌱</small>`;
+      }
+    }
+    if (type === "pendencias") {
+      return `<br><small style="color: var(--text-muted);"><i class="bi bi-heart-pulse-fill" style="color:#f43f5e;"></i> <em>Dica de Acolhimento:</em> Não se preocupe! Pendências documentais ou de empréstimo de livros são simples de regularizar junto à equipe da Secretaria ou Biblioteca.</small>`;
+    }
+    if (type === "falta") {
+      return `<br><small style="color: var(--accent-blue);"><i class="bi bi-shield-plus"></i> <em>Cuide-se:</em> Esperamos que você esteja se recuperando bem! Seu pedido foi indexado com prioridade na fila de atendimento do servidor Ramon.</small>`;
+    }
+    return "";
+  },
+
+  // Síntese de Voz Nativa em Português (Text-to-Speech via Web Speech API)
+  speakText(text, btnElement) {
+    if (!('speechSynthesis' in window)) {
+      alert("Seu navegador não possui suporte a síntese de voz.");
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      document.querySelectorAll(".btn-tts").forEach(b => b.classList.remove("speaking"));
+      if (btnElement && btnElement.dataset.speaking === "true") {
+        btnElement.dataset.speaking = "false";
+        return;
+      }
+    }
+
+    // Limpar tags HTML, links e marcadores de formatação para fala natural
+    const cleanText = text
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\[\d+\]/g, " ")
+      .replace(/•/g, " ")
+      .replace(/\*/g, "")
+      .replace(/&bull;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = "pt-BR";
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    const ptVoice = voices.find(v => v.lang.includes("pt-BR") || v.lang.includes("pt_BR") || v.lang.includes("pt"));
+    if (ptVoice) utterance.voice = ptVoice;
+
+    if (btnElement) {
+      btnElement.classList.add("speaking");
+      btnElement.dataset.speaking = "true";
+
+      utterance.onend = () => {
+        btnElement.classList.remove("speaking");
+        btnElement.dataset.speaking = "false";
+      };
+      utterance.onerror = () => {
+        btnElement.classList.remove("speaking");
+        btnElement.dataset.speaking = "false";
+      };
+    }
+
+    window.speechSynthesis.speak(utterance);
+  },
+
+  // Registrar Avaliação da Micro-Pesquisa de Satisfação
+  saveSatisfactionRating(score, feedbackText = "") {
+    try {
+      const key = "ifsc_chatbot_feedback";
+      const history = JSON.parse(localStorage.getItem(key) || "[]");
+      const user = this.getCurrentUser();
+      history.push({
+        timestamp: new Date().toISOString(),
+        score, // 'otimo', 'bom', 'regular', 'ruim'
+        comentario: feedbackText,
+        usuario: user ? user.nome : "Visitante",
+        matricula: user ? user.matricula : null
+      });
+      localStorage.setItem(key, JSON.stringify(history));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 };
 

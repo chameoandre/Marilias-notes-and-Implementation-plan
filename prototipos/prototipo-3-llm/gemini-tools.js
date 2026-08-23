@@ -127,9 +127,12 @@ let p3ActiveMenuItems = [];
 
 function renderMainMenuP3(showGreeting = false) {
   const user = IFSC_Session.getCurrentUser();
+  const timeGreeting = IFSC_Session.getTimeGreeting();
+  const empathyNote = user ? IFSC_Session.getEmpathyNote(user, "saudacao") : "";
+
   const saudacao = user 
-    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>). Como posso te orientar hoje?`
-    : `Olá! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Generativo Inteligente (LLM & Function Calling)</strong> da Secretaria Acadêmica.`;
+    ? `${timeGreeting}, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>).${empathyNote}`
+    : `${timeGreeting}! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Generativo Inteligente (LLM & Function Calling)</strong> da Secretaria Acadêmica.`;
 
   p3ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
 
@@ -224,19 +227,44 @@ function renderEncerrarP3() {
   p3IsClosed = true;
   const user = IFSC_Session.getCurrentUser();
   const nomeUser = user ? user.nome.split(" ")[0] : "você";
+  const greeting = IFSC_Session.getTimeGreeting();
+
+  const feedbackHtml = `
+    <div class="feedback-box">
+      <div style="font-weight: 600; font-size: 0.85rem; color: var(--accent-amber);">
+        <i class="bi bi-star-fill"></i> Como foi sua experiência com o agente inteligente hoje?
+      </div>
+      <div class="feedback-options" id="feedback-options-p3">
+        <button class="feedback-btn" onclick="submitFeedbackP3('Excelente', this)">😍 Excelente</button>
+        <button class="feedback-btn" onclick="submitFeedbackP3('Boa', this)">😊 Boa</button>
+        <button class="feedback-btn" onclick="submitFeedbackP3('Regular', this)">😐 Regular</button>
+        <button class="feedback-btn" onclick="submitFeedbackP3('Precisa Melhorar', this)">🙁 Precisa Melhorar</button>
+      </div>
+    </div>
+  `;
 
   appendBotMessage(`
     🚪 <strong>Atendimento Concluído!</strong><br><br>
-    Foi ótimo atender ${nomeUser}! Seus dados e protocolos permanecem salvos no SIGAA.<br>
-    Tenha um excelente dia! 🌱<br><br>
+    ${greeting}! Foi um prazer atender ${nomeUser}. Seus dados e protocolos foram salvos com sucesso.<br>
+    Tenha um excelente dia! 🌱
+    ${feedbackHtml}
+    <br>
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; font-size: 0.85rem;">
       Digite <strong>[0]</strong> ou clique no botão abaixo para reiniciar o atendimento a qualquer momento.
     </div>
-  `);
+  `, { withTyping: true, withTTS: true, delay: 300 });
 
   const container = document.getElementById("quick-replies");
   if (container) {
     container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+  }
+}
+
+function submitFeedbackP3(score, btn) {
+  IFSC_Session.saveSatisfactionRating(score);
+  const container = document.getElementById("feedback-options-p3");
+  if (container) {
+    container.innerHTML = `<span style="color: var(--ifsc-green-light); font-size: 0.82rem;"><i class="bi bi-check-circle-fill"></i> Obrigado pela sua avaliação (${score})!</span>`;
   }
 }
 
@@ -642,13 +670,59 @@ function appendUserMessage(text) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-function appendBotMessage(html) {
+function appendBotMessage(html, options = { withTyping: true, withTTS: true, delay: 350 }) {
   const chat = document.getElementById("chat-messages");
+  if (!chat) return;
+
+  const shouldType = options && options.withTyping !== false;
+  const delayMs = (options && options.delay) ? options.delay : 350;
+  const showTTS = !options || options.withTTS !== false;
+
+  if (shouldType) {
+    const typingRow = document.createElement("div");
+    typingRow.className = "message-row bot typing-temp-row";
+    typingRow.innerHTML = `
+      <div class="avatar avatar-bot" style="background: var(--accent-amber); color: #0b0f19;"><i class="bi bi-robot"></i></div>
+      <div class="bubble bubble-bot">
+        <div class="typing-indicator">
+          <span class="typing-dot" style="background-color: var(--accent-amber);"></span>
+          <span class="typing-dot" style="background-color: var(--accent-amber);"></span>
+          <span class="typing-dot" style="background-color: var(--accent-amber);"></span>
+        </div>
+      </div>
+    `;
+    chat.appendChild(typingRow);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      typingRow.remove();
+      renderActualBotMessageP3(chat, html, showTTS);
+    }, delayMs);
+  } else {
+    renderActualBotMessageP3(chat, html, showTTS);
+  }
+}
+
+function renderActualBotMessageP3(chat, html, withTTS = true) {
   const row = document.createElement("div");
   row.className = "message-row bot";
+  const msgId = "msg-p3-" + Math.random().toString(36).substring(2, 7);
+
+  const ttsBtn = withTTS ? `
+    <div class="msg-footer">
+      <span><i class="bi bi-stars" style="color: var(--accent-amber);"></i> Agente Generativo IFSC</span>
+      <button class="btn-tts" onclick="IFSC_Session.speakText(document.getElementById('${msgId}').innerText, this)" title="Ouvir mensagem falada em português">
+        <i class="bi bi-volume-up-fill"></i> Ouvir
+      </button>
+    </div>
+  ` : "";
+
   row.innerHTML = `
     <div class="avatar avatar-bot" style="background: var(--accent-amber); color: #0b0f19;"><i class="bi bi-robot"></i></div>
-    <div class="bubble bubble-bot">${html}</div>
+    <div class="bubble bubble-bot">
+      <div id="${msgId}">${html}</div>
+      ${ttsBtn}
+    </div>
   `;
   chat.appendChild(row);
   chat.scrollTop = chat.scrollHeight;

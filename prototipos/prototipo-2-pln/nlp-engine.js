@@ -221,9 +221,12 @@ let p2ActiveMenuItems = [];
 
 function renderMainMenuP2(showGreeting = false) {
   const user = IFSC_Session.getCurrentUser();
+  const timeGreeting = IFSC_Session.getTimeGreeting();
+  const empathyNote = user ? IFSC_Session.getEmpathyNote(user, "saudacao") : "";
+
   const saudacao = user 
-    ? `Olá, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>). Como posso te orientar hoje?`
-    : `Olá! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Virtual com Processamento de Linguagem Natural (PLN)</strong> da Secretaria Acadêmica.`;
+    ? `${timeGreeting}, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>).${empathyNote}`
+    : `${timeGreeting}! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Virtual com Processamento de Linguagem Natural (PLN)</strong> da Secretaria Acadêmica.`;
 
   p2ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
 
@@ -316,19 +319,44 @@ function renderEncerrarP2() {
   p2CurrentIntent = "CLOSED";
   const user = IFSC_Session.getCurrentUser();
   const nomeUser = user ? user.nome.split(" ")[0] : "você";
+  const greeting = IFSC_Session.getTimeGreeting();
+
+  const feedbackHtml = `
+    <div class="feedback-box">
+      <div style="font-weight: 600; font-size: 0.85rem; color: var(--accent-amber);">
+        <i class="bi bi-star-fill"></i> Como foi sua experiência com o assistente PLN hoje?
+      </div>
+      <div class="feedback-options" id="feedback-options-p2">
+        <button class="feedback-btn" onclick="submitFeedbackP2('Excelente', this)">😍 Excelente</button>
+        <button class="feedback-btn" onclick="submitFeedbackP2('Boa', this)">😊 Boa</button>
+        <button class="feedback-btn" onclick="submitFeedbackP2('Regular', this)">😐 Regular</button>
+        <button class="feedback-btn" onclick="submitFeedbackP2('Precisa Melhorar', this)">🙁 Precisa Melhorar</button>
+      </div>
+    </div>
+  `;
 
   appendBotMessage(`
     🚪 <strong>Atendimento Finalizado!</strong><br><br>
-    Foi um prazer conversar com ${nomeUser}! Seus dados e protocolos permanecem salvos no sistema.<br>
-    Tenha um ótimo dia! 🌱<br><br>
+    ${greeting}! Foi um prazer conversar com ${nomeUser}. Seus dados e protocolos permanecem salvos no sistema.<br>
+    Tenha um ótimo dia! 🌱
+    ${feedbackHtml}
+    <br>
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; font-size: 0.85rem;">
       Digite <strong>[0]</strong> ou clique no botão abaixo para iniciar um novo atendimento.
     </div>
-  `);
+  `, { withTyping: true, withTTS: true, delay: 300 });
 
   const container = document.getElementById("quick-replies");
   if (container) {
     container.innerHTML = `<button class="btn-chip" onclick="handleQuickReply('0')"><i class="bi bi-arrow-clockwise"></i> [0] Iniciar Novo Atendimento</button>`;
+  }
+}
+
+function submitFeedbackP2(score, btn) {
+  IFSC_Session.saveSatisfactionRating(score);
+  const container = document.getElementById("feedback-options-p2");
+  if (container) {
+    container.innerHTML = `<span style="color: var(--ifsc-green-light); font-size: 0.82rem;"><i class="bi bi-check-circle-fill"></i> Obrigado pela sua avaliação (${score})!</span>`;
   }
 }
 
@@ -717,13 +745,59 @@ function appendUserMessage(text) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-function appendBotMessage(html) {
+function appendBotMessage(html, options = { withTyping: true, withTTS: true, delay: 350 }) {
   const chat = document.getElementById("chat-messages");
+  if (!chat) return;
+
+  const shouldType = options && options.withTyping !== false;
+  const delayMs = (options && options.delay) ? options.delay : 350;
+  const showTTS = !options || options.withTTS !== false;
+
+  if (shouldType) {
+    const typingRow = document.createElement("div");
+    typingRow.className = "message-row bot typing-temp-row";
+    typingRow.innerHTML = `
+      <div class="avatar avatar-bot"><i class="bi bi-robot"></i></div>
+      <div class="bubble bubble-bot">
+        <div class="typing-indicator">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+    `;
+    chat.appendChild(typingRow);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      typingRow.remove();
+      renderActualBotMessageP2(chat, html, showTTS);
+    }, delayMs);
+  } else {
+    renderActualBotMessageP2(chat, html, showTTS);
+  }
+}
+
+function renderActualBotMessageP2(chat, html, withTTS = true) {
   const row = document.createElement("div");
   row.className = "message-row bot";
+  const msgId = "msg-p2-" + Math.random().toString(36).substring(2, 7);
+
+  const ttsBtn = withTTS ? `
+    <div class="msg-footer">
+      <span><i class="bi bi-cpu-fill"></i> Assistente PLN IFSC</span>
+      <button class="btn-tts" onclick="IFSC_Session.speakText(document.getElementById('${msgId}').innerText, this)" title="Ouvir mensagem falada em português">
+        <i class="bi bi-volume-up-fill"></i> Ouvir
+      </button>
+    </div>
+  ` : "";
+
   row.innerHTML = `
     <div class="avatar avatar-bot"><i class="bi bi-robot"></i></div>
-    <div class="bubble bubble-bot">${html}</div>
+    <div class="bubble bubble-bot">
+      <div id="${msgId}">${html}</div>
+      ${ttsBtn}
+    </div>
   `;
   chat.appendChild(row);
   chat.scrollTop = chat.scrollHeight;
