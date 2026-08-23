@@ -183,173 +183,284 @@
 
   <main class="admin-container">
 
-    <!-- Indicadores Chave de Desempenho (KPIs) -->
-    <div class="kpi-grid">
-      
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
-          <i class="bi bi-headset"></i>
-        </div>
-        <div>
-          <div class="kpi-value" id="kpi-total">0</div>
-          <div class="kpi-label">Total de Demandas</div>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light);">
-          <i class="bi bi-file-earmark-check"></i>
-        </div>
-        <div>
-          <div class="kpi-value" id="kpi-certificados">0</div>
-          <div class="kpi-label">Deferidos / Emitidos</div>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">
-          <i class="bi bi-clock-history"></i>
-        </div>
-        <div>
-          <div class="kpi-value" id="kpi-pendentes">0</div>
-          <div class="kpi-label">Pendentes / Análise</div>
-        </div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">
-          <i class="bi bi-lightning-charge"></i>
-        </div>
-        <div>
-          <div class="kpi-value">98.4%</div>
-          <div class="kpi-label">Automação de Arquivos</div>
-        </div>
-      </div>
-
+    <!-- Navegação por Abas -->
+    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; flex-wrap: wrap;">
+      <button id="tab-btn-demandas" class="btn-chip" onclick="switchTab('demandas')" style="background: var(--accent-blue); color: #0b0f19; font-weight: 700; padding: 0.6rem 1.1rem;">
+        <i class="bi bi-inbox-fill"></i> 📋 Fila de Demandas & Pareceres (Ramon)
+      </button>
+      <button id="tab-btn-telemetria" class="btn-chip" onclick="switchTab('telemetria')" style="background: var(--bg-card); color: var(--text-main); font-weight: 600; padding: 0.6rem 1.1rem; border-color: var(--accent-amber);">
+        <i class="bi bi-graph-up-arrow" style="color: var(--accent-amber);"></i> 📊 Telemetria Científica & Benchmarking (TCC Marília)
+      </button>
     </div>
 
-    <!-- Tabela de Demandas e Ações -->
-    <div class="admin-card">
-      
-      <div class="admin-header-actions">
-        <div>
-          <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">Registro de Solicitações Geradas</h2>
-          <p style="color: var(--text-muted); font-size: 0.85rem;">Histórico consolidado de arquivos gerados e demandas enviadas pelos 3 protótipos de chatbot.</p>
-        </div>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button class="btn-download" onclick="abrirModalNovoAluno()" style="background: var(--accent-blue); color: #0b0f19;">
-            <i class="bi bi-person-plus-fill"></i> + Cadastrar Novo Aluno
-          </button>
-          <button class="btn-download" onclick="baixarCSV()" style="background: var(--ifsc-green);">
-            <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV para SIGAA/Excel
-          </button>
-          <button class="btn-switch-user" onclick="popularDadosExemplo()" style="padding: 0.5rem 0.85rem;">
-            <i class="bi bi-magic"></i> Gerar Demandas de Teste
-          </button>
-          <button class="btn-switch-user" onclick="limparHistorico()" style="padding: 0.5rem 0.85rem; color: var(--ifsc-red); border-color: rgba(220, 38, 38, 0.4);">
-            <i class="bi bi-trash"></i> Limpar Fila
-          </button>
-        </div>
-      </div>
-
-      <!-- Formulário de Cadastro Rápido de Aluno (Modal/Card Expansível) -->
-      <div id="form-novo-aluno" style="display: none; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--accent-blue); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
-        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 0.75rem;"><i class="bi bi-person-vcard-fill"></i> Cadastrar Novo Aluno na Base do SIGAA (Mock)</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-          <input type="text" id="cad-nome" class="input-field" placeholder="Nome Completo do Aluno" style="padding: 0.6rem;">
-          <input type="text" id="cad-matricula" class="input-field" placeholder="Matrícula (ex: 20261010099)" style="padding: 0.6rem;">
-          <input type="text" id="cad-cpf" class="input-field" placeholder="CPF (ex: 123.456.789-00)" style="padding: 0.6rem;">
-          <select id="cad-curso" class="input-field" style="padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
-            <option value="CST Sistemas para Internet">CST Sistemas para Internet (Superior)</option>
-            <option value="Técnico Integrado em Informática">Técnico Integrado em Informática (Médio/Técnico)</option>
-            <option value="Técnico Integrado em Administração">Técnico Integrado em Administração (Médio/Técnico)</option>
-            <option value="Técnico em Guia de Turismo Regional">Técnico em Guia de Turismo Regional (Subsequente)</option>
-            <option value="Técnico em Serviços de Restaurante e Bar">Técnico em Serviços de Restaurante e Bar (PROEJA)</option>
-            <option value="Mestrado Profissional em Clima e Ambiente">Mestrado Profissional em Clima e Ambiente (Pós-Graduação)</option>
-            <option value="Especialização em Gestão Escolar">Especialização em Gestão Escolar (Pós-Graduação)</option>
-          </select>
-          <input type="text" id="cad-fase" class="input-field" placeholder="Fase/Ano (ex: 1ª Fase)" style="padding: 0.6rem;">
-          <input type="email" id="cad-email" class="input-field" placeholder="E-mail Institucional" style="padding: 0.6rem;">
-        </div>
-        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-          <button class="btn-switch-user" onclick="fecharModalNovoAluno()">Cancelar</button>
-          <button class="btn-download" onclick="salvarNovoAlunoForm()" style="background: var(--accent-blue); color: #0b0f19;">Salvar no SIGAA</button>
-        </div>
-      </div>
-
-      <!-- Modal de Análise e Parecer do Servidor (Ramon) -->
-      <div id="modal-analise-demanda" style="display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--ifsc-green); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--ifsc-green-light); margin: 0;">
-            <i class="bi bi-clipboard2-check-fill"></i> Análise e Parecer da Secretaria Acadêmica (Servidor Ramon)
-          </h3>
-          <span id="modal-protocolo-badge" style="font-family: monospace; font-weight: bold; color: var(--accent-blue); background: rgba(56,189,248,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">REQ-000000</span>
-        </div>
-
-        <input type="hidden" id="modal-demand-id">
-        <input type="hidden" id="modal-student-matricula">
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; background: var(--bg-card); padding: 0.75rem; border-radius: var(--radius-md);">
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Estudante / Matrícula:</div>
-            <div id="modal-student-info" style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">-</div>
+    <!-- ABA 1: Fila de Demandas e Pareceres (Visão Ramon) -->
+    <div id="tab-content-demandas">
+      <!-- Indicadores Chave de Desempenho (KPIs) -->
+      <div class="kpi-grid">
+        
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+            <i class="bi bi-headset"></i>
           </div>
           <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Tipo de Solicitação & Detalhes:</div>
-            <div id="modal-demand-details" style="font-size: 0.85rem; color: var(--text-main);">-</div>
+            <div class="kpi-value" id="kpi-total">0</div>
+            <div class="kpi-label">Total de Demandas</div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light);">
+            <i class="bi bi-file-earmark-check"></i>
+          </div>
           <div>
-            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Decisão / Parecer:</label>
-            <select id="modal-status-select" class="input-field" style="width: 100%; padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
-              <option value="Deferido ✅">Deferido ✅ (Aprovado)</option>
-              <option value="Pendente de Documento ⚠️">Pendente de Documento ⚠️</option>
-              <option value="Indeferido ❌">Indeferido ❌ (Recusado)</option>
-              <option value="Em Análise ⏳">Em Análise ⏳</option>
+            <div class="kpi-value" id="kpi-certificados">0</div>
+            <div class="kpi-label">Deferidos / Emitidos</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div>
+            <div class="kpi-value" id="kpi-pendentes">0</div>
+            <div class="kpi-label">Pendentes / Análise</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">
+            <i class="bi bi-lightning-charge"></i>
+          </div>
+          <div>
+            <div class="kpi-value">98.4%</div>
+            <div class="kpi-label">Automação de Arquivos</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tabela de Demandas e Ações -->
+      <div class="admin-card">
+        
+        <div class="admin-header-actions">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">Registro de Solicitações Geradas</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Histórico consolidado de arquivos gerados e demandas enviadas pelos 3 protótipos de chatbot.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn-download" onclick="abrirModalNovoAluno()" style="background: var(--accent-blue); color: #0b0f19;">
+              <i class="bi bi-person-plus-fill"></i> + Cadastrar Novo Aluno
+            </button>
+            <button class="btn-download" onclick="baixarCSV()" style="background: var(--ifsc-green);">
+              <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV para SIGAA/Excel
+            </button>
+            <button class="btn-switch-user" onclick="popularDadosExemplo()" style="padding: 0.5rem 0.85rem;">
+              <i class="bi bi-magic"></i> Gerar Demandas de Teste
+            </button>
+            <button class="btn-switch-user" onclick="limparHistorico()" style="padding: 0.5rem 0.85rem; color: var(--ifsc-red); border-color: rgba(220, 38, 38, 0.4);">
+              <i class="bi bi-trash"></i> Limpar Fila
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulário de Cadastro Rápido de Aluno -->
+        <div id="form-novo-aluno" style="display: none; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--accent-blue); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 0.75rem;"><i class="bi bi-person-vcard-fill"></i> Cadastrar Novo Aluno na Base do SIGAA (Mock)</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+            <input type="text" id="cad-nome" class="input-field" placeholder="Nome Completo do Aluno" style="padding: 0.6rem;">
+            <input type="text" id="cad-matricula" class="input-field" placeholder="Matrícula (ex: 20261010099)" style="padding: 0.6rem;">
+            <input type="text" id="cad-cpf" class="input-field" placeholder="CPF (ex: 123.456.789-00)" style="padding: 0.6rem;">
+            <select id="cad-curso" class="input-field" style="padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
+              <option value="CST Sistemas para Internet">CST Sistemas para Internet (Superior)</option>
+              <option value="Técnico Integrado em Informática">Técnico Integrado em Informática (Médio/Técnico)</option>
+              <option value="Técnico Integrado em Administração">Técnico Integrado em Administração (Médio/Técnico)</option>
+              <option value="Técnico em Guia de Turismo Regional">Técnico em Guia de Turismo Regional (Subsequente)</option>
+              <option value="Técnico em Serviços de Restaurante e Bar">Técnico em Serviços de Restaurante e Bar (PROEJA)</option>
+              <option value="Mestrado Profissional em Clima e Ambiente">Mestrado Profissional em Clima e Ambiente (Pós-Graduação)</option>
+              <option value="Especialização em Gestão Escolar">Especialização em Gestão Escolar (Pós-Graduação)</option>
             </select>
+            <input type="text" id="cad-fase" class="input-field" placeholder="Fase/Ano (ex: 1ª Fase)" style="padding: 0.6rem;">
+            <input type="email" id="cad-email" class="input-field" placeholder="E-mail Institucional" style="padding: 0.6rem;">
+          </div>
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button class="btn-switch-user" onclick="fecharModalNovoAluno()">Cancelar</button>
+            <button class="btn-download" onclick="salvarNovoAlunoForm()" style="background: var(--accent-blue); color: #0b0f19;">Salvar no SIGAA</button>
+          </div>
+        </div>
+
+        <!-- Modal de Análise e Parecer do Servidor (Ramon) -->
+        <div id="modal-analise-demanda" style="display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--ifsc-green); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--ifsc-green-light); margin: 0;">
+              <i class="bi bi-clipboard2-check-fill"></i> Análise e Parecer da Secretaria Acadêmica (Servidor Ramon)
+            </h3>
+            <span id="modal-protocolo-badge" style="font-family: monospace; font-weight: bold; color: var(--accent-blue); background: rgba(56,189,248,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">REQ-000000</span>
           </div>
 
+          <input type="hidden" id="modal-demand-id">
+          <input type="hidden" id="modal-student-matricula">
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; background: var(--bg-card); padding: 0.75rem; border-radius: var(--radius-md);">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Estudante / Matrícula:</div>
+              <div id="modal-student-info" style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">-</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Tipo de Solicitação & Detalhes:</div>
+              <div id="modal-demand-details" style="font-size: 0.85rem; color: var(--text-main);">-</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 220px 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Decisão / Parecer:</label>
+              <select id="modal-status-select" class="input-field" style="width: 100%; padding: 0.6rem; background: var(--bg-card); color: var(--text-main);">
+                <option value="Deferido ✅">Deferido ✅ (Aprovado)</option>
+                <option value="Pendente de Documento ⚠️">Pendente de Documento ⚠️</option>
+                <option value="Indeferido ❌">Indeferido ❌ (Recusado)</option>
+                <option value="Em Análise ⏳">Em Análise ⏳</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Despacho / Parecer do Atendente (Ramon):</label>
+              <textarea id="modal-parecer-text" class="input-field" rows="3" style="width: 100%; font-family: inherit; font-size: 0.85rem;" placeholder="Descreva o despacho detalhado da solicitação..."></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Modelos Rápidos:</span>
+            <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('deferido')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Aprovação Regular</button>
+            <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('pendencia_medica')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Falta Atestado</button>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button class="btn-switch-user" onclick="fecharModalAnalise()">Cancelar</button>
+            <button class="btn-download" onclick="salvarParecerEDespachar(true)" style="background: var(--ifsc-green); color: white;">
+              <i class="bi bi-envelope-check-fill"></i> Salvar e Despachar E-mail
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela Responsiva de Demandas -->
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Data / Hora</th>
+                <th>Estudante</th>
+                <th>Curso</th>
+                <th>Tipo de Demanda</th>
+                <th>Detalhes</th>
+                <th>Status</th>
+                <th>Ação / Arquivo</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <!-- Linhas inseridas via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ABA 2: Telemetria Científica & Benchmarking (Visão Artigo / Marília) -->
+    <div id="tab-content-telemetria" style="display: none;">
+      
+      <!-- KPIs Acadêmicos Comparativos -->
+      <div class="kpi-grid">
+        
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">
+            <i class="bi bi-clipboard2-data"></i>
+          </div>
           <div>
-            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-main);">Despacho / Parecer do Atendente (Ramon):</label>
-            <textarea id="modal-parecer-text" class="input-field" rows="3" style="width: 100%; font-family: inherit; font-size: 0.85rem;" placeholder="Descreva o despacho detalhado da solicitação..."></textarea>
+            <div class="kpi-value" id="kpi-tele-total">0</div>
+            <div class="kpi-label">Testes Registrados</div>
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap;">
-          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Modelos Rápidos:</span>
-          <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('deferido')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Aprovação Regular</button>
-          <button type="button" class="btn-switch-user" onclick="aplicarModeloParecer('pendencia_medica')" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Falta Atestado</button>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">
+            <i class="bi bi-stopwatch"></i>
+          </div>
+          <div>
+            <div class="kpi-value" id="kpi-tele-latencia" style="font-size: 1.2rem; font-weight: 700;">-</div>
+            <div class="kpi-label">Latência (P1 / P2 / P3)</div>
+          </div>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-          <button class="btn-switch-user" onclick="fecharModalAnalise()">Cancelar</button>
-          <button class="btn-download" onclick="salvarParecerEDespachar(true)" style="background: var(--ifsc-green); color: white;">
-            <i class="bi bi-envelope-check-fill"></i> Salvar e Despachar E-mail
-          </button>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light);">
+            <i class="bi bi-bullseye"></i>
+          </div>
+          <div>
+            <div class="kpi-value" id="kpi-tele-resolucao">0%</div>
+            <div class="kpi-label">Taxa de Resolução</div>
+          </div>
         </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <div>
+            <div class="kpi-value" id="kpi-tele-csat">0.0 / 4.0</div>
+            <div class="kpi-label">Média Satisfação CSAT</div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Tabela Responsiva -->
-      <div style="overflow-x: auto;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Protocolo</th>
-              <th>Data / Hora</th>
-              <th>Estudante</th>
-              <th>Curso</th>
-              <th>Tipo de Demanda</th>
-              <th>Detalhes</th>
-              <th>Status</th>
-              <th>Ação / Arquivo</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            <!-- Linhas inseridas via JS -->
-          </tbody>
-        </table>
+      <!-- Tabela de Telemetria Científica -->
+      <div class="admin-card">
+        
+        <div class="admin-header-actions">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--accent-amber);">
+              <i class="bi bi-journal-code"></i> Dataset de Avaliação Comparativa dos Protótipos
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Métricas quantitativas coletadas para tabulação estatística e geração de gráficos no paper e monografia.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn-download" onclick="baixarTelemetriaCSV()" style="background: var(--accent-amber); color: #0b0f19; font-weight: 700;">
+              <i class="bi bi-file-earmark-spreadsheet-fill"></i> 📥 Baixar Dataset para Artigo (.CSV)
+            </button>
+            <button class="btn-switch-user" onclick="gerarAmostrasTelemetria()" style="padding: 0.5rem 0.85rem; border-color: var(--accent-purple); color: var(--accent-purple);">
+              <i class="bi bi-shuffle"></i> 🎲 Gerar Bateria de Amostras
+            </button>
+            <button class="btn-switch-user" onclick="limparTelemetria()" style="padding: 0.5rem 0.85rem; color: var(--ifsc-red); border-color: rgba(220, 38, 38, 0.4);">
+              <i class="bi bi-trash"></i> Limpar Telemetria
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Telemetria -->
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID Teste</th>
+                <th>Data / Hora</th>
+                <th>Protótipo</th>
+                <th>Perfil</th>
+                <th>Tarefa / Pergunta</th>
+                <th>Latência (ms)</th>
+                <th>Turnos</th>
+                <th>Resolvido</th>
+                <th>Confiança</th>
+                <th>CSAT</th>
+              </tr>
+            </thead>
+            <tbody id="telemetry-table-body">
+              <!-- Linhas de telemetria inseridas via JS -->
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
     </div>
@@ -364,7 +475,34 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       renderTable();
+      renderTelemetryTable();
     });
+
+    // Controle de Abas
+    function switchTab(tabName) {
+      const tabDemandas = document.getElementById("tab-content-demandas");
+      const tabTelemetria = document.getElementById("tab-content-telemetria");
+      const btnDemandas = document.getElementById("tab-btn-demandas");
+      const btnTelemetria = document.getElementById("tab-btn-telemetria");
+
+      if (tabName === 'demandas') {
+        tabDemandas.style.display = "block";
+        tabTelemetria.style.display = "none";
+        btnDemandas.style.background = "var(--accent-blue)";
+        btnDemandas.style.color = "#0b0f19";
+        btnTelemetria.style.background = "var(--bg-card)";
+        btnTelemetria.style.color = "var(--text-main)";
+        renderTable();
+      } else {
+        tabDemandas.style.display = "none";
+        tabTelemetria.style.display = "block";
+        btnTelemetria.style.background = "var(--accent-amber)";
+        btnTelemetria.style.color = "#0b0f19";
+        btnDemandas.style.background = "var(--bg-card)";
+        btnDemandas.style.color = "var(--text-main)";
+        renderTelemetryTable();
+      }
+    }
 
     function getStatusClass(status) {
       if (!status) return "status-pending";
@@ -454,6 +592,100 @@
           </tr>
         `;
       }).join("");
+    }
+
+    // Renderização de Telemetria Científica
+    function renderTelemetryTable() {
+      const tbody = document.getElementById("telemetry-table-body");
+      if (!tbody) return;
+
+      const data = IFSC_Session.getTelemetryData();
+
+      // Atualizar KPIs
+      document.getElementById("kpi-tele-total").innerText = data.length;
+
+      if (!data.length) {
+        document.getElementById("kpi-tele-latencia").innerText = "-";
+        document.getElementById("kpi-tele-resolucao").innerText = "0%";
+        document.getElementById("kpi-tele-csat").innerText = "0.0 / 4.0";
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="empty-state">
+              <i class="bi bi-journal-text" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem; color: var(--accent-amber);"></i>
+              Nenhum teste de telemetria registrado ainda.<br>
+              Clique em <strong>"🎲 Gerar Bateria de Amostras"</strong> para visualizar os dados ou execute testes nos protótipos.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Cálculos estatísticos
+      const p1 = data.filter(d => d.prototipo.includes("P1"));
+      const p2 = data.filter(d => d.prototipo.includes("P2"));
+      const p3 = data.filter(d => d.prototipo.includes("P3"));
+
+      const avg = arr => arr.length ? Math.round(arr.reduce((acc, c) => acc + c.latenciaMs, 0) / arr.length) : 0;
+      document.getElementById("kpi-tele-latencia").innerText = `${avg(p1)}ms / ${avg(p2)}ms / ${avg(p3)}ms`;
+
+      const resolvidas = data.filter(d => d.resolvido === "Sim" || d.resolvido === true).length;
+      document.getElementById("kpi-tele-resolucao").innerText = `${((resolvidas / data.length) * 100).toFixed(1)}%`;
+
+      const csatMap = { "Excelente": 4, "Boa": 3, "Regular": 2, "Precisa Melhorar": 1 };
+      const avgCsat = (data.reduce((acc, c) => acc + (csatMap[c.csat] || 3), 0) / data.length).toFixed(1);
+      document.getElementById("kpi-tele-csat").innerText = `${avgCsat} / 4.0`;
+
+      tbody.innerHTML = data.map(d => {
+        const protoColor = d.prototipo.includes("P1") ? "var(--ifsc-green-light)" :
+                           d.prototipo.includes("P2") ? "var(--accent-purple)" : "var(--accent-amber)";
+        
+        const csatBadge = d.csat === 'Excelente' ? '😍 Excelente' :
+                          d.csat === 'Boa' ? '😊 Boa' :
+                          d.csat === 'Regular' ? '😐 Regular' : '🙁 Precisa Melhorar';
+
+        const isRes = (d.resolvido === "Sim" || d.resolvido === true);
+
+        return `
+          <tr>
+            <td><code style="color: var(--accent-blue); font-weight: 600;">${d.id}</code></td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${d.dataHora}</td>
+            <td><span style="color: ${protoColor}; font-weight: 700;">${d.prototipo}</span></td>
+            <td><span style="font-size: 0.8rem;">${d.perfil}</span></td>
+            <td><strong>${d.tarefa}</strong></td>
+            <td style="font-family: monospace; font-weight: 600; color: var(--text-main);">${d.latenciaMs} ms</td>
+            <td style="text-align: center;">${d.turnos}</td>
+            <td>
+              <span class="status-badge ${isRes ? 'status-deferido' : 'status-indeferido'}">
+                <i class="bi ${isRes ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"></i> ${d.resolvido}
+              </span>
+            </td>
+            <td style="font-family: monospace;">${d.scoreConfianca}</td>
+            <td><span style="font-size: 0.82rem; font-weight: 600;">${csatBadge}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function baixarTelemetriaCSV() {
+      const csv = IFSC_Session.exportTelemetryCSV();
+      if (!csv) {
+        alert("Nenhum dado de telemetria para exportar. Clique em 'Gerar Bateria de Amostras' primeiro.");
+        return;
+      }
+      download(csv, "tcc_marilia_telemetria_comparativa.csv", "text/csv");
+    }
+
+    function gerarAmostrasTelemetria() {
+      IFSC_Session.generateSampleTelemetry();
+      renderTelemetryTable();
+    }
+
+    function limparTelemetria() {
+      if (confirm("Deseja limpar todos os dados de telemetria científica?")) {
+        IFSC_Session.clearTelemetryData();
+        renderTelemetryTable();
+      }
     }
 
     function abrirModalAnalise(id) {

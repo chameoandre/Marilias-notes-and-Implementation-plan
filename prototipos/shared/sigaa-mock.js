@@ -706,7 +706,7 @@ E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336`
       const user = this.getCurrentUser();
       history.push({
         timestamp: new Date().toISOString(),
-        score, // 'otimo', 'bom', 'regular', 'ruim'
+        score, // 'Excelente', 'Boa', 'Regular', 'Precisa Melhorar'
         comentario: feedbackText,
         usuario: user ? user.nome : "Visitante",
         matricula: user ? user.matricula : null
@@ -716,6 +716,89 @@ E-mail: secretaria.gpb@ifsc.edu.br | Telefone: (48) 3254-7336`
     } catch (e) {
       return false;
     }
+  },
+
+  // ==========================================
+  // MÓDULO DE TELEMETRIA CIENTÍFICA (TCC MARÍLIA)
+  // ==========================================
+  logSessionTelemetry(data) {
+    try {
+      const key = "ifsc_tcc_telemetry";
+      const telemetry = JSON.parse(localStorage.getItem(key) || "[]");
+      const entry = {
+        id: "TEST-" + Date.now().toString().slice(-6),
+        timestamp: new Date().toISOString(),
+        dataHora: new Date().toLocaleString("pt-BR"),
+        prototipo: data.prototipo || "P1-Lexical", // P1-Lexical, P2-PLN, P3-LLM
+        perfil: data.perfil || (this.getCurrentUser() ? "Aluno" : "Visitante"),
+        tarefa: data.tarefa || "Consulta Geral",
+        latenciaMs: Math.round(data.latenciaMs || 0),
+        turnos: data.turnos || 1,
+        resolvido: data.resolvido !== false ? "Sim" : "Não",
+        scoreConfianca: data.scoreConfianca ? Number(data.scoreConfianca).toFixed(2) : "1.00",
+        csat: data.csat || "Boa"
+      };
+      telemetry.unshift(entry);
+      localStorage.setItem(key, JSON.stringify(telemetry));
+      return entry;
+    } catch (e) {
+      console.error("Erro ao registrar telemetria:", e);
+      return null;
+    }
+  },
+
+  getTelemetryData() {
+    try {
+      const data = localStorage.getItem("ifsc_tcc_telemetry");
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  clearTelemetryData() {
+    localStorage.removeItem("ifsc_tcc_telemetry");
+  },
+
+  generateSampleTelemetry() {
+    const samples = [
+      { prototipo: "P1-Lexical", perfil: "Aluno", tarefa: "Emissão de Declaração", latenciaMs: 14, turnos: 3, resolvido: true, scoreConfianca: "1.00", csat: "Boa" },
+      { prototipo: "P1-Lexical", perfil: "Visitante", tarefa: "Conhecer Cursos", latenciaMs: 11, turnos: 2, resolvido: true, scoreConfianca: "0.95", csat: "Excelente" },
+      { prototipo: "P1-Lexical", perfil: "Aluno", tarefa: "Dúvida Complexa RDP", latenciaMs: 18, turnos: 5, resolvido: false, scoreConfianca: "0.40", csat: "Regular" },
+      { prototipo: "P1-Lexical", perfil: "Visitante", tarefa: "Horário de Atendimento", latenciaMs: 10, turnos: 2, resolvido: true, scoreConfianca: "0.98", csat: "Excelente" },
+      { prototipo: "P2-PLN", perfil: "Aluno", tarefa: "Justificativa de Falta", latenciaMs: 42, turnos: 2, resolvido: true, scoreConfianca: "0.88", csat: "Excelente" },
+      { prototipo: "P2-PLN", perfil: "Aluno", tarefa: "Aproveitamento de Estudos", latenciaMs: 39, turnos: 3, resolvido: true, scoreConfianca: "0.82", csat: "Boa" },
+      { prototipo: "P2-PLN", perfil: "Visitante", tarefa: "Processos Seletivos / SISU", latenciaMs: 36, turnos: 2, resolvido: true, scoreConfianca: "0.91", csat: "Excelente" },
+      { prototipo: "P2-PLN", perfil: "Aluno", tarefa: "Consulta de Pendências", latenciaMs: 34, turnos: 2, resolvido: true, scoreConfianca: "0.94", csat: "Excelente" },
+      { prototipo: "P3-LLM", perfil: "Aluno", tarefa: "Destrancamento + Declaração", latenciaMs: 345, turnos: 1, resolvido: true, scoreConfianca: "0.98", csat: "Excelente" },
+      { prototipo: "P3-LLM", perfil: "Aluno", tarefa: "Interpretação RDP Art. 98", latenciaMs: 310, turnos: 1, resolvido: true, scoreConfianca: "0.96", csat: "Excelente" },
+      { prototipo: "P3-LLM", perfil: "Visitante", tarefa: "Comparação de Cursos", latenciaMs: 375, turnos: 2, resolvido: true, scoreConfianca: "0.95", csat: "Excelente" },
+      { prototipo: "P3-LLM", perfil: "Aluno", tarefa: "Atestado com Validação Digital", latenciaMs: 405, turnos: 1, resolvido: true, scoreConfianca: "0.99", csat: "Excelente" }
+    ];
+    this.clearTelemetryData();
+    samples.forEach(s => this.logSessionTelemetry(s));
+    return this.getTelemetryData();
+  },
+
+  exportTelemetryCSV() {
+    const data = this.getTelemetryData();
+    if (!data.length) return null;
+
+    const headers = ["ID", "Data_Hora", "Prototipo", "Perfil_Usuario", "Tarefa_Executada", "Latencia_ms", "Turnos_Conversa", "Resolvido", "Score_Confianca", "Satisfacao_CSAT"];
+    const rows = data.map(d => [
+      `"${d.id}"`,
+      `"${d.dataHora}"`,
+      `"${d.prototipo}"`,
+      `"${d.perfil}"`,
+      `"${d.tarefa}"`,
+      d.latenciaMs,
+      d.turnos,
+      `"${d.resolvido}"`,
+      d.scoreConfianca,
+      `"${d.csat}"`
+    ]);
+
+    return [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
   }
 };
 
