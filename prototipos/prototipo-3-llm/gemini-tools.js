@@ -117,7 +117,7 @@ const IFSC_AGENT_TOOLS = [
 // 2. Estado Global e Buffer de Memória Multi-Turn
 let p3ActiveMenuItems = [];
 let p3IsClosed = false;
-let conversationHistory = []; // Buffer de memória de contexto
+let conversationHistory = []; // Histórico de mensagens no buffer
 let currentActiveTopic = null; // Tópico de conversação ancorado
 
 // Configuração do Buffer Dinâmico
@@ -536,45 +536,58 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   const activeStudent = IFSC_Session.getCurrentUser();
 
-  // --- RESOLUÇÃO DE PERGUNTAS DE CONTINUIDADE (MULTI-TURN RESOLUTION) ---
-  const isFollowUp = promptLower.includes("consegue me auxiliar") || 
-                     promptLower.includes("consegue me ajudar") || 
-                     promptLower.includes("me ajuda") || 
-                     promptLower.includes("como faco") || 
-                     promptLower.includes("como faço") || 
-                     promptLower.includes("quais os passos") || 
-                     promptLower.includes("qual o passo") || 
-                     promptLower.includes("e como funciona") ||
-                     promptLower.includes("e os documentos") ||
-                     promptLower.includes("quais documentos") ||
-                     promptLower.includes("qual o prazo") ||
-                     promptLower.includes("quanto custa") ||
-                     promptLower.includes("tem custo") ||
-                     promptLower.includes("e de graça") ||
-                     promptLower.includes("é de graça") ||
-                     promptLower.includes("como entrar") ||
-                     promptLower.includes("como se matricular") ||
-                     promptLower.includes("como se inscrever");
+  // --- RESOLUÇÃO DE PERGUNTAS DE CONTINUIDADE E METADISCURSO (MULTI-TURN RESOLUTION) ---
+  const isFollowUpHelp = promptLower.includes("consegue me auxiliar") || 
+                         promptLower.includes("consegue me ajudar") || 
+                         promptLower.includes("me ajuda") || 
+                         promptLower.includes("como faco") || 
+                         promptLower.includes("como faço") || 
+                         promptLower.includes("quais os passos") || 
+                         promptLower.includes("qual o passo") || 
+                         promptLower.includes("como entrar") ||
+                         promptLower.includes("como se matricular") ||
+                         promptLower.includes("como se inscrever");
 
-  // Se for uma pergunta de continuidade, recupera o contexto anterior do buffer
-  if (isFollowUp && currentActiveTopic) {
+  const isMetaQuestion = promptLower.includes("entendeu o que eu perguntei") || 
+                         promptLower.includes("entendeu") || 
+                         promptLower.includes("compreendeu") || 
+                         promptLower.includes("voce entendeu") || 
+                         promptLower.includes("você entendeu");
+
+  // Se for pergunta meta-conversacional ("Entendeu o que perguntei?")
+  if (isMetaQuestion) {
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const topicDesc = currentActiveTopic ? `estávamos conversando sobre <strong>${currentActiveTopic}</strong>` : `estou acompanhando sua solicitação`;
+    const metaReply = `
+      Sim, com certeza! Entendi perfeitamente. No nosso histórico recente, ${topicDesc}.<br><br>
+      Como sou o assistente do Câmpus Garopaba com memória de contexto ativa, sei exatamente sobre o que você deseja saber.<br><br>
+      📌 Você gostaria que eu detalhe o <strong>passo a passo para inscrição/matrícula</strong>, as <strong>disciplinas do curso</strong> ou prefere abrir um chamado direto com a <strong>Secretaria (Ramon)</strong>?
+    `;
+    appendBotMessage(metaReply);
+    addToHistory("model", metaReply, { topic: "Confirmação de Contexto" });
+    return;
+  }
+
+  // Se for pergunta de ajuda/continuidade e temos um tópico ativo no buffer
+  if (isFollowUpHelp && currentActiveTopic) {
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
     
-    // Continuidade de Matrícula / Cursos SPI
+    // Continuidade de Cursos / SPI / Matrícula
     if (currentActiveTopic.includes("Cursos") || currentActiveTopic.includes("Sistemas para Internet") || currentActiveTopic.includes("Ingresso") || currentActiveTopic.includes("Matrícula")) {
       const followUpReply = `
-        <strong>Com certeza! Eis o passo a passo para ingresso e matrícula no CST Sistemas para a Internet (Câmpus Garopaba):</strong> 🎓<br><br>
-        1. <strong>Formas de Ingresso (100% Gratuitas):</strong><br>
-        • <strong>Vestibular Unificado IFSC:</strong> Inscrições no portal <code>ingresso.ifsc.edu.br</code> (geralmente nos meses de Maio/Junho e Outubro/Novembro);<br>
-        • <strong>SiSU (Nota do ENEM):</strong> Seleção no início de cada semestre com a nota do último ENEM;<br>
-        • <strong>Transferência & Retorno de Graduados:</strong> Edital específico publicado antes do início de cada semestre letivo.<br><br>
-        2. <strong>Documentos Comuns para Efetivação da Matrícula:</strong><br>
-        • Documento Oficial de Identidade (RG/CNH) e CPF;<br>
+        <strong>Com certeza! Eis como posso te ajudar no ingresso e matrícula para o CST Sistemas para a Internet:</strong> 🎓<br><br>
+        1. <strong>Como ingressar (100% Gratuito):</strong><br>
+        • <strong>Vestibular Unificado do IFSC:</strong> Inscrições online pelo site <code>ingresso.ifsc.edu.br</code>;<br>
+        • <strong>SiSU (Sistema de Seleção Unificada):</strong> Utilizando a nota da edição mais recente do ENEM;<br>
+        • <strong>Transferência Externa / Retorno de Graduados:</strong> Edital publicado no início de cada semestre.<br><br>
+        2. <strong>Documentos Básicos Exigidos:</strong><br>
+        • Documento de Identidade (RG) e CPF;<br>
         • Certificado de Conclusão e Histórico do Ensino Médio;<br>
-        • Título de Eleitor e Quitação Eleitoral (maiores de 18 anos);<br>
-        • Comprovante de Quitação Militar (para homens entre 18 e 45 anos).<br><br>
-        💡 <em>Deseja que eu te encaminhe para o contato direto da Secretaria Acadêmica com o servidor Ramon ou verificar se há editais abertos no momento?</em>
+        • Comprovante de Quitação Eleitoral e Militar (se aplicável).<br><br>
+        💡 <em>Deseja que eu verifique o período do próximo edital ou forneça os contatos da Secretaria Acadêmica?</em>
       `;
       appendBotMessage(followUpReply);
       addToHistory("model", followUpReply, { topic: "Passo a Passo Matrícula SPI" });
@@ -608,6 +621,36 @@ async function executarRaciocinioIA(prompt, startTime) {
       addToHistory("model", followUpFalta, { topic: "Procedimento Atestado" });
       return;
     }
+  }
+
+  // --- CENÁRIO: DETALHES ESPECÍFICOS DO CURSO DE SISTEMAS PARA INTERNET (SPI) ---
+  if (promptLower.includes("sistemas para internet") || promptLower.includes("sistemas para a internet") || promptLower.includes("curso de spi") || promptLower.includes("curso superior de sistemas") || (promptLower.includes("curso") && promptLower.includes("conhecer"))) {
+    currentActiveTopic = "CST Sistemas para a Internet (SPI)";
+    document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>PPC & Matriz do CST Sistemas para a Internet</strong>`;
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+
+    const spiDetails = `
+      <strong>💻 CST Sistemas para a Internet — Câmpus Garopaba</strong><br><br>
+      • <strong>Grau & Modalidade:</strong> Graduação Tecnológica / Superior Presencial (100% Gratuito);<br>
+      • <strong>Turno:</strong> Noturno (18h30 às 22h00) — ideal para quem trabalha ou estagia;<br>
+      • <strong>Duração:</strong> 6 semestres (3 anos letivos);<br>
+      • <strong>Foco Pedagógico & Tecnologias:</strong> Desenvolvimento Web Full Stack (HTML5/CSS3, JavaScript, React, Node.js, Python), Bancos de Dados SQL/NoSQL, Engenharia de Software, Cloud Computing, Segurança e Redes;<br>
+      • <strong>Formas de Ingresso:</strong> Vestibular Unificado IFSC e SiSU (com nota do ENEM).<br><br>
+      💡 <em>Você pode me perguntar: "Consegue me ajudar a ingressar?", "Quais os documentos para matrícula?" ou "Como funciona o estágio?".</em>
+    `;
+
+    appendBotMessage(spiDetails);
+    addToHistory("model", spiDetails, { topic: "CST Sistemas para a Internet (SPI)" });
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Detalhes do Curso SPI",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.98,
+      resolvido: true
+    });
+    return;
   }
 
   // --- CENÁRIO 1: TOOL CALL DE DECLARAÇÃO DE MATRÍCULA ---
@@ -831,8 +874,8 @@ async function executarRaciocinioIA(prompt, startTime) {
   }
 
   // --- CENÁRIO 6: CURSOS OFERTADOS & MATRÍCULA NO CÂMPUS GAROPABA ---
-  if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("sistemas para internet") || promptLower.includes("matricula") || promptLower.includes("matrícula")) {
-    currentActiveTopic = "Cursos Ofertados & Matrícula (SPI)";
+  if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("matricula") || promptLower.includes("matrícula")) {
+    currentActiveTopic = "Cursos Ofertados & Matrícula";
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Matriz de Cursos do Câmpus Garopaba</strong>`;
     const faq = SECRETARIA_FAQ.find(f => f.id === "cursos");
     const elapsed = (performance.now() - startTime).toFixed(0);
@@ -846,7 +889,7 @@ async function executarRaciocinioIA(prompt, startTime) {
     `;
 
     appendBotMessage(coursesReply);
-    addToHistory("model", faq.resposta, { topic: "Cursos Ofertados & Matrícula (SPI)" });
+    addToHistory("model", faq.resposta, { topic: "Cursos Ofertados & Matrícula" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
