@@ -311,19 +311,74 @@ async function sendMessage() {
     return;
   }
 
+  const startTime = performance.now();
+
   // Atalhos Numéricos do Menu Dinâmico
   const selectedNum = parseInt(text, 10);
   if (!isNaN(selectedNum) && selectedNum >= 1 && selectedNum <= p3ActiveMenuItems.length) {
     const item = p3ActiveMenuItems[selectedNum - 1];
+
+    if (item.action === "FLOW_DECLARACAO") {
+      document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
+      setTimeout(async () => {
+        await executarRaciocinioIA("emitir declaracao de matricula oficial", startTime);
+      }, 250);
+      return;
+    }
+
+    if (item.action === "FLOW_PENDENCIAS") {
+      document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
+      setTimeout(async () => {
+        await executarRaciocinioIA("consultar pendencias academicas sigaa", startTime);
+      }, 250);
+      return;
+    }
+
+    if (item.action === "FLOW_CONSULTA_PARECER") {
+      document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
+      setTimeout(async () => {
+        await executarRaciocinioIA("consultar status requerimentos parecer ramon", startTime);
+      }, 250);
+      return;
+    }
+
+    if (item.action === "FLOW_JUSTIFICATIVA_FALTA" || item.action === "FLOW_REQUERIMENTO") {
+      document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
+      setTimeout(async () => {
+        await executarRaciocinioIA("justificar falta atestado medico rdp", startTime);
+      }, 250);
+      return;
+    }
+
+    if (item.action === "FLOW_ATENDENTE_HUMANO") {
+      renderAtendenteP3();
+      return;
+    }
+
+    if (item.action === "FLOW_LOGIN_SIMULADO") {
+      simularLogin("20241010045");
+      return;
+    }
+
     if (item.action === "FLOW_FAQ_TOPIC" || item.action === "SUBMENU_FAQ") {
       const topicId = item.payload || "horario";
       const faq = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
-      appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu</small>`);
+      const elapsed = (performance.now() - startTime).toFixed(0);
+      document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+      document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>${faq.titulo}</strong>`;
+
+      appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+      
+      IFSC_Session.logSessionTelemetry({
+        prototipo: "P3-LLM",
+        tarefa: faq.titulo,
+        latenciaMs: elapsed,
+        scoreConfianca: 1.00,
+        resolvido: true
+      });
       return;
     }
   }
-
-  const startTime = performance.now();
 
   // Simulação de Raciocínio (Chain of Thought & Tool Call)
   document.getElementById("llm-latency").innerText = `Processando raciocínio... ⏳`;
@@ -385,6 +440,14 @@ async function executarRaciocinioIA(prompt, startTime) {
       </div>
     `;
     appendBotMessage(botReply);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Emissão de Declaração (Tool)",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.99,
+      resolvido: true
+    });
     return;
   }
 
@@ -402,6 +465,14 @@ async function executarRaciocinioIA(prompt, startTime) {
       Deseja que eu abra uma solicitação de orientação junto à Secretaria Acadêmica?
     `;
     appendBotMessage(respostaRDP);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Interpretação RDP Destrancamento",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.97,
+      resolvido: true
+    });
     return;
   }
 
@@ -437,6 +508,14 @@ async function executarRaciocinioIA(prompt, startTime) {
       const pItems = result.pendencias.map(p => `<li><strong style="color: var(--accent-amber);">[${p.tipo}]</strong> ${p.descricao} (Setor: ${p.setor} | Prazo: ${p.prazo})</li>`).join("");
       appendBotMessage(`Identifiquei <strong>${result.pendencias.length} pendência(s)</strong> no seu registro acadêmico: ⚠️<br><ul style="margin: 0.5rem 0 0.5rem 1.25rem;">${pItems}</ul>${emailBtn}`);
     }
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Auditoria de Pendências (Tool)",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.98,
+      resolvido: true
+    });
     return;
   }
 
@@ -488,11 +567,19 @@ async function executarRaciocinioIA(prompt, startTime) {
     }).join("");
 
     appendBotMessage(`Recuperei o status dos seus <strong>requerimentos na Secretaria</strong>: 📋<br><br>${cards}`);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Rastreio de Parecer (Tool)",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.98,
+      resolvido: true
+    });
     return;
   }
 
   // --- CENÁRIO 5: APROVEITAMENTO E VALIDAÇÃO ---
-  if (promptLower.includes("aproveitamento") || promptLower.includes("validacao") || promptLower.includes("dispensa")) {
+  if (promptLower.includes("aproveitamento") || promptLower.includes("validacao") || promptLower.includes("validação") || promptLower.includes("dispensa")) {
     document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Contexto: RDP Art. 46`;
     const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
     const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Validação de Estudos", motivo: prompt });
@@ -507,11 +594,19 @@ async function executarRaciocinioIA(prompt, startTime) {
       • Ementas das disciplinas cursadas com carga horária compatível ($\ge 75\\%$ de similaridade);<br>
       • Entrega física na Secretaria Acadêmica (Câmpus Garopaba).
     `);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Aproveitamento de Estudos",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.95,
+      resolvido: true
+    });
     return;
   }
 
   // --- CENÁRIO 6: JUSTIFICATIVA DE FALTA ---
-  if (promptLower.includes("falta") || promptLower.includes("justificar") || promptLower.includes("ausencia") || promptLower.includes("atestado medico")) {
+  if (promptLower.includes("falta") || promptLower.includes("justificar") || promptLower.includes("ausencia") || promptLower.includes("ausência") || promptLower.includes("atestado")) {
     document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Justificativa de Falta`;
     const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
     const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Justificativa de Falta (LLM)", motivo: prompt });
@@ -528,6 +623,22 @@ async function executarRaciocinioIA(prompt, startTime) {
       </div>
     ` : "";
 
+    appendBotMessage(`
+      Conforme o <strong>Art. 98 do RDP</strong>, justificativas de ausência devem ser submetidas em até <strong>5 dias úteis</strong> após o término do afastamento médico.<br><br>
+      Gerei o protocolo de requerimento <code>${result.protocolo}</code> para homologação pelo servidor Ramon.
+      ${emailBtn}
+    `);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Justificativa de Falta (Tool)",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.98,
+      resolvido: true
+    });
+    return;
+  }
+
   // --- CENÁRIO 7: CURSOS OFERTADOS NO CÂMPUS GAROPABA ---
   if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("sistemas para internet")) {
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Matriz de Cursos do Câmpus Garopaba</strong>`;
@@ -535,7 +646,15 @@ async function executarRaciocinioIA(prompt, startTime) {
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
-    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Cursos Ofertados",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.96,
+      resolvido: true
+    });
     return;
   }
 
@@ -546,7 +665,15 @@ async function executarRaciocinioIA(prompt, startTime) {
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
-    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Formas de Ingresso",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.96,
+      resolvido: true
+    });
     return;
   }
 
@@ -557,7 +684,15 @@ async function executarRaciocinioIA(prompt, startTime) {
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
-    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Horário e Contatos",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.98,
+      resolvido: true
+    });
     return;
   }
 
@@ -568,7 +703,15 @@ async function executarRaciocinioIA(prompt, startTime) {
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
-    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal</small>`);
+    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Carteirinha e Passe",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.97,
+      resolvido: true
+    });
     return;
   }
 
@@ -579,8 +722,16 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   appendBotMessage(`
     Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te orientar sobre cursos ofertados no Câmpus Garopaba, vestibular e processos seletivos, emitir declarações de matrícula com autenticidade digital no SIGAA, consultar pendências, verificar o parecer do servidor Ramon sobre seus requerimentos ou explicar regras do RDP.<br><br>
-    Como posso te ajudar agora?
+    💡 Você pode escolher uma opção pelo <strong>número</strong> [0-9] ou perguntar com suas próprias palavras.
   `);
+
+  IFSC_Session.logSessionTelemetry({
+    prototipo: "P3-LLM",
+    tarefa: "Síntese / Pergunta Livre",
+    latenciaMs: elapsed,
+    scoreConfianca: 0.85,
+    resolvido: true
+  });
 }
 
 // Reconhecimento de Voz (Web Speech API)
