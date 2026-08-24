@@ -34,18 +34,28 @@
   </header>
 
   <!-- Barra de Reconhecimento do Usuário e Configurações de IA -->
-  <div class="user-bar">
+  <div class="user-bar" style="flex-wrap: wrap; gap: 0.5rem;">
     <div id="user-status-container">
       <span class="user-status-anonymous"><i class="bi bi-incognito"></i> Aluno não identificado</span>
     </div>
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
-      <span style="color: var(--text-muted); font-size: 0.75rem;">Modo de Execução:</span>
-      <select id="select-mode" class="btn-switch-user" style="background: var(--bg-card); color: var(--text-main); outline: none;">
-        <option value="simulated">⚡ Simulação de Raciocínio (Offline / Grátis)</option>
-        <option value="gemini_live">🌐 Gemini API Live (Requer Chave)</option>
+    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+      <span style="color: var(--text-muted); font-size: 0.75rem;">Modo:</span>
+      <select id="select-mode" class="btn-switch-user" style="background: var(--bg-card); color: var(--text-main); outline: none;" onchange="handleModeChange()">
+        <option value="simulated">⚡ Raciocínio CoT (Offline / Local)</option>
+        <option value="gemini_live">🌐 Gemini API Live (Multi-Turn Real)</option>
       </select>
+
+      <span style="color: var(--text-muted); font-size: 0.75rem;"><i class="bi bi-memory"></i> Memória:</span>
+      <select id="select-buffer" class="btn-switch-user" style="background: var(--bg-card); color: var(--text-main); outline: none;" onchange="handleBufferChange()">
+        <option value="5">5 turnos</option>
+        <option value="10" selected>10 turnos (Padrão)</option>
+        <option value="15">15 turnos</option>
+        <option value="20">20 turnos</option>
+      </select>
+
+      <button id="btn-api-key" class="btn-switch-user" style="display: none;" onclick="promptApiKey()"><i class="bi bi-key-fill"></i> Configurar Chave</button>
       <button class="btn-switch-user" onclick="simularLogin('20241010045')">Mariana (SPI)</button>
-      <button class="btn-switch-user" onclick="simularLogout()"><i class="bi bi-x-circle"></i></button>
+      <button class="btn-switch-user" onclick="simularLogout()" title="Sair do usuário"><i class="bi bi-x-circle"></i></button>
     </div>
   </div>
 

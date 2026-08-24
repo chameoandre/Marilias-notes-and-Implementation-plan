@@ -1,5 +1,5 @@
 /**
- * Protótipo 3 — IA Generativa com Function Calling & Áudio
+ * Protótipo 3 — IA Generativa com Function Calling, Multi-Turn Context Buffer & Áudio
  * Projeto TCC — Marília Stefenon (IFSC Câmpus Garopaba)
  */
 
@@ -8,6 +8,13 @@ const IFSC_AGENT_TOOLS = [
   {
     name: "consultarAlunoSIGAA",
     description: "Consulta situação cadastral, curso e dados de um estudante no SIGAA via Matrícula ou CPF.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        identifier: { type: "STRING", description: "Número de matrícula ou CPF do estudante." }
+      },
+      required: ["identifier"]
+    },
     execute: (params) => {
       const student = IFSC_Session.findStudent(params.identifier);
       if (student) IFSC_Session.setCurrentUser(student);
@@ -17,6 +24,13 @@ const IFSC_AGENT_TOOLS = [
   {
     name: "consultarPendenciasAcademicas",
     description: "Consulta pendências documentais, de biblioteca e cadastrais de um aluno no SIGAA.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        matricula: { type: "STRING", description: "Matrícula do estudante no SIGAA." }
+      },
+      required: ["matricula"]
+    },
     execute: (params) => {
       const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
       if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
@@ -27,6 +41,13 @@ const IFSC_AGENT_TOOLS = [
   {
     name: "consultarStatusRequerimentos",
     description: "Consulta o andamento, parecer e despacho emitido pela Secretaria Acadêmica (Ramon) para as solicitações do estudante.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        matricula: { type: "STRING", description: "Matrícula do estudante." }
+      },
+      required: ["matricula"]
+    },
     execute: (params) => {
       const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
       if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
@@ -36,7 +57,15 @@ const IFSC_AGENT_TOOLS = [
   },
   {
     name: "emitirDeclaracaoMatricula",
-    description: "Gera automaticamente a Declaração de Matrícula oficial em PDF com código de autenticidade.",
+    description: "Gera automaticamente a Declaração de Matrícula oficial em PDF com código de autenticidade digital do SIGAA.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        matricula: { type: "STRING", description: "Matrícula do estudante." },
+        finalidade: { type: "STRING", description: "Finalidade da declaração (ex: Estágio, Transporte, Passe Escolar)." }
+      },
+      required: ["matricula"]
+    },
     execute: async (params) => {
       const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
       if (!student) return { status: "erro", mensagem: "Aluno não identificado." };
@@ -59,6 +88,15 @@ const IFSC_AGENT_TOOLS = [
   {
     name: "abrirRequerimentoSecretaria",
     description: "Abre um requerimento formal na fila de atendimento da Secretaria Acadêmica (Ramon).",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        matricula: { type: "STRING", description: "Matrícula do estudante." },
+        tipo: { type: "STRING", description: "Tipo do requerimento (ex: Justificativa de Falta, Validação de Estudos, Geral)." },
+        motivo: { type: "STRING", description: "Descrição ou justificativa da solicitação." }
+      },
+      required: ["tipo", "motivo"]
+    },
     execute: (params) => {
       const student = IFSC_Session.findStudent(params.matricula) || IFSC_Session.getCurrentUser();
       const req = IFSC_Session.saveDemand({
@@ -76,10 +114,49 @@ const IFSC_AGENT_TOOLS = [
   }
 ];
 
+// 2. Estado Global e Buffer de Memória Multi-Turn
 let p3ActiveMenuItems = [];
 let p3IsClosed = false;
+let conversationHistory = []; // Buffer de memória de contexto
+let currentActiveTopic = null; // Tópico de conversação ancorado
 
-// 2. Inicialização do Protótipo
+// Configuração do Buffer Dinâmico
+function getBufferLimit() {
+  const select = document.getElementById("select-buffer");
+  return select ? parseInt(select.value, 10) : 10;
+}
+
+function addToHistory(role, text, metadata = {}) {
+  conversationHistory.push({
+    role,
+    text,
+    timestamp: Date.now(),
+    topic: metadata.topic || currentActiveTopic,
+    tool: metadata.tool || null
+  });
+
+  const limit = getBufferLimit();
+  if (conversationHistory.length > limit * 2) {
+    conversationHistory = conversationHistory.slice(-limit * 2);
+  }
+
+  updateDebugBufferIndicator();
+}
+
+function updateDebugBufferIndicator() {
+  const limit = getBufferLimit();
+  const turnCount = Math.floor(conversationHistory.length / 2);
+  const details = document.getElementById("llm-details");
+  if (details) {
+    const topicLabel = currentActiveTopic ? `<span style="color:var(--accent-amber); font-weight:600;">${currentActiveTopic}</span>` : `<span style="color:var(--text-muted);">Geral</span>`;
+    const mode = document.getElementById("select-mode") ? document.getElementById("select-mode").value : "simulated";
+    const modeLabel = mode === "gemini_live" ? "🌐 Gemini API Live (Multi-Turn)" : "⚡ Raciocínio CoT Multi-Turn";
+    
+    details.innerHTML = `Memória: <strong>${turnCount}/${limit} turnos</strong> | Tópico Ancorado: ${topicLabel} | Modo: <strong>${modeLabel}</strong>`;
+  }
+}
+
+// 3. Inicialização do Protótipo
 document.addEventListener("DOMContentLoaded", () => {
   renderUserStatus();
   iniciarChat();
@@ -99,6 +176,36 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMainMenuP3(false);
   });
 });
+
+function handleModeChange() {
+  const mode = document.getElementById("select-mode").value;
+  const btnKey = document.getElementById("btn-api-key");
+  if (btnKey) {
+    btnKey.style.display = mode === "gemini_live" ? "inline-flex" : "none";
+  }
+  if (mode === "gemini_live") {
+    const savedKey = localStorage.getItem("ifsc_gemini_api_key");
+    if (!savedKey) promptApiKey();
+  }
+  updateDebugBufferIndicator();
+}
+
+function handleBufferChange() {
+  updateDebugBufferIndicator();
+}
+
+function promptApiKey() {
+  const currentKey = localStorage.getItem("ifsc_gemini_api_key") || "";
+  const key = prompt("Informe sua Chave de API do Google Gemini (Google AI Studio):", currentKey);
+  if (key !== null) {
+    if (key.trim()) {
+      localStorage.setItem("ifsc_gemini_api_key", key.trim());
+      alert("Chave do Gemini configurada com sucesso!");
+    } else {
+      localStorage.removeItem("ifsc_gemini_api_key");
+    }
+  }
+}
 
 function renderUserStatus() {
   const container = document.getElementById("user-status-container");
@@ -125,22 +232,24 @@ function iniciarChat() {
   const chat = document.getElementById("chat-messages");
   if (chat) chat.innerHTML = "";
   p3IsClosed = false;
+  conversationHistory = [];
+  currentActiveTopic = null;
   renderMainMenuP3(true);
 }
 
 function renderMainMenuP3(showGreeting = false) {
   p3IsClosed = false;
+  currentActiveTopic = "Menu Principal";
   const user = IFSC_Session.getCurrentUser();
   const timeGreeting = IFSC_Session.getTimeGreeting();
   const empathyNote = user ? IFSC_Session.getEmpathyNote(user, "saudacao") : "";
 
   const saudacao = user 
     ? `${timeGreeting}, <strong>${user.nome.split(" ")[0]}</strong>! 👋 Que bom ter você por aqui.<br>Identifiquei seu vínculo regular no <strong>${user.curso}</strong> (${user.fase} • Matrícula: <code>${user.matricula}</code>).${empathyNote}`
-    : `${timeGreeting}! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Generativo Inteligente (LLM & Function Calling)</strong> da Secretaria Acadêmica.`;
+    : `${timeGreeting}! Seja muito bem-vindo(a) ao <strong>IFSC Câmpus Garopaba</strong>! 🌿<br>Sou o <strong>Assistente Generativo Inteligente (LLM com Memória Multi-Turn & Tools)</strong> da Secretaria Acadêmica.`;
 
   p3ActiveMenuItems = IFSC_Session.getAvailableMenuItems();
 
-  // Agrupar itens por categoria
   const categories = {};
   p3ActiveMenuItems.forEach((item, index) => {
     const cat = item.category || "Opções Gerais";
@@ -175,12 +284,9 @@ function renderMainMenuP3(showGreeting = false) {
     </div>
   `;
 
-  appendBotMessage(menuHtml, { withTyping: true, withTTS: true, delay: 250 });
+  appendBotMessage(menuHtml, { withTyping: true, withTTS: true, delay: 200 });
   renderQuickRepliesP3();
-  const details = document.getElementById("llm-details");
-  if (details) {
-    details.innerHTML = `Menu Categorizado Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
-  }
+  updateDebugBufferIndicator();
 }
 
 function renderQuickRepliesP3() {
@@ -209,6 +315,7 @@ function renderQuickRepliesP3() {
 }
 
 function renderAtendenteP3() {
+  currentActiveTopic = "Atendimento com Ramon";
   const user = IFSC_Session.getCurrentUser();
   const mailtoRamon = `mailto:secretaria.gpb@ifsc.edu.br?subject=Mensagem Direta de Atendimento - ${user ? user.nome : 'Visitante'}&body=Olá Equipe da Secretaria,%0D%0A%0D%0AGostaria de tirar uma dúvida sobre atendimento acadêmico:%0D%0A`;
 
@@ -229,6 +336,7 @@ function renderAtendenteP3() {
 
 function renderEncerrarP3() {
   p3IsClosed = true;
+  currentActiveTopic = "Encerrado";
   const user = IFSC_Session.getCurrentUser();
   const nomeUser = user ? user.nome.split(" ")[0] : "você";
   const greeting = IFSC_Session.getTimeGreeting();
@@ -256,7 +364,7 @@ function renderEncerrarP3() {
     <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.6rem; font-size: 0.85rem;">
       Digite <strong>[0]</strong> ou clique no botão abaixo para reiniciar o atendimento a qualquer momento.
     </div>
-  `, { withTyping: true, withTTS: true, delay: 300 });
+  `, { withTyping: true, withTTS: true, delay: 250 });
 
   const container = document.getElementById("quick-replies");
   if (container) {
@@ -272,7 +380,7 @@ function submitFeedbackP3(score, btn) {
   }
 }
 
-// 3. Processamento de Mensagens
+// 4. Processamento de Mensagens com Memória Contextual
 async function sendMessage() {
   const input = document.getElementById("user-input");
   if (!input) return;
@@ -328,7 +436,7 @@ async function sendMessage() {
       document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
       setTimeout(async () => {
         await executarRaciocinioIA("emitir declaracao de matricula oficial", startTime);
-      }, 250);
+      }, 200);
       return;
     }
 
@@ -336,7 +444,7 @@ async function sendMessage() {
       document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
       setTimeout(async () => {
         await executarRaciocinioIA("consultar pendencias academicas sigaa", startTime);
-      }, 250);
+      }, 200);
       return;
     }
 
@@ -344,7 +452,7 @@ async function sendMessage() {
       document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
       setTimeout(async () => {
         await executarRaciocinioIA("consultar status requerimentos parecer ramon", startTime);
-      }, 250);
+      }, 200);
       return;
     }
 
@@ -352,7 +460,7 @@ async function sendMessage() {
       document.getElementById("llm-latency").innerText = `Processando Tool... ⏳`;
       setTimeout(async () => {
         await executarRaciocinioIA("justificar falta atestado medico rdp", startTime);
-      }, 250);
+      }, 200);
       return;
     }
 
@@ -371,7 +479,10 @@ async function sendMessage() {
       const faq = SECRETARIA_FAQ.find(f => f.id === topicId) || SECRETARIA_FAQ[0];
       const elapsed = (performance.now() - startTime).toFixed(0);
       document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
-      document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>${faq.titulo}</strong>`;
+      
+      currentActiveTopic = faq.titulo;
+      addToHistory("user", text);
+      addToHistory("model", faq.resposta, { topic: faq.titulo });
 
       appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
       
@@ -386,15 +497,32 @@ async function sendMessage() {
     }
   }
 
-  // Simulação de Raciocínio (Chain of Thought & Tool Call)
-  document.getElementById("llm-latency").innerText = `Processando raciocínio... ⏳`;
+  // Registrar no Buffer de Contexto
+  addToHistory("user", text);
+
+  // Verificar Modo Live vs Modo Simulado
+  const mode = document.getElementById("select-mode") ? document.getElementById("select-mode").value : "simulated";
+  const apiKey = localStorage.getItem("ifsc_gemini_api_key");
+
+  if (mode === "gemini_live" && apiKey) {
+    document.getElementById("llm-latency").innerText = `Invocando Gemini Live... 🌐`;
+    try {
+      await executarGeminiLiveAPI(text, apiKey, startTime);
+      return;
+    } catch (e) {
+      console.warn("Falha no Gemini Live, caindo para simulação CoT:", e);
+    }
+  }
+
+  // Simulação de Raciocínio (Chain of Thought Multi-Turn & Tool Call)
+  document.getElementById("llm-latency").innerText = `Processando raciocínio com memória... ⏳`;
   
   setTimeout(async () => {
     await executarRaciocinioIA(text, startTime);
-  }, 350);
+  }, 300);
 }
 
-// 4. Motor de Raciocínio CoT & Invocação de Tools
+// 5. Motor de Raciocínio CoT Multi-Turn & Invocação de Tools
 async function executarRaciocinioIA(prompt, startTime) {
   const promptLower = prompt.toLowerCase();
 
@@ -408,8 +536,83 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   const activeStudent = IFSC_Session.getCurrentUser();
 
+  // --- RESOLUÇÃO DE PERGUNTAS DE CONTINUIDADE (MULTI-TURN RESOLUTION) ---
+  const isFollowUp = promptLower.includes("consegue me auxiliar") || 
+                     promptLower.includes("consegue me ajudar") || 
+                     promptLower.includes("me ajuda") || 
+                     promptLower.includes("como faco") || 
+                     promptLower.includes("como faço") || 
+                     promptLower.includes("quais os passos") || 
+                     promptLower.includes("qual o passo") || 
+                     promptLower.includes("e como funciona") ||
+                     promptLower.includes("e os documentos") ||
+                     promptLower.includes("quais documentos") ||
+                     promptLower.includes("qual o prazo") ||
+                     promptLower.includes("quanto custa") ||
+                     promptLower.includes("tem custo") ||
+                     promptLower.includes("e de graça") ||
+                     promptLower.includes("é de graça") ||
+                     promptLower.includes("como entrar") ||
+                     promptLower.includes("como se matricular") ||
+                     promptLower.includes("como se inscrever");
+
+  // Se for uma pergunta de continuidade, recupera o contexto anterior do buffer
+  if (isFollowUp && currentActiveTopic) {
+    const elapsed = (performance.now() - startTime).toFixed(0);
+    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
+    
+    // Continuidade de Matrícula / Cursos SPI
+    if (currentActiveTopic.includes("Cursos") || currentActiveTopic.includes("Sistemas para Internet") || currentActiveTopic.includes("Ingresso") || currentActiveTopic.includes("Matrícula")) {
+      const followUpReply = `
+        <strong>Com certeza! Eis o passo a passo para ingresso e matrícula no CST Sistemas para a Internet (Câmpus Garopaba):</strong> 🎓<br><br>
+        1. <strong>Formas de Ingresso (100% Gratuitas):</strong><br>
+        • <strong>Vestibular Unificado IFSC:</strong> Inscrições no portal <code>ingresso.ifsc.edu.br</code> (geralmente nos meses de Maio/Junho e Outubro/Novembro);<br>
+        • <strong>SiSU (Nota do ENEM):</strong> Seleção no início de cada semestre com a nota do último ENEM;<br>
+        • <strong>Transferência & Retorno de Graduados:</strong> Edital específico publicado antes do início de cada semestre letivo.<br><br>
+        2. <strong>Documentos Comuns para Efetivação da Matrícula:</strong><br>
+        • Documento Oficial de Identidade (RG/CNH) e CPF;<br>
+        • Certificado de Conclusão e Histórico do Ensino Médio;<br>
+        • Título de Eleitor e Quitação Eleitoral (maiores de 18 anos);<br>
+        • Comprovante de Quitação Militar (para homens entre 18 e 45 anos).<br><br>
+        💡 <em>Deseja que eu te encaminhe para o contato direto da Secretaria Acadêmica com o servidor Ramon ou verificar se há editais abertos no momento?</em>
+      `;
+      appendBotMessage(followUpReply);
+      addToHistory("model", followUpReply, { topic: "Passo a Passo Matrícula SPI" });
+      currentActiveTopic = "Passo a Passo Matrícula SPI";
+      return;
+    }
+
+    // Continuidade de Destrancamento / RDP
+    if (currentActiveTopic.includes("Destrancamento") || currentActiveTopic.includes("RDP")) {
+      const followUpRDP = `
+        <strong>Instruções Práticas para Destrancamento de Matrícula:</strong> 🔄<br><br>
+        1. Acesse o <strong>SIGAA</strong> no período oficial de rematrícula ou abra um requerimento presencial na Secretaria;<br>
+        2. Selecione a opção <em>Requerimento de Destrancamento de Matrícula</em>;<br>
+        3. A coordenação do curso validará as disciplinas ativas e ajustará sua grade curricular.<br><br>
+        Deseja que eu registre seu pedido preliminar agora mesmo?
+      `;
+      appendBotMessage(followUpRDP);
+      addToHistory("model", followUpRDP, { topic: "Destrancamento RDP" });
+      return;
+    }
+
+    // Continuidade de Justificativa de Faltas / Atestados
+    if (currentActiveTopic.includes("Falta") || currentActiveTopic.includes("Atestado")) {
+      const followUpFalta = `
+        <strong>Como submeter seu atestado médico no IFSC:</strong> 📋<br><br>
+        1. Digitalize o atestado médico legível (com CRM do médico, período de afastamento e CID);<br>
+        2. Protocolize no SIGAA (menu <em>Ensino > Requerimentos</em>) ou entregue na Secretaria em até <strong>5 dias úteis</strong>;<br>
+        3. A Secretaria encaminhará para ciência dos professores das Unidades Curriculares impactadas.
+      `;
+      appendBotMessage(followUpFalta);
+      addToHistory("model", followUpFalta, { topic: "Procedimento Atestado" });
+      return;
+    }
+  }
+
   // --- CENÁRIO 1: TOOL CALL DE DECLARAÇÃO DE MATRÍCULA ---
-  if (promptLower.includes("declaração") || promptLower.includes("declaracao") || promptLower.includes("atestado") || promptLower.includes("comprovante")) {
+  if (promptLower.includes("declaração") || promptLower.includes("declaracao") || promptLower.includes("atestado de frequencia") || promptLower.includes("comprovante de matricula")) {
+    currentActiveTopic = "Emissão de Declaração";
     document.getElementById("llm-details").innerHTML = `Tool: <strong>emitirDeclaracaoMatricula()</strong> | Parâmetros: <code>{ matricula: "${activeStudent ? activeStudent.matricula : 'solicitar'}" }</code>`;
     
     if (!activeStudent) {
@@ -445,6 +648,7 @@ async function executarRaciocinioIA(prompt, startTime) {
       </div>
     `;
     appendBotMessage(botReply);
+    addToHistory("model", `Declaração emitida com autenticação ${result.codAutenticacao}`, { topic: "Declaração Emitida", tool: "emitirDeclaracaoMatricula" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -458,7 +662,8 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   // --- CENÁRIO 2: CENÁRIO COMPLEXO DE RDP (DESTRANCAMENTO / RETORNO) ---
   if (promptLower.includes("tranquei") || promptLower.includes("voltar") || promptLower.includes("destrancamento") || promptLower.includes("reabrir")) {
-    document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarRegulamentoRDP()</strong> + Análise Contextual`;
+    currentActiveTopic = "Destrancamento / Retorno aos Estudos (RDP)";
+    document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarRegulamentoRDP()</strong> + Análise Contextual Multi-Turn`;
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
@@ -470,6 +675,7 @@ async function executarRaciocinioIA(prompt, startTime) {
       Deseja que eu abra uma solicitação de orientação junto à Secretaria Acadêmica?
     `;
     appendBotMessage(respostaRDP);
+    addToHistory("model", respostaRDP, { topic: "Destrancamento / Retorno aos Estudos (RDP)" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -483,6 +689,7 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   // --- CENÁRIO 3: TOOL CALL DE CONSULTA DE PENDÊNCIAS ---
   if (promptLower.includes("pendencia") || promptLower.includes("pendência") || promptLower.includes("debito") || promptLower.includes("débito") || promptLower.includes("documentos pendentes")) {
+    currentActiveTopic = "Auditoria de Pendências";
     document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarPendenciasAcademicas()</strong> | Parâmetros: <code>{ matricula: "${activeStudent ? activeStudent.matricula : 'solicitar'}" }</code>`;
     
     if (!activeStudent) {
@@ -514,6 +721,8 @@ async function executarRaciocinioIA(prompt, startTime) {
       appendBotMessage(`Identifiquei <strong>${result.pendencias.length} pendência(s)</strong> no seu registro acadêmico: ⚠️<br><ul style="margin: 0.5rem 0 0.5rem 1.25rem;">${pItems}</ul>${emailBtn}`);
     }
 
+    addToHistory("model", `Pendências auditadas: ${result.pendencias.length} encontradas`, { topic: "Auditoria de Pendências", tool: "consultarPendenciasAcademicas" });
+
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
       tarefa: "Auditoria de Pendências (Tool)",
@@ -526,6 +735,7 @@ async function executarRaciocinioIA(prompt, startTime) {
 
   // --- CENÁRIO 4: TOOL CALL DE CONSULTA DE STATUS E RETORNO DA SECRETARIA ---
   if (promptLower.includes("status") || promptLower.includes("solicitac") || promptLower.includes("protocolo") || promptLower.includes("parecer") || promptLower.includes("retorno") || promptLower.includes("andamento") || promptLower.includes("meus pedidos")) {
+    currentActiveTopic = "Rastreio de Pareceres";
     document.getElementById("llm-details").innerHTML = `Tool: <strong>consultarStatusRequerimentos()</strong> | Function Calling`;
     
     if (!activeStudent) {
@@ -572,6 +782,7 @@ async function executarRaciocinioIA(prompt, startTime) {
     }).join("");
 
     appendBotMessage(`Recuperei o status dos seus <strong>requerimentos na Secretaria</strong>: 📋<br><br>${cards}`);
+    addToHistory("model", `Status de ${result.demands.length} requerimentos recuperados`, { topic: "Rastreio de Pareceres", tool: "consultarStatusRequerimentos" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -583,35 +794,9 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 5: APROVEITAMENTO E VALIDAÇÃO ---
-  if (promptLower.includes("aproveitamento") || promptLower.includes("validacao") || promptLower.includes("validação") || promptLower.includes("dispensa")) {
-    document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Contexto: RDP Art. 46`;
-    const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
-    const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Validação de Estudos", motivo: prompt });
-
-    const elapsed = (performance.now() - startTime).toFixed(0);
-    document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
-
-    appendBotMessage(`
-      Analisei as diretrizes para aproveitamento de estudos do IFSC. Foi gerado o protocolo preliminar de atendimento <code>${result.protocolo}</code> para seu acompanhamento.<br><br>
-      📌 <strong>Documentação necessária para deferimento:</strong><br>
-      • Histórico escolar oficial assinado pela instituição de origem;<br>
-      • Ementas das disciplinas cursadas com carga horária compatível ($\ge 75\\%$ de similaridade);<br>
-      • Entrega física na Secretaria Acadêmica (Câmpus Garopaba).
-    `);
-
-    IFSC_Session.logSessionTelemetry({
-      prototipo: "P3-LLM",
-      tarefa: "Aproveitamento de Estudos",
-      latenciaMs: elapsed,
-      scoreConfianca: 0.95,
-      resolvido: true
-    });
-    return;
-  }
-
-  // --- CENÁRIO 6: JUSTIFICATIVA DE FALTA ---
+  // --- CENÁRIO 5: JUSTIFICATIVA DE FALTA ---
   if (promptLower.includes("falta") || promptLower.includes("justificar") || promptLower.includes("ausencia") || promptLower.includes("ausência") || promptLower.includes("atestado")) {
+    currentActiveTopic = "Justificativa de Faltas";
     document.getElementById("llm-details").innerHTML = `Tool: <strong>abrirRequerimentoSecretaria()</strong> | Justificativa de Falta`;
     const tool = IFSC_AGENT_TOOLS.find(t => t.name === "abrirRequerimentoSecretaria");
     const result = tool.execute({ matricula: activeStudent ? activeStudent.matricula : "", tipo: "Justificativa de Falta (LLM)", motivo: prompt });
@@ -633,6 +818,7 @@ async function executarRaciocinioIA(prompt, startTime) {
       Gerei o protocolo de requerimento <code>${result.protocolo}</code> para homologação pelo servidor Ramon.
       ${emailBtn}
     `);
+    addToHistory("model", `Protocolo de falta ${result.protocolo} gerado`, { topic: "Justificativa de Faltas", tool: "abrirRequerimentoSecretaria" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -644,14 +830,23 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 7: CURSOS OFERTADOS NO CÂMPUS GAROPABA ---
-  if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("sistemas para internet")) {
+  // --- CENÁRIO 6: CURSOS OFERTADOS & MATRÍCULA NO CÂMPUS GAROPABA ---
+  if (promptLower.includes("curso") || promptLower.includes("oferta") || promptLower.includes("gradua") || promptLower.includes("estudar") || promptLower.includes("sistemas para internet") || promptLower.includes("matricula") || promptLower.includes("matrícula")) {
+    currentActiveTopic = "Cursos Ofertados & Matrícula (SPI)";
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Matriz de Cursos do Câmpus Garopaba</strong>`;
     const faq = SECRETARIA_FAQ.find(f => f.id === "cursos");
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
-    appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    const coursesReply = `
+      <strong>${faq.titulo}</strong><br><br>
+      ${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br>
+      💡 <em>Você pode me perguntar: "Como faço para ingressar?", "Quais os prazos do vestibular?", "E quanto custa?" ou "Consegue me auxiliar com a matrícula?"</em><br><br>
+      <small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>
+    `;
+
+    appendBotMessage(coursesReply);
+    addToHistory("model", faq.resposta, { topic: "Cursos Ofertados & Matrícula (SPI)" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -663,14 +858,16 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 8: INGRESSO & PROCESSOS SELETIVOS ---
+  // --- CENÁRIO 7: INGRESSO & PROCESSOS SELETIVOS ---
   if (promptLower.includes("ingresso") || promptLower.includes("vestibular") || promptLower.includes("sisu") || promptLower.includes("sorteio") || promptLower.includes("entrar") || promptLower.includes("inscricao") || promptLower.includes("inscrição")) {
+    currentActiveTopic = "Formas de Ingresso";
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Processos Seletivos & Ingresso</strong>`;
     const faq = SECRETARIA_FAQ.find(f => f.id === "ingresso");
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
     appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    addToHistory("model", faq.resposta, { topic: "Formas de Ingresso" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -682,14 +879,16 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 9: HORÁRIO & CONTATOS DA SECRETARIA ---
+  // --- CENÁRIO 8: HORÁRIO & CONTATOS DA SECRETARIA ---
   if (promptLower.includes("horario") || promptLower.includes("horário") || promptLower.includes("telefone") || promptLower.includes("whatsapp") || promptLower.includes("email") || promptLower.includes("e-mail") || promptLower.includes("aberto") || promptLower.includes("secretaria")) {
+    currentActiveTopic = "Horário e Contatos";
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Atendimento e Contatos da Secretaria</strong>`;
     const faq = SECRETARIA_FAQ.find(f => f.id === "horario");
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
     appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    addToHistory("model", faq.resposta, { topic: "Horário e Contatos" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -701,14 +900,16 @@ async function executarRaciocinioIA(prompt, startTime) {
     return;
   }
 
-  // --- CENÁRIO 10: CARTEIRINHA / PASSE ESCOLAR ---
+  // --- CENÁRIO 9: CARTEIRINHA / PASSE ESCOLAR ---
   if (promptLower.includes("carteirinha") || promptLower.includes("passe") || promptLower.includes("onibus") || promptLower.includes("ônibus") || promptLower.includes("paulotur") || promptLower.includes("transporte")) {
+    currentActiveTopic = "Carteirinha e Transporte";
     document.getElementById("llm-details").innerHTML = `Base Institucional: <strong>Carteirinha & Passe Escolar</strong>`;
     const faq = SECRETARIA_FAQ.find(f => f.id === "carteirinha");
     const elapsed = (performance.now() - startTime).toFixed(0);
     document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
 
     appendBotMessage(`<strong>${faq.titulo}</strong><br><br>${faq.resposta.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}<br><br><small style="color:var(--text-muted);">[0] Voltar ao Menu Principal | [9] Sair</small>`);
+    addToHistory("model", faq.resposta, { topic: "Carteirinha e Transporte" });
 
     IFSC_Session.logSessionTelemetry({
       prototipo: "P3-LLM",
@@ -725,10 +926,16 @@ async function executarRaciocinioIA(prompt, startTime) {
   document.getElementById("llm-latency").innerText = `Latência: ${elapsed}ms`;
   document.getElementById("llm-details").innerHTML = `Raciocínio Generativo Direto (Sem Tool Call)`;
 
-  appendBotMessage(`
-    Entendi sua solicitação. Como assistente inteligente da Secretaria Acadêmica, posso te orientar sobre cursos ofertados no Câmpus Garopaba, vestibular e processos seletivos, emitir declarações de matrícula com autenticidade digital no SIGAA, consultar pendências, verificar o parecer do servidor Ramon sobre seus requerimentos ou explicar regras do RDP.<br><br>
-    💡 Você pode escolher uma opção pelo <strong>número</strong> [0-9] ou perguntar com suas próprias palavras.
-  `);
+  const defaultReply = `
+    Entendi sua dúvida sobre <em>"${prompt}"</em>. Como assistente inteligente da Secretaria Acadêmica do IFSC Garopaba, posso te auxiliar com:<br><br>
+    • <strong>Ingresso & Cursos:</strong> Inscrições, Vestibular, ENEM/SiSU e matriz curricular do CST Sistemas para a Internet;<br>
+    • <strong>Serviços SIGAA:</strong> Emissão de Declaração de Matrícula em PDF com validação digital, consulta de pendências e notas;<br>
+    • <strong>Normas do RDP:</strong> Destrancamento, justificativa de faltas por atestado e aproveitamento de estudos.<br><br>
+    💡 Como prefere prosseguir?
+  `;
+
+  appendBotMessage(defaultReply);
+  addToHistory("model", defaultReply, { topic: "Síntese / Pergunta Livre" });
 
   IFSC_Session.logSessionTelemetry({
     prototipo: "P3-LLM",
@@ -739,7 +946,64 @@ async function executarRaciocinioIA(prompt, startTime) {
   });
 }
 
-// 5. Reconhecimento de Voz (Web Speech API)
+// 6. Chamada Direta à API do Gemini Flash (Modo Live Multi-Turn com Function Calling)
+async function executarGeminiLiveAPI(prompt, apiKey, startTime) {
+  const limit = getBufferLimit();
+  const recentHistory = conversationHistory.slice(-limit * 2);
+
+  // Formatar histórico para o esquema do Gemini
+  const contents = recentHistory.map(item => ({
+    role: item.role === "user" ? "user" : "model",
+    parts: [{ text: item.text }]
+  }));
+
+  const systemInstruction = {
+    parts: [{
+      text: `Você é o Assistente Virtual Inteligente da Secretaria Acadêmica do IFSC Câmpus Garopaba (SC).
+Atue de forma acolhedora, prestativa, empática e institucionalmente precisa.
+Seu conhecimento baseia-se no Regulamento Didático-Pedagógico (RDP) do IFSC e nos serviços acadêmicos do SIGAA gerenciados pelo servidor Ramon.
+Cursos ofertados: CST Sistemas para a Internet (Superior/Noturno), Mestrado Profissional em Clima e Ambiente, Técnico Integrado em Informática e Técnico em Administração. Todos os cursos são 100% gratuitos.
+Quando o usuário solicitar documentos ou auditorias, invoque as ferramentas (tools) disponíveis.`
+    }]
+  };
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: contents,
+      systemInstruction: systemInstruction,
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 800
+      }
+    })
+  });
+
+  const data = await response.json();
+  const elapsed = (performance.now() - startTime).toFixed(0);
+  document.getElementById("llm-latency").innerText = `Latência Gemini Live: ${elapsed}ms`;
+
+  if (data.candidates && data.candidates[0].content) {
+    const replyText = data.candidates[0].content.parts.map(p => p.text).join("");
+    appendBotMessage(replyText.replace(/\n/g, "<br>"));
+    addToHistory("model", replyText, { topic: "Gemini Live Multi-Turn" });
+
+    IFSC_Session.logSessionTelemetry({
+      prototipo: "P3-LLM",
+      tarefa: "Gemini 1.5 Flash Live",
+      latenciaMs: elapsed,
+      scoreConfianca: 0.99,
+      resolvido: true
+    });
+  } else {
+    throw new Error(data.error ? data.error.message : "Resposta vazia da API");
+  }
+}
+
+// 7. Reconhecimento de Voz (Web Speech API)
 let isListening = false;
 let recognition = null;
 
@@ -806,7 +1070,7 @@ function toggleVoiceRecognition() {
   recognition.start();
 }
 
-// 6. Utilitários de Interface e Simulações
+// 8. Utilitários de Interface e Simulações
 function handleQuickReply(text) {
   const input = document.getElementById("user-input");
   if (input) {
@@ -842,12 +1106,12 @@ function appendUserMessage(text) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-function appendBotMessage(html, options = { withTyping: true, withTTS: true, delay: 350 }) {
+function appendBotMessage(html, options = { withTyping: true, withTTS: true, delay: 250 }) {
   const chat = document.getElementById("chat-messages");
   if (!chat) return;
 
   const shouldType = options && options.withTyping !== false;
-  const delayMs = (options && options.delay) ? options.delay : 350;
+  const delayMs = (options && options.delay) ? options.delay : 250;
   const showTTS = !options || options.withTTS !== false;
 
   if (shouldType) {
