@@ -1,9 +1,9 @@
 /**
  * Protótipo 3 — IA Generativa com Function Calling & Áudio
- * Projeto TCC — Marília Stefenon
+ * Projeto TCC — Marília Stefenon (IFSC Câmpus Garopaba)
  */
 
-// Estado e Ferramentas (Tools) da IA
+// 1. Definição das Ferramentas da IA (Agent Tools / Function Calling)
 const IFSC_AGENT_TOOLS = [
   {
     name: "consultarAlunoSIGAA",
@@ -76,7 +76,10 @@ const IFSC_AGENT_TOOLS = [
   }
 ];
 
-// Inicialização
+let p3ActiveMenuItems = [];
+let p3IsClosed = false;
+
+// 2. Inicialização do Protótipo
 document.addEventListener("DOMContentLoaded", () => {
   renderUserStatus();
   iniciarChat();
@@ -99,8 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderUserStatus() {
   const container = document.getElementById("user-status-container");
-  const user = IFSC_Session.getCurrentUser();
+  if (!container) return;
 
+  const user = IFSC_Session.getCurrentUser();
   if (user) {
     container.innerHTML = `
       <span class="user-status-identified">
@@ -119,13 +123,13 @@ function renderUserStatus() {
 
 function iniciarChat() {
   const chat = document.getElementById("chat-messages");
-  chat.innerHTML = "";
+  if (chat) chat.innerHTML = "";
+  p3IsClosed = false;
   renderMainMenuP3(true);
 }
 
-let p3ActiveMenuItems = [];
-
 function renderMainMenuP3(showGreeting = false) {
+  p3IsClosed = false;
   const user = IFSC_Session.getCurrentUser();
   const timeGreeting = IFSC_Session.getTimeGreeting();
   const empathyNote = user ? IFSC_Session.getEmpathyNote(user, "saudacao") : "";
@@ -171,12 +175,14 @@ function renderMainMenuP3(showGreeting = false) {
     </div>
   `;
 
-  appendBotMessage(menuHtml);
+  appendBotMessage(menuHtml, { withTyping: true, withTTS: true, delay: 250 });
   renderQuickRepliesP3();
-  document.getElementById("llm-details").innerHTML = `Menu Categorizado Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
+  const details = document.getElementById("llm-details");
+  if (details) {
+    details.innerHTML = `Menu Categorizado Ativo (${p3ActiveMenuItems.length} opções disponíveis) • Entrada de voz, texto livre ou atalhos [1-${p3ActiveMenuItems.length}]`;
+  }
 }
 
-// Renderizar Botões de Atalhos Rápidos Dinâmicos no P3
 function renderQuickRepliesP3() {
   const container = document.getElementById("quick-replies");
   if (!container) return;
@@ -187,7 +193,7 @@ function renderQuickRepliesP3() {
     if (item.action.includes("DECLARACAO")) icon = "bi-file-earmark-pdf";
     else if (item.action.includes("PENDENCIAS")) icon = "bi-exclamation-triangle";
     else if (item.action.includes("PARECER")) icon = "bi-card-checklist";
-    else if (item.action.includes("REQUERIMENTO")) icon = "bi-pencil-square";
+    else if (item.action.includes("REQUERIMENTO") || item.action.includes("FALTA")) icon = "bi-pencil-square";
     else if (item.action.includes("FAQ")) icon = "bi-question-circle";
     else if (item.action.includes("ATENDENTE")) icon = "bi-person-headset";
     else if (item.action.includes("LOGIN")) icon = "bi-key-fill";
@@ -220,8 +226,6 @@ function renderAtendenteP3() {
     <small style="color:var(--text-muted);">[0] Voltar ao Início | [9] Sair</small>
   `);
 }
-
-let p3IsClosed = false;
 
 function renderEncerrarP3() {
   p3IsClosed = true;
@@ -268,9 +272,11 @@ function submitFeedbackP3(score, btn) {
   }
 }
 
-// Processar Mensagem com IA
+// 3. Processamento de Mensagens
 async function sendMessage() {
   const input = document.getElementById("user-input");
+  if (!input) return;
+
   const text = input.value.trim();
   if (!text) return;
 
@@ -280,7 +286,7 @@ async function sendMessage() {
 
   const textLower = text.toLowerCase();
 
-  // Se a sessão estiver encerrada
+  // Sessão Fechada
   if (p3IsClosed) {
     if (text === "0" || textLower === "inicio" || textLower === "início" || textLower === "voltar" || textLower === "menu" || textLower === "oi" || textLower === "olá") {
       p3IsClosed = false;
@@ -388,12 +394,11 @@ async function sendMessage() {
   }, 350);
 }
 
-// Motor de Raciocínio e Function Calling Simulado
+// 4. Motor de Raciocínio CoT & Invocação de Tools
 async function executarRaciocinioIA(prompt, startTime) {
   const promptLower = prompt.toLowerCase();
-  const currentUser = IFSC_Session.getCurrentUser();
 
-  // 1. Identificar se há Matrícula ou CPF no prompt
+  // Identificação automática de Matrícula ou CPF no texto
   const matMatch = prompt.match(/\b202[0-9]{7,9}\b/);
   const cpfMatch = prompt.match(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/);
   if (matMatch || cpfMatch) {
@@ -734,7 +739,7 @@ async function executarRaciocinioIA(prompt, startTime) {
   });
 }
 
-// Reconhecimento de Voz (Web Speech API)
+// 5. Reconhecimento de Voz (Web Speech API)
 let isListening = false;
 let recognition = null;
 
@@ -749,8 +754,10 @@ function toggleVoiceRecognition() {
   if (isListening) {
     if (recognition) recognition.stop();
     isListening = false;
-    btn.style.background = "var(--bg-card)";
-    btn.style.color = "var(--text-muted)";
+    if (btn) {
+      btn.style.background = "var(--bg-card)";
+      btn.style.color = "var(--text-muted)";
+    }
     return;
   }
 
@@ -762,38 +769,50 @@ function toggleVoiceRecognition() {
 
   recognition.onstart = () => {
     isListening = true;
-    btn.style.background = "var(--ifsc-red)";
-    btn.style.color = "white";
-    document.getElementById("user-input").placeholder = "Ouvindo sua voz... Fale agora...";
+    if (btn) {
+      btn.style.background = "var(--ifsc-red)";
+      btn.style.color = "white";
+    }
+    const input = document.getElementById("user-input");
+    if (input) input.placeholder = "Ouvindo sua voz... Fale agora...";
   };
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    document.getElementById("user-input").value = transcript;
+    const input = document.getElementById("user-input");
+    if (input) input.value = transcript;
     sendMessage();
   };
 
   recognition.onend = () => {
     isListening = false;
-    btn.style.background = "var(--bg-card)";
-    btn.style.color = "var(--text-muted)";
-    document.getElementById("user-input").placeholder = "Converse livremente ou use o microfone...";
+    if (btn) {
+      btn.style.background = "var(--bg-card)";
+      btn.style.color = "var(--text-muted)";
+    }
+    const input = document.getElementById("user-input");
+    if (input) input.placeholder = "Converse livremente ou use o microfone...";
   };
 
   recognition.onerror = (event) => {
     console.error("Erro no reconhecimento de voz:", event.error);
     isListening = false;
-    btn.style.background = "var(--bg-card)";
-    btn.style.color = "var(--text-muted)";
+    if (btn) {
+      btn.style.background = "var(--bg-card)";
+      btn.style.color = "var(--text-muted)";
+    }
   };
 
   recognition.start();
 }
 
+// 6. Utilitários de Interface e Simulações
 function handleQuickReply(text) {
   const input = document.getElementById("user-input");
-  input.value = text;
-  sendMessage();
+  if (input) {
+    input.value = text;
+    sendMessage();
+  }
 }
 
 function simularLogin(matricula) {
@@ -811,6 +830,8 @@ function simularLogout() {
 
 function appendUserMessage(text) {
   const chat = document.getElementById("chat-messages");
+  if (!chat) return;
+
   const row = document.createElement("div");
   row.className = "message-row user";
   row.innerHTML = `
