@@ -461,10 +461,10 @@
 
     .task-list {
       list-style: none;
-      margin-top: 0.8rem;
+      margin-top: 1rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 0.75rem;
     }
 
     .task-item {
@@ -472,15 +472,41 @@
       color: var(--text-main);
       display: flex;
       align-items: flex-start;
-      gap: 0.5rem;
-      background: rgba(255, 255, 255, 0.02);
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.12);
     }
 
     .task-item i {
       margin-top: 2px;
+      font-size: 1rem;
       flex-shrink: 0;
+    }
+
+    .task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .task-title {
+      font-weight: 600;
+      color: white;
+      font-size: 0.88rem;
+    }
+
+    .task-subtext {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
     }
 
     /* Prototype Grid */
@@ -945,9 +971,27 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Estruturação inicial do ambiente de trabalho e definição do escopo inicial de pesquisa.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-check-circle-fill text-success"></i> Revisão teórica sobre Chatbots, PLN e LLMs</div>
-              <div class="task-item"><i class="bi bi-check-circle-fill text-success"></i> Estruturar repositório Git e ambiente Python (.venv)</div>
-              <div class="task-item"><i class="bi bi-check-circle-fill text-success"></i> Definir escopo inicial (perguntas frequentes)</div>
+              <div class="task-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <div class="task-content">
+                  <div class="task-title">Revisão teórica sobre Chatbots, PLN e LLMs</div>
+                  <div class="task-subtext">Mapeamento do estado da arte de sistemas conversacionais e arquiteturas de IA para fundamentar o referencial do TCC.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <div class="task-content">
+                  <div class="task-title">Estruturar repositório Git e ambiente Python (.venv)</div>
+                  <div class="task-subtext">Criação do repositório versionado no GitHub com estrutura modular para os protótipos e isolamento de dependências.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <div class="task-content">
+                  <div class="task-title">Definir escopo inicial (perguntas frequentes)</div>
+                  <div class="task-subtext">Delimitação do universo inicial de atendimento focado nas demandas de maior volume da Secretaria Acadêmica.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -965,10 +1009,34 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Levantamento de necessidades reais junto à equipe da Secretaria Acadêmica do IFSC Garopaba.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-arrow-right-circle-fill text-info"></i> Entrevistas e reuniões com a secretaria do IFSC Garopaba</div>
-              <div class="task-item"><i class="bi bi-arrow-right-circle-fill text-info"></i> Mapear os 10 processos repetitivos passíveis de automação</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Definir fluxos de geração automática de documentos (PDF/DOCX)</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Coletar e catalogar a base de conhecimento oficial (FAQs)</div>
+              <div class="task-item">
+                <i class="bi bi-arrow-right-circle-fill text-info"></i>
+                <div class="task-content">
+                  <div class="task-title">Entrevistas e reuniões com a secretaria do IFSC Garopaba</div>
+                  <div class="task-subtext">Coleta direta com o servidor Ramon para identificar rotinas, gargalos operacionais e dúvidas mais frequentes.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-arrow-right-circle-fill text-info"></i>
+                <div class="task-content">
+                  <div class="task-title">Mapear os 10 processos repetitivos passíveis de automação</div>
+                  <div class="task-subtext">Priorização de serviços com regras claras (declarações, prazos, justificativas e pendências) para automação.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Definir fluxos de geração automática de documentos (PDF/DOCX)</div>
+                  <div class="task-subtext">Modelagem dos templates institucionais com autenticação digital instantânea e parâmetros preenchidos dinamicamente.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Coletar e catalogar a base de conhecimento oficial (FAQs)</div>
+                  <div class="task-subtext">Construção de base JSON estruturada com perguntas, respostas oficiais e vínculos com artigos do RDP do IFSC.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -986,9 +1054,27 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Modelagem dos fluxos conversacionais e identidade visual do assistente.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Desenhar a árvore de decisão de diálogos</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Criar o protótipo visual da interface no Canva / Web</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Definir a persona e o tom de voz do Chatbot</div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Desenhar a árvore de decisão de diálogos</div>
+                  <div class="task-subtext">Fluxograma visual (Mermaid/Figma) detalhando caminhos de navegação, nós de decisão, fallbacks e desvios de atendimento.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Criar o protótipo visual da interface no Canva / Web</div>
+                  <div class="task-subtext">Mockups de alta fidelidade da janela de chat e painel do atendente, priorizando usabilidade e acessibilidade (IHC).</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Definir a persona e o tom de voz do Chatbot</div>
+                  <div class="task-subtext">Manual de estilo conversacional: linguagem acolhedora, empática, clara e formalmente alinhada ao padrão IFSC.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1006,10 +1092,34 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Construção do servidor Flask, motor de PLN e gerador dinâmico de arquivos.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Configurar servidor Flask (app.py) e rotas API REST</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Integrar lógica de PLN (Regex -> spaCy -> LLM Gemini/OpenAI API)</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Implementar módulo de geração de documentos (python-docx)</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Testar integração completa Front/Back</div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Configurar servidor Flask (app.py) e rotas API REST</div>
+                  <div class="task-subtext">Arquitetura de endpoints padronizados (`/chat`, `/emitir-documento`, `/telemetria`) com respostas em JSON leve.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Integrar lógica de PLN (Regex -> spaCy -> LLM Gemini)</div>
+                  <div class="task-subtext">Pipeline de Processamento de Linguagem Natural com extração de entidades (NER), similaridade de cosseno e raciocínio CoT.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Implementar módulo de geração de documentos (python-docx / pdf-lib)</div>
+                  <div class="task-subtext">Motor de preenchimento automatizado de certidões e declarações timbradas com geração imediata em PDF.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Testar integração completa Front/Back</div>
+                  <div class="task-subtext">Bateria de testes de ponta a ponta (E2E) validando digitação, chamadas de API, latência e download de arquivos.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1027,9 +1137,27 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Integração de processos internos e refinamento de respostas oficiais.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Criar disparos de processos internos via bot</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Validar segurança e privacidade dos dados dos alunos</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Refinar respostas baseadas na documentação institucional</div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Criar disparos de processos internos via bot</div>
+                  <div class="task-subtext">Encaminhamento automatizado de pedidos para a fila da Secretaria e notificações de retorno via e-mail.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Validar segurança e privacidade dos dados dos alunos</div>
+                  <div class="task-subtext">Adequação às diretrizes da LGPD, garantindo proteção e confidencialidade de matrículas, CPFs e dados sensíveis.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Refinar respostas baseadas na documentação institucional</div>
+                  <div class="task-subtext">Auditoria e alinhamento de 100% das respostas com as portarias vigentes e o Regulamento Didático-Pedagógico (RDP).</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1047,9 +1175,27 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Testes de usabilidade com usuários reais e medição de acurácia do bot.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Realizar testes alpha com bolsistas e servidores</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Coletar métricas de acurácia, precisão e escala SUS</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Corrigir gargalos conversacionais e logs de fallbacks</div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Realizar testes alpha com bolsistas e servidores</div>
+                  <div class="task-subtext">Sessões práticas de experimentação em laboratório para avaliar a fluidez do diálogo e detectar casos de borda.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Coletar métricas de acurácia, precisão e escala SUS</div>
+                  <div class="task-subtext">Aplicação do formulário padronizado System Usability Scale (SUS) e medição da taxa de resolução das demandas.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Corrigir gargalos conversacionais e logs de fallbacks</div>
+                  <div class="task-subtext">Análise das interações não compreendidas para expansão da base de sinônimos e calibração dos prompts da IA.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1067,9 +1213,27 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-muted);">Consolidação do artigo científico e preparação para defesa final do TCC.</p>
             <div class="task-list">
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Redigir artigo científico no template SBC (LaTeX)</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Incluir gráficos dos testes de usabilidade e diagramas</div>
-              <div class="task-item"><i class="bi bi-circle text-muted"></i> Revisão final com orientador e submissão</div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Redigir artigo científico no template SBC (LaTeX)</div>
+                  <div class="task-subtext">Artigo acadêmico completo com metodologia experimental comparando os protótipos e discussão dos resultados.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Incluir gráficos dos testes de usabilidade e diagramas</div>
+                  <div class="task-subtext">Geração de gráficos comparativos de latência, taxa de acerto, score SUS e arquiteturas de integração.</div>
+                </div>
+              </div>
+              <div class="task-item">
+                <i class="bi bi-circle text-muted"></i>
+                <div class="task-content">
+                  <div class="task-title">Revisão final com orientador e submissão</div>
+                  <div class="task-subtext">Lapidação editorial, conferência de normas bibliográficas da ABNT/SBC e entrega final para a banca avaliadora.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
