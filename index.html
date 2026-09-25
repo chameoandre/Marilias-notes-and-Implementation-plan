@@ -962,15 +962,15 @@
             <i class="bi bi-handshake-fill"></i> Alinhamento de Orientação • TCC
           </span>
           <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">
-            Validação com Ramon (Secretaria) & Painel Administrativo de Demandas
+            Avanços no Painel do ChatBot, PLN & Artigo Computer on the Beach (COTB)
           </h3>
           <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 0.25rem;">
             Orientando: <strong>Marília Stefenon</strong> &bull; Orientador: <strong>Prof. Dr. André Moraes</strong>
           </p>
         </div>
         <div style="text-align: right; background: rgba(0,0,0,0.25); padding: 0.6rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-          <div style="font-size: 0.76rem; color: var(--text-muted);">Data do Registro</div>
-          <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue);"><i class="bi bi-calendar3"></i> 25/09/2026</div>
+          <div style="font-size: 0.76rem; color: var(--text-muted);">Data da Orientação</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue);"><i class="bi bi-calendar3"></i> 25/09/2026 às 14h30</div>
         </div>
       </div>
 
@@ -979,19 +979,25 @@
           <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-amber); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
             <i class="bi bi-list-check"></i> Deliberações e Acordos Firmados
           </h4>
-          <ol style="margin-left: 1.2rem; font-size: 0.86rem; color: var(--text-main); line-height: 1.6;">
-            <li><strong>Elaborar 3 diagramas sequenciais numerados</strong> contendo cada etapa do atendimento para apresentar ao servidor Ramon e validar se o fluxo está mapeado corretamente ou se há mudanças necessárias.</li>
-            <li><strong>Iniciar a implementação do painel administrativo das demandas</strong> (definindo o procedimento de atendimento e verificando se a demanda foi resolvida de forma 100% autônoma pelo chatbot ou se demandou intervenção humana do atendente).</li>
-          </ol>
+          <ul style="margin-left: 1.2rem; font-size: 0.86rem; color: var(--text-main); line-height: 1.6;">
+            <li><strong>Finalizar a inclusão do uso de PLN</strong> na inteligência do ChatBot da Secretaria.</li>
+            <li><strong>Criar opção de alternar (com e sem PLN):</strong> permitir a ativação/desativação do PLN na interface para avaliar empiricamente a diferença de acurácia com e sem o modelo.</li>
+            <li><strong>Iniciar a escrita do artigo para o Computer on the Beach (COTB):</strong> revisar as regras oficiais do evento e o template para Overleaf (<a href="https://www.computeronthebeach.com.br" target="_blank" style="color: var(--accent-blue);">computeronthebeach.com.br</a>).</li>
+          </ul>
         </div>
 
         <div style="background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent-emerald); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 1.1rem 1.25rem;">
           <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-emerald); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-bullseye"></i> Próximas Entregas & Recursos
+            <i class="bi bi-bullseye"></i> Próxima Entrega Imediata
           </h4>
-          <p style="font-size: 0.86rem; color: var(--text-main); line-height: 1.5;">
-            Conclusão e exportação dos <strong>3 diagramas de atendimento</strong> para validação com o Ramon e layout preliminar da tela de triagem de demandas.
+          <p style="font-size: 0.88rem; color: var(--text-main); font-weight: 600; line-height: 1.5;">
+            <i class="bi bi-check-circle-fill" style="color: var(--accent-emerald);"></i> Entrega do avanço do PLN com ao menos 2 testes práticos documentados.
           </p>
+          <div style="margin-top: 0.85rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            <i class="bi bi-link-45deg" style="color: var(--accent-blue);"></i> Submissões COTB: <a href="https://www.computeronthebeach.com.br" target="_blank" style="color: var(--accent-blue);">computeronthebeach.com.br</a><br>
+            <i class="bi bi-gear-fill" style="color: var(--accent-purple);"></i> Protótipos: <code>repo/prototipos/prototipo-2-pln/</code>
+          </div>
+        </div>
           <div style="margin-top: 0.85rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
             <i class="bi bi-info-circle-fill" style="color: var(--accent-blue);"></i> Base de fluxo em: <code>documents/fluxo_chatbot.drawio</code><br>
             <i class="bi bi-file-earmark-pdf-fill" style="color: var(--accent-rose);"></i> Paper base em: <code>papers-consulta/Artigo chatbot para secretaria academica.pdf</code>
@@ -1369,12 +1375,17 @@
     <div class="checklist-box">
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Validação com Ramon (Secretaria):</strong> Elaborar 3 diagramas numerados com as etapas do atendimento para validação institucional.</span>
+        <span><strong>Finalização de PLN no ChatBot:</strong> Concluir a camada de PLN e realizar ao menos 2 testes práticos documentados.</span>
       </div>
 
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Painel Administrativo de Demandas:</strong> Iniciar a implementação da tela com triagem de atendimento 100% autônomo (bot) vs. intervenção humana.</span>
+        <span><strong>Toggle Com/Sem PLN:</strong> Implementar a opção de habilitar/desabilitar o PLN para medição comparativa de desempenho.</span>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-checkbox"><i class="bi bi-check"></i></div>
+        <span><strong>Artigo COTB (Overleaf):</strong> Revisar regras e template do Computer on the Beach (computeronthebeach.com.br) e iniciar redação.</span>
       </div>
 
       <div class="check-item" onclick="toggleCheck(this)">
