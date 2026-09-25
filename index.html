@@ -947,6 +947,59 @@
 
     </div>
 
+    <!-- Seção de Acompanhamento: Registro da Última Reunião com o Orientador -->
+    <div class="section-header" style="margin-top: 1.5rem;">
+      <div>
+        <h2 class="section-title"><i class="bi bi-calendar2-check-fill" style="color: var(--accent-emerald);"></i> Registro da Última Reunião de Orientação</h2>
+        <p class="section-subtitle">Deliberações oficiais, combinados e próximas entregas alinhadas com o Prof. André Moraes:</p>
+      </div>
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid rgba(52, 211, 153, 0.35); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <div>
+          <span style="background: rgba(52, 211, 153, 0.15); color: var(--accent-emerald); font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em;">
+            <i class="bi bi-handshake-fill"></i> Alinhamento de Orientação • TCC
+          </span>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">
+            Validação com Ramon (Secretaria) & Painel Administrativo de Demandas
+          </h3>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Orientando: <strong>Marília Stefenon</strong> &bull; Orientador: <strong>Prof. Dr. André Moraes</strong>
+          </p>
+        </div>
+        <div style="text-align: right; background: rgba(0,0,0,0.25); padding: 0.6rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="font-size: 0.76rem; color: var(--text-muted);">Data do Registro</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-blue);"><i class="bi bi-calendar3"></i> 25/09/2026</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+        <div style="background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent-amber); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 1.1rem 1.25rem;">
+          <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-amber); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-list-check"></i> Deliberações e Acordos Firmados
+          </h4>
+          <ol style="margin-left: 1.2rem; font-size: 0.86rem; color: var(--text-main); line-height: 1.6;">
+            <li><strong>Elaborar 3 diagramas sequenciais numerados</strong> contendo cada etapa do atendimento para apresentar ao servidor Ramon e validar se o fluxo está mapeado corretamente ou se há mudanças necessárias.</li>
+            <li><strong>Iniciar a implementação do painel administrativo das demandas</strong> (definindo o procedimento de atendimento e verificando se a demanda foi resolvida de forma 100% autônoma pelo chatbot ou se demandou intervenção humana do atendente).</li>
+          </ol>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent-emerald); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 1.1rem 1.25rem;">
+          <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-emerald); margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-bullseye"></i> Próximas Entregas & Recursos
+          </h4>
+          <p style="font-size: 0.86rem; color: var(--text-main); line-height: 1.5;">
+            Conclusão e exportação dos <strong>3 diagramas de atendimento</strong> para validação com o Ramon e layout preliminar da tela de triagem de demandas.
+          </p>
+          <div style="margin-top: 0.85rem; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            <i class="bi bi-info-circle-fill" style="color: var(--accent-blue);"></i> Base de fluxo em: <code>documents/fluxo_chatbot.drawio</code><br>
+            <i class="bi bi-file-earmark-pdf-fill" style="color: var(--accent-rose);"></i> Paper base em: <code>papers-consulta/Artigo chatbot para secretaria academica.pdf</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Seção 1: Roteiro Sequencial de Etapas do TCC -->
     <div class="section-header">
       <div>
@@ -1316,22 +1369,22 @@
     <div class="checklist-box">
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Processos da Secretaria:</strong> Mapear os 10 processos mais comuns e repetitivos da secretaria acadêmica.</span>
+        <span><strong>Validação com Ramon (Secretaria):</strong> Elaborar 3 diagramas numerados com as etapas do atendimento para validação institucional.</span>
       </div>
 
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Ambiente Flask:</strong> Configurar o ambiente isolado em Python (.venv) e executar a primeira rota no <code>app.py</code>.</span>
+        <span><strong>Painel Administrativo de Demandas:</strong> Iniciar a implementação da tela com triagem de atendimento 100% autônomo (bot) vs. intervenção humana.</span>
       </div>
 
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Persona do Chatbot:</strong> Definir a persona, o tom de voz e o estilo de linguagem do assistente do IFSC.</span>
+        <span><strong>Buffer de Memória Multi-turn:</strong> Validar o buffer de 10 turnos e teste de raciocínio contextual no Protótipo 3.</span>
       </div>
 
       <div class="check-item" onclick="toggleCheck(this)">
         <div class="check-checkbox"><i class="bi bi-check"></i></div>
-        <span><strong>Paper SBC:</strong> Iniciar a escrita da Fundamentação Teórica e Trabalhos Relacionados no template TeX.</span>
+        <span><strong>Paper SBC (LaTeX):</strong> Redigir a seção de Metodologia e Resultados comparativos no template TeX.</span>
       </div>
     </div>
 
