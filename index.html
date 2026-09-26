@@ -13,16 +13,54 @@
   
   <!-- Vanilla CSS Design System -->
   <style>
-    :root {
+    :root, [data-theme="light"] {
       --ifsc-green: #16a34a;
       --ifsc-green-dark: #15803d;
+      --ifsc-green-light: #22c55e;
+      --ifsc-red: #dc2626;
+      --bg-dark: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --header-bg: rgba(255, 255, 255, 0.92);
+      --hero-bg: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+      --hero-border: #bbf7d0;
+      --chip-bg: rgba(0, 0, 0, 0.04);
+      --progress-bg: rgba(0, 0, 0, 0.08);
+      
+      --accent-blue: #0284c7;
+      --accent-emerald: #059669;
+      --accent-purple: #7c3aed;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.04);
+      --shadow-glow: 0 4px 20px rgba(22, 163, 74, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --ifsc-green: #16a34a;
+      --ifsc-green-dark: #15803d;
+      --ifsc-green-light: #22c55e;
       --ifsc-red: #dc2626;
       --bg-dark: #090d16;
+      --bg-surface: #0f172a;
       --bg-card: #131b2e;
       --bg-card-hover: #1c2742;
       --border-color: rgba(255, 255, 255, 0.1);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
+      --header-bg: rgba(19, 27, 46, 0.85);
+      --hero-bg: linear-gradient(135deg, rgba(19, 27, 46, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      --hero-border: rgba(255, 255, 255, 0.1);
+      --chip-bg: rgba(255, 255, 255, 0.05);
+      --progress-bg: rgba(255, 255, 255, 0.1);
       
       --accent-blue: #38bdf8;
       --accent-emerald: #34d399;
@@ -33,6 +71,7 @@
       --radius-lg: 16px;
       --radius-md: 10px;
       --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.2);
       --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.15);
     }
 
@@ -60,7 +99,7 @@
 
     /* Header Nav */
     .app-header {
-      background: rgba(19, 27, 46, 0.85);
+      background: var(--header-bg);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
       position: sticky;
@@ -96,7 +135,7 @@
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
       font-size: 1.15rem;
-      color: white;
+      color: var(--text-main);
     }
 
     .nav-actions {
@@ -106,7 +145,8 @@
     }
 
     .btn-nav {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--chip-bg);
+      cursor: pointer;
       border: 1px solid var(--border-color);
       color: var(--text-main);
       padding: 0.45rem 0.9rem;
@@ -139,8 +179,8 @@
 
     /* Hero Banner */
     .hero-banner {
-      background: linear-gradient(135deg, rgba(19, 27, 46, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-      border: 1px solid var(--border-color);
+      background: var(--hero-bg);
+      border: 1px solid var(--hero-border);
       border-radius: var(--radius-lg);
       padding: 2rem;
       margin: 2rem 0 1.5rem 0;
@@ -177,7 +217,7 @@
       font-size: 2.1rem;
       font-weight: 800;
       line-height: 1.2;
-      color: white;
+      color: var(--text-main);
       margin-bottom: 0.8rem;
     }
 
@@ -208,7 +248,7 @@
       width: 38px;
       height: 38px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--chip-bg);
       border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
@@ -228,7 +268,7 @@
     .meta-text span {
       font-size: 0.95rem;
       font-weight: 700;
-      color: white;
+      color: var(--text-main);
     }
 
     /* Progress Bar */
@@ -245,7 +285,7 @@
     }
 
     .progress-bar-bg {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--progress-bg);
       height: 12px;
       border-radius: 10px;
       overflow: hidden;
@@ -314,7 +354,7 @@
       font-family: 'Outfit', sans-serif;
       font-size: 1.35rem;
       font-weight: 700;
-      color: white;
+      color: var(--text-main);
       margin-bottom: 0.3rem;
     }
 
@@ -336,7 +376,7 @@
       font-family: 'Outfit', sans-serif;
       font-size: 1.5rem;
       font-weight: 700;
-      color: white;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.6rem;
@@ -371,7 +411,7 @@
       bottom: 15px;
       left: 20px;
       width: 2px;
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--progress-bg);
     }
 
     .timeline-item {
@@ -443,7 +483,7 @@
       font-family: 'Fira Code', monospace;
       font-size: 0.78rem;
       color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--chip-bg);
       padding: 0.2rem 0.6rem;
       border-radius: 4px;
     }
@@ -481,7 +521,7 @@
     }
 
     .task-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--chip-bg);
       border-color: rgba(255, 255, 255, 0.12);
     }
 
@@ -578,7 +618,7 @@
     }
 
     .tab-btn {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--chip-bg);
       border: 1px solid var(--border-color);
       color: var(--text-muted);
       padding: 0.5rem 1rem;
@@ -591,7 +631,7 @@
     }
 
     .tab-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--progress-bg);
       color: white;
     }
 
@@ -757,8 +797,14 @@
         <div class="brand-title">TCC — Marília Stefenon Rodrigues</div>
       </div>
       <div class="nav-actions">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="btn-nav" title="Alternar tema Claro / Escuro">
+          <i class="bi bi-moon-stars" id="themeIcon"></i> <span id="themeLabel">Modo Escuro</span>
+        </button>
+        <a href="https://chameoandre.github.io/orientacoes-tcc-superior-sistemas-para-internet/" class="btn-nav" title="Voltar ao Painel Geral de Orientações">
+          <i class="bi bi-arrow-left"></i> Painel Geral TCC
+        </a>
         <a href="document.pdf" target="_blank" class="btn-nav btn-nav-primary">
-          <i class="bi bi-file-earmark-pdf-fill"></i> Ver Documento Teórico (PDF)
+          <i class="bi bi-file-earmark-pdf-fill"></i> Documento Teórico (PDF)
         </a>
         <a href="https://github.com/chameoandre/Marilias-notes-and-Implementation-plan.git" target="_blank" class="btn-nav">
           <i class="bi bi-github"></i> Repositório Git
@@ -819,7 +865,7 @@
       <!-- Barra de Progresso Geral -->
       <div class="overall-progress-box">
         <div class="progress-header">
-          <span style="color: white;"><i class="bi bi-bar-chart-line-fill me-1"></i> Progresso Geral do TCC</span>
+          <span style="color: var(--text-main);"><i class="bi bi-bar-chart-line-fill me-1"></i> Progresso Geral do TCC</span>
           <span style="color: var(--accent-emerald);">25% Concluído (Etapa 0 Concluída • Etapa 1 Em Andamento)</span>
         </div>
         <div class="progress-bar-bg">
@@ -884,7 +930,7 @@
             <span style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">PROTÓTIPO 1</span>
             <i class="bi bi-search" style="color: var(--accent-blue); font-size: 1.25rem;"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">Busca Lexical & Formulário</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Busca Lexical & Formulário</h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
             Base determinística com <code>Fuse.js</code>, menus guiados, consulta de CPF/Matrícula e geração de PDF timbrado via <code>pdf-lib</code>.
           </p>
@@ -901,7 +947,7 @@
             <span style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">PROTÓTIPO 2</span>
             <i class="bi bi-cpu-fill" style="color: var(--accent-purple); font-size: 1.25rem;"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">Motor de PLN & Slots</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Motor de PLN & Slots</h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
             Classificador de intenções via similaridade textual, reconhecimento de entidades (NER) na frase e diálogo multi-turnos.
           </p>
@@ -918,7 +964,7 @@
             <span style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">PROTÓTIPO 3</span>
             <i class="bi bi-robot" style="color: var(--accent-amber); font-size: 1.25rem;"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">IA Generativa & Tools</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">IA Generativa & Tools</h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
             Chamadas de ferramentas autônomas (*Function Calling*), contexto institucional RDP injetado e suporte a áudio por microfone.
           </p>
@@ -935,7 +981,7 @@
             <span style="background: rgba(34, 197, 94, 0.15); color: var(--ifsc-green-light); padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">ADMIN / SECRETARIA</span>
             <i class="bi bi-shield-check" style="color: var(--ifsc-green-light); font-size: 1.25rem;"></i>
           </div>
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: white;">Painel do Ramon</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Painel do Ramon</h3>
           <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
             Fila de requerimentos em tempo real, visualização/reemissão de PDFs gerados e exportação de relatórios CSV para Excel/SIGAA.
           </p>
