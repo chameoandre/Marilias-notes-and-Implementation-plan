@@ -103,7 +103,8 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 0.85rem 0;
+      padding: 0.75rem 0;
+      transition: background-color 0.25s ease;
     }
 
     .nav-wrapper {
@@ -111,30 +112,25 @@
       justify-content: space-between;
       align-items: center;
       gap: 1rem;
-      flex-wrap: wrap;
     }
 
     .brand-group {
       display: flex;
-      align-items: center;
-      gap: 1rem;
+      flex-direction: column;
     }
 
     .brand-badge {
-      background: rgba(22, 163, 74, 0.15);
-      border: 1px solid var(--ifsc-green);
+      font-size: 0.7rem;
+      font-weight: 700;
       color: var(--ifsc-green);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.25rem 0.65rem;
-      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .brand-title {
       font-family: 'Outfit', sans-serif;
-      font-weight: 700;
       font-size: 1.15rem;
+      font-weight: 700;
       color: var(--text-main);
     }
 
@@ -146,36 +142,36 @@
     }
 
     .btn-nav {
-      background: var(--chip-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
       padding: 0.45rem 0.85rem;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       font-size: 0.82rem;
       font-weight: 600;
       text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
+      color: var(--text-main);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
       transition: all 0.2s ease;
       cursor: pointer;
     }
 
     .btn-nav:hover {
-      background: rgba(22, 163, 74, 0.12);
+      background: var(--bg-card-hover);
       border-color: var(--ifsc-green);
-      color: var(--ifsc-green);
+      transform: translateY(-1px);
     }
 
     .btn-nav-primary {
       background: var(--ifsc-green);
-      border-color: var(--ifsc-green);
       color: #ffffff !important;
+      border-color: var(--ifsc-green);
     }
+
     .btn-nav-primary:hover {
       background: var(--ifsc-green-dark);
       border-color: var(--ifsc-green-dark);
-      color: #ffffff !important;
     }
 
     /* HERO BANNER */
@@ -185,47 +181,49 @@
       border-radius: var(--radius-lg);
       padding: 2.2rem;
       margin: 2rem 0 1.5rem 0;
+      box-shadow: var(--shadow-glow);
       position: relative;
       overflow: hidden;
-      box-shadow: var(--shadow-glow);
     }
 
     .hero-tag {
-      color: var(--accent-emerald);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.82rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.6rem;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--ifsc-green);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .hero-title {
       font-family: 'Outfit', sans-serif;
-      font-size: 2rem;
+      font-size: 1.85rem;
       font-weight: 800;
       line-height: 1.25;
-      color: var(--text-main);
       margin-bottom: 0.8rem;
+      color: var(--text-main);
     }
 
     .hero-subtitle {
+      font-size: 0.95rem;
       color: var(--text-muted);
-      font-size: 1rem;
-      max-width: 960px;
+      max-width: 980px;
       margin-bottom: 1.5rem;
-      line-height: 1.55;
+      line-height: 1.6;
     }
 
     .meta-info-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
-      margin-top: 1.2rem;
       padding-top: 1.2rem;
-      border-top: 1px dashed var(--border-color);
+      border-top: 1px solid var(--border-color);
     }
 
     .meta-item {
@@ -235,94 +233,82 @@
     }
 
     .meta-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
       background: var(--chip-bg);
-      border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.15rem;
+      font-size: 1.1rem;
     }
 
     .meta-text label {
       display: block;
       font-size: 0.72rem;
-      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       font-weight: 600;
+      color: var(--text-dim);
     }
 
     .meta-text span {
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 0.88rem;
+      font-weight: 600;
       color: var(--text-main);
     }
 
-    /* Progress bar */
+    /* BARRA DE PROGRESSO GERAL */
     .overall-progress-box {
       margin-top: 1.5rem;
-      background: rgba(22, 163, 74, 0.04);
-      padding: 1rem 1.2rem;
-      border-radius: 12px;
+      background: var(--bg-surface);
       border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.2rem;
     }
 
     .progress-header {
       display: flex;
       justify-content: space-between;
-      font-size: 0.88rem;
+      align-items: center;
+      font-size: 0.82rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
     }
 
     .progress-bar-bg {
+      height: 10px;
       background: var(--progress-bg);
-      height: 12px;
-      border-radius: 10px;
+      border-radius: 999px;
       overflow: hidden;
     }
 
     .progress-bar-fill {
-      background: linear-gradient(90deg, var(--ifsc-green) 0%, var(--accent-blue) 100%);
       height: 100%;
-      border-radius: 10px;
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, var(--ifsc-green) 0%, var(--accent-blue) 100%);
+      border-radius: 999px;
+      transition: width 0.6s ease;
     }
 
     /* KPI CARDS */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.2rem;
+      gap: 1rem;
       margin-bottom: 2rem;
     }
 
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 1.3rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 1.4rem;
       box-shadow: var(--shadow-card);
-      transition: transform 0.2s ease, border-color 0.2s ease;
       position: relative;
       overflow: hidden;
     }
 
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--ifsc-green);
-    }
-
-    .kpi-card::after {
-      content: "";
+    .kpi-card::before {
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -332,19 +318,20 @@
     }
 
     .kpi-title {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+      margin-bottom: 0.35rem;
     }
 
     .kpi-value {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 800;
+      font-size: 1.35rem;
+      font-weight: 700;
       color: var(--text-main);
-      margin: 0.4rem 0 0.2rem 0;
+      margin-bottom: 0.25rem;
     }
 
     .kpi-desc {
@@ -389,6 +376,12 @@
       border-color: rgba(22, 163, 74, 0.25);
     }
 
+    .tab-btn.tab-btn-poc.active {
+      color: var(--accent-purple);
+      background: rgba(124, 58, 237, 0.12);
+      border-color: rgba(124, 58, 237, 0.25);
+    }
+
     .tab-pane {
       display: none;
       animation: fadeIn 0.3s ease forwards;
@@ -427,165 +420,226 @@
       font-size: 0.85rem;
       color: var(--text-muted);
       margin-bottom: 1.5rem;
+      line-height: 1.5;
     }
 
-    /* GRID DE MATERIAIS PRODUZIDOS */
+    /* CALLOUT BOXES */
+    .callout-box {
+      background: rgba(124, 58, 237, 0.05);
+      border-left: 4px solid var(--accent-purple);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.2rem 0 1.5rem 0;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .callout-box.callout-green {
+      background: rgba(22, 163, 74, 0.05);
+      border-left-color: var(--ifsc-green);
+    }
+
+    .callout-box.callout-amber {
+      background: rgba(217, 119, 6, 0.05);
+      border-left-color: var(--accent-amber);
+    }
+
+    .callout-header {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    /* GRIDS */
     .artifacts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 1.2rem;
     }
 
     .artifact-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 1rem;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: all 0.2s ease;
     }
+
     .artifact-card:hover {
-      transform: translateY(-2px);
       border-color: var(--ifsc-green);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .artifact-card.card-poc:hover {
+      border-color: var(--accent-purple);
     }
 
     .artifact-badge {
-      font-size: 0.72rem;
+      display: inline-block;
+      font-size: 0.7rem;
       font-weight: 700;
       padding: 0.2rem 0.55rem;
       border-radius: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      align-self: flex-start;
       background: rgba(22, 163, 74, 0.12);
       color: var(--ifsc-green);
-      display: inline-block;
-      align-self: flex-start;
+    }
+
+    .artifact-badge.badge-autoral {
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--ifsc-green);
+      border: 1px solid rgba(22, 163, 74, 0.25);
+    }
+
+    .artifact-badge.badge-poc {
+      background: rgba(124, 58, 237, 0.12);
+      color: var(--accent-purple);
+      border: 1px solid rgba(124, 58, 237, 0.25);
+    }
+
+    .artifact-badge.badge-amber {
+      background: rgba(217, 119, 6, 0.12);
+      color: var(--accent-amber);
+      border: 1px solid rgba(217, 119, 6, 0.25);
+    }
+
+    .artifact-badge.badge-blue {
+      background: rgba(2, 132, 199, 0.12);
+      color: var(--accent-blue);
+      border: 1px solid rgba(2, 132, 199, 0.25);
     }
 
     .artifact-title {
-      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text-main);
-      margin-top: 0.4rem;
+      margin-bottom: 0.35rem;
     }
 
     .artifact-desc {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* CHECKLIST */
+    .checklist-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .check-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      transition: all 0.2s ease;
+    }
+
+    .check-item:hover {
+      border-color: var(--ifsc-green);
+    }
+
+    .check-item.done {
+      border-left: 4px solid var(--ifsc-green);
+    }
+
+    .check-item.current {
+      border-left: 4px solid var(--accent-amber);
+      background: rgba(217, 119, 6, 0.02);
+    }
+
+    .check-icon {
+      font-size: 1.25rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .check-item.done .check-icon { color: var(--ifsc-green); }
+    .check-item.current .check-icon { color: var(--accent-amber); }
+
+    .check-content h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .check-content p {
       font-size: 0.82rem;
       color: var(--text-muted);
       line-height: 1.5;
     }
 
-    /* CHECKLIST DE PRÓXIMOS PASSOS */
-    .checklist-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.85rem;
-      padding: 0.9rem 1.1rem;
-      border-radius: 10px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      transition: all 0.2s ease;
-    }
-    .check-item:hover {
-      border-color: var(--ifsc-green);
-      background: rgba(22, 163, 74, 0.02);
-    }
-    .check-item.done {
-      border-left: 4px solid var(--ifsc-green);
-    }
-    .check-item.current {
-      border-left: 4px solid var(--accent-blue);
-      background: rgba(2, 132, 199, 0.03);
-    }
-    .check-item.urgent {
-      border-left: 4px solid var(--accent-amber);
-      background: rgba(217, 119, 6, 0.03);
-    }
-
-    .check-icon {
-      font-size: 1.2rem;
-      margin-top: 2px;
-      flex-shrink: 0;
-    }
-    .check-item.done .check-icon { color: var(--ifsc-green); }
-    .check-item.current .check-icon { color: var(--accent-blue); }
-    .check-item.urgent .check-icon { color: var(--accent-amber); }
-
-    .check-content h4 {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .check-content p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 3px;
-      line-height: 1.45;
-    }
-
-    /* PROTOTYPES LAB GRID */
+    /* PROTOTYPES LAB */
     .prototypes-lab-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.3rem;
+      gap: 1.2rem;
     }
 
     .proto-box {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 1.3rem;
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 1rem;
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      transition: all 0.25s ease;
-    }
-    .proto-box:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-card);
-      border-color: var(--ifsc-green);
+      transition: all 0.2s ease;
     }
 
-    /* ACCORDION SECTIONS DA BANCA */
+    .proto-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .proto-hint {
+      background: var(--chip-bg);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      border-left: 3px solid var(--accent-purple);
+    }
+
+    /* BANCA & REUNIÕES */
     .banca-section {
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      margin-bottom: 0.75rem;
-      overflow: hidden;
       background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+      margin-bottom: 1rem;
     }
 
     .banca-header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.9rem 1.2rem;
       cursor: pointer;
       user-select: none;
-      background: var(--bg-surface);
-      transition: background 0.15s ease;
-    }
-    .banca-header:hover {
-      background: var(--bg-card-hover);
     }
 
     .banca-title {
-      font-size: 0.92rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
       color: var(--text-main);
       flex: 1;
     }
@@ -594,16 +648,18 @@
       color: var(--text-dim);
       transition: transform 0.2s ease;
     }
+
     .banca-chevron.open {
       transform: rotate(180deg);
     }
 
     .banca-body {
-      padding: 1rem 1.2rem;
-      border-top: 1px solid var(--border-color);
       display: none;
-      background: var(--bg-card);
+      padding-top: 1rem;
+      margin-top: 0.8rem;
+      border-top: 1px solid var(--border-color);
     }
+
     .banca-body.open {
       display: block;
     }
@@ -648,7 +704,10 @@
           <i class="fa-solid fa-arrow-left"></i> Painel Geral TCC
         </a>
         <a href="document.pdf" target="_blank" class="btn-nav btn-nav-primary">
-          <i class="fa-solid fa-file-pdf"></i> Documento Teórico (PDF)
+          <i class="fa-solid fa-file-pdf"></i> Monografia (PDF)
+        </a>
+        <a href="https://github.com/marilia79/tcc" target="_blank" class="btn-nav" style="border-color: rgba(0, 0, 0, 0.2);">
+          <i class="fa-brands fa-github"></i> GitHub Aluna
         </a>
         <a href="https://www.overleaf.com/read/dbcswpzjpnhs#55b18d" target="_blank" class="btn-nav" style="border-color: rgba(22, 163, 74, 0.4); color: var(--ifsc-green);">
           <i class="fa-solid fa-leaf"></i> Paper Overleaf
@@ -709,7 +768,7 @@
       <div class="overall-progress-box">
         <div class="progress-header">
           <span><i class="fa-solid fa-bars-progress" style="color: var(--ifsc-green);"></i> Progresso Geral do TCC</span>
-          <span style="color: var(--ifsc-green);">65% Concluído (Pré-banca Aprovada • Desenvolvimento da Camada PLN em Andamento)</span>
+          <span style="color: var(--ifsc-green);">65% Concluído (Pré-banca Aprovada • Desenvolvimento da Camada PLN em Andamento no GitHub da aluna)</span>
         </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" style="width: 65%;"></div>
@@ -720,40 +779,40 @@
     <!-- KPI CARDS -->
     <div class="kpi-grid">
       <div class="kpi-card" style="--accent: var(--ifsc-green);">
-        <div class="kpi-title">Fase Atual</div>
-        <div class="kpi-value">Desenvolvimento PLN</div>
-        <div class="kpi-desc">Construção de intents, slots e implementação do toggle de PLN para benchmark.</div>
-      </div>
-
-      <div class="kpi-card" style="--accent: var(--accent-blue);">
-        <div class="kpi-title">Meta Imediata (25/09)</div>
-        <div class="kpi-value">2 Testes Práticos</div>
-        <div class="kpi-desc">Execução de 2 testes documentados com o assistente com/sem PLN.</div>
-      </div>
-
-      <div class="kpi-card" style="--accent: var(--accent-amber);">
-        <div class="kpi-title">Validação Secretaria</div>
-        <div class="kpi-value">3 Diagramas</div>
-        <div class="kpi-desc">Fluxo de atendimento, painel administrativo e arquitetura com Ramon.</div>
+        <div class="kpi-title">Produção Autoral da Aluna</div>
+        <div class="kpi-value">Monografia & Código</div>
+        <div class="kpi-desc">Texto formal aprovado na pré-banca, fluxos Canva e desenvolvimento ativo no repositório GitHub.</div>
       </div>
 
       <div class="kpi-card" style="--accent: var(--accent-purple);">
-        <div class="kpi-title">Publicação Alvo</div>
+        <div class="kpi-title">Exemplos Antigravity (Orientador)</div>
+        <div class="kpi-value">4 POCs de Referência</div>
+        <div class="kpi-desc">Modelos de especificação técnica e benchmark criados na orientação para guiar a aluna.</div>
+      </div>
+
+      <div class="kpi-card" style="--accent: var(--accent-amber);">
+        <div class="kpi-title">Meta Imediata (25/09)</div>
+        <div class="kpi-value">2 Testes Práticos</div>
+        <div class="kpi-desc">Execução no app da aluna com chave seletora com/sem PLN e documentação empírica.</div>
+      </div>
+
+      <div class="kpi-card" style="--accent: var(--accent-blue);">
+        <div class="kpi-title">Publicação Científica</div>
         <div class="kpi-value">Artigo COTB 2026</div>
-        <div class="kpi-desc">Redação ativa no template Overleaf do Computer on the Beach.</div>
+        <div class="kpi-desc">Redação ativa no template Overleaf do Computer on the Beach (SBC).</div>
       </div>
     </div>
 
     <!-- TABS BAR -->
     <div class="tabs-nav">
       <button class="tab-btn active" onclick="switchTab('tab-visao')">
-        <i class="fa-solid fa-compass"></i> Visão Geral & Materiais Prontos
+        <i class="fa-solid fa-compass"></i> Visão Geral & Produção da Aluna
       </button>
       <button class="tab-btn" onclick="switchTab('tab-passos')">
         <i class="fa-solid fa-list-check" style="color: var(--ifsc-green);"></i> O que Tem por Fazer (Checklist)
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-prototipos')">
-        <i class="fa-solid fa-robot" style="color: var(--accent-blue);"></i> Laboratório de Protótipos (4)
+      <button class="tab-btn tab-btn-poc" onclick="switchTab('tab-prototipos')">
+        <i class="fa-solid fa-flask" style="color: var(--accent-purple);"></i> Exemplos Antigravity (Orientador)
       </button>
       <button class="tab-btn" onclick="switchTab('tab-cronograma')">
         <i class="fa-solid fa-timeline" style="color: var(--accent-indigo);"></i> Pipeline & Cronograma (2026-2)
@@ -762,94 +821,169 @@
         <i class="fa-solid fa-handshake-simple" style="color: var(--accent-amber);"></i> Atas & Deliberações
       </button>
       <button class="tab-btn" onclick="switchTab('tab-links')">
-        <i class="fa-solid fa-folder-open" style="color: var(--accent-purple);"></i> Documentos & Overleaf
+        <i class="fa-solid fa-folder-open" style="color: var(--accent-blue);"></i> Documentos & Recursos
       </button>
     </div>
 
-    <!-- TAB 1: VISÃO GERAL & MATERIAIS PRONTOS -->
+    <!-- TAB 1: VISÃO GERAL & PRODUÇÃO DA ALUNA -->
     <div id="tab-visao" class="tab-pane active">
+      
+      <!-- SEÇÃO 1: PRODUÇÃO AUTORAL DA ALUNA -->
       <div class="content-box">
-        <div class="box-title"><i class="fa-solid fa-box-archive" style="color: var(--ifsc-green);"></i> O que Marília já Produziu e Consolidou</div>
-        <div class="box-desc">Artefatos acadêmicos, protótipos funcionais e documentos já entregues e validados.</div>
+        <div class="box-title">
+          <i class="fa-solid fa-graduation-cap" style="color: var(--ifsc-green);"></i> Produção Oficial e Entregas de Marília Stefenon
+        </div>
+        <div class="box-desc">
+          Artefatos acadêmicos, códigos-fonte e materiais concebidos e implementados formalmente pela estudante.
+        </div>
 
         <div class="artifacts-grid">
           <div class="artifact-card">
-            <span class="artifact-badge">DOCUMENTO TEÓRICO</span>
+            <span class="artifact-badge badge-autoral">PRODUÇÃO AUTORAL • TEXTO FORMAL</span>
             <div>
-              <div class="artifact-title">Pré-projeto e Monografia (PDF)</div>
-              <div class="artifact-desc">Texto com introdução, fundamentação sobre chatbots e PLN, metodologia experimental e modelagem do SIGAA.</div>
+              <div class="artifact-title">Monografia e Pré-projeto (PDF)</div>
+              <div class="artifact-desc">Texto acadêmico estruturado pela aluna contendo introdução, fundamentação sobre chatbots e PLN, metodologia experimental de avaliação e modelagem do SIGAA. Aprovado na pré-banca.</div>
             </div>
-            <a href="document.pdf" target="_blank" class="btn-nav btn-nav-primary"><i class="fa-solid fa-file-pdf"></i> Abrir Documento Teórico</a>
+            <a href="document.pdf" target="_blank" class="btn-nav btn-nav-primary"><i class="fa-solid fa-file-pdf"></i> Abrir Monografia (PDF)</a>
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge">PROTÓTIPO FUNCIONAL 1</span>
+            <span class="artifact-badge badge-autoral">CÓDIGO-FONTE OFICIAL DA ALUNA</span>
             <div>
-              <div class="artifact-title">Protótipo 1: Busca Lexical & Form</div>
-              <div class="artifact-desc">Primeiro protótipo com busca direta por palavras-chave em base de FAQ e formulário para chamados à secretaria.</div>
+              <div class="artifact-title">Repositório Git Oficial (GitHub)</div>
+              <div class="artifact-desc">Repositório onde Marília está desenvolvendo o código de sua aplicação (backend em Python/Flask, rotas de integração, arquivos LaTeX versionados e scripts do chatbot).</div>
             </div>
-            <a href="prototipos/prototipo-1-lexical/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-arrow-up-right-from-square"></i> Testar Protótipo 1</a>
+            <a href="https://github.com/marilia79/tcc" target="_blank" class="btn-nav"><i class="fa-brands fa-github"></i> Acessar Repositório Git da Aluna</a>
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge">PROTÓTIPO FUNCIONAL 2</span>
+            <span class="artifact-badge badge-autoral">DESIGN & PROTOTIPAÇÃO UX</span>
             <div>
-              <div class="artifact-title">Protótipo 2: Motor PLN & Slots</div>
-              <div class="artifact-desc">Mecanismo conversacional com extração de intenções, slots de parâmetros e integração ao mock do SIGAA.</div>
+              <div class="artifact-title">Design de Interface no Canva</div>
+              <div class="artifact-desc">Fluxo de navegação visual, paleta de cores e telas de diálogo com o aluno desenhadas pela própria estudante para guiar a experiência do usuário.</div>
             </div>
-            <a href="prototipos/prototipo-2-pln/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-arrow-up-right-from-square"></i> Testar Protótipo 2</a>
+            <a href="https://www.canva.com/design/DAGwpH8wyio/i7u20WVU_0vb8Oj-3aBwtA/edit" target="_blank" class="btn-nav"><i class="fa-solid fa-palette"></i> Ver Telas no Canva</a>
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge">VALIDAÇÃO SECRETARIA</span>
-            <div>
-              <div class="artifact-title">Painel Administrativo do Ramon</div>
-              <div class="artifact-desc">Interface para triagem das demandas da secretaria acadêmica geradas pelos chamados do chatbot.</div>
-            </div>
-            <a href="prototipos/painel-secretaria/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-table-columns"></i> Abrir Painel da Secretaria</a>
-          </div>
-
-          <div class="artifact-card">
-            <span class="artifact-badge">DESIGN & UX</span>
-            <div>
-              <div class="artifact-title">Protótipo Visual no Canva</div>
-              <div class="artifact-desc">Mockups e fluxos de telas conversacionais desenhados para avaliação de usabilidade.</div>
-            </div>
-            <a href="https://www.canva.com/design/DAGwpH8wyio/i7u20WVU_0vb8Oj-3aBwtA/edit" target="_blank" class="btn-nav"><i class="fa-solid fa-palette"></i> Abrir no Canva</a>
-          </div>
-
-          <div class="artifact-card">
-            <span class="artifact-badge">PRODUÇÃO CIENTÍFICA</span>
+            <span class="artifact-badge badge-autoral">PRODUÇÃO CIENTÍFICA</span>
             <div>
               <div class="artifact-title">Artigo COTB 2026 no Overleaf</div>
-              <div class="artifact-desc">Artigo científico em redação no Overleaf pronto para receber os resultados comparativos do benchmark com/sem PLN.</div>
+              <div class="artifact-desc">Artigo científico em redação no Overleaf segundo as normas da SBC, estruturado para receber os resultados da comparação empírica com/sem PLN.</div>
             </div>
             <a href="https://www.overleaf.com/read/dbcswpzjpnhs#55b18d" target="_blank" class="btn-nav"><i class="fa-solid fa-leaf" style="color: var(--ifsc-green);"></i> Overleaf (Leitura)</a>
           </div>
+
+          <div class="artifact-card">
+            <span class="artifact-badge badge-autoral">DOCUMENTO INICIAL</span>
+            <div>
+              <div class="artifact-title">Pré-projeto no Google Docs</div>
+              <div class="artifact-desc">Proposta inicial de trabalho de conclusão de curso submetida e aprovada pela coordenação do curso de Sistemas para a Internet.</div>
+            </div>
+            <a href="https://docs.google.com/document/d/1qnvYJ0fRcCAY4pdhvVL27W4Wnwjt18eZnLQ8VTj7WLg/edit?usp=sharing" target="_blank" class="btn-nav"><i class="fa-solid fa-file-word"></i> Abrir Google Docs</a>
+          </div>
+
+          <div class="artifact-card">
+            <span class="artifact-badge badge-autoral">BANCA EXAMINADORA</span>
+            <div>
+              <div class="artifact-title">Ata e Parecer da Pré-Banca</div>
+              <div class="artifact-desc">Apresentação realizada em 12/06/2026 com parecer favorável dos professores Thiago Lipinski Paes e Ignácio Ramirez, indicando as melhorias metodológicas a incorporar.</div>
+            </div>
+            <a href="https://docs.google.com/document/d/1MIw-_lGgw37u-OHouxF43dwNrWBOI5vmaJwJW3S0Jzw/edit?tab=t.0" target="_blank" class="btn-nav"><i class="fa-solid fa-comments"></i> Abrir Parecer da Banca</a>
+          </div>
         </div>
       </div>
+
+      <!-- SEÇÃO 2: APLICAÇÕES DE REFERÊNCIA (ANTIGRAVITY) -->
+      <div class="content-box">
+        <div class="box-title">
+          <i class="fa-solid fa-flask" style="color: var(--accent-purple);"></i> Aplicações de Referência & POCs do Orientador (Feitas no Antigravity)
+        </div>
+        <div class="box-desc">
+          Modelos funcionais de demonstração desenvolvidos pela orientação técnica para servir de especificação viva e ambiente de testes para a estudante.
+        </div>
+
+        <div class="callout-box">
+          <div class="callout-header">
+            <i class="fa-solid fa-circle-info" style="color: var(--accent-purple);"></i> Esclarecimento Metodológico sobre os Exemplos:
+          </div>
+          Os 4 protótipos funcionais abaixo <strong>foram montados no ambiente Antigravity pelo professor orientador</strong>. Eles <strong>não são o software final codificado por Marília</strong>, mas sim <em>provas de conceito (POCs) de referência</em> criadas para demonstrar o comportamento esperado da aplicação, ilustrar a arquitetura de dados simulada do SIGAA e servir de padrão de benchmark (busca lexical vs. PLN vs. LLM) para que a estudante implemente a sua solução em seu próprio repositório.
+        </div>
+
+        <div class="artifacts-grid">
+          <div class="artifact-card card-poc">
+            <span class="artifact-badge badge-poc">POC ORIENTADOR • ANTIGRAVITY</span>
+            <div>
+              <div class="artifact-title">Exemplo 1: Busca Lexical & Formulário</div>
+              <div class="artifact-desc">Demonstração de busca estática baseada em termos exatos do FAQ acadêmico e abertura direta de chamados. Serve de baseline para o benchmark.</div>
+            </div>
+            <a href="prototipos/prototipo-1-lexical/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-play"></i> Testar Exemplo 1</a>
+          </div>
+
+          <div class="artifact-card card-poc">
+            <span class="artifact-badge badge-poc">POC ORIENTADOR • ANTIGRAVITY</span>
+            <div>
+              <div class="artifact-title">Exemplo 2: Motor PLN & Extração de Slots</div>
+              <div class="artifact-desc">Demonstração da classificação semântica de intenções, tratamento de variações de digitação e preenchimento de parâmetros para o mock do SIGAA.</div>
+            </div>
+            <a href="prototipos/prototipo-2-pln/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-play"></i> Testar Exemplo 2</a>
+          </div>
+
+          <div class="artifact-card card-poc">
+            <span class="artifact-badge badge-poc">POC ORIENTADOR • ANTIGRAVITY</span>
+            <div>
+              <div class="artifact-title">Exemplo 3: LLM & Tool Calling (Experimental)</div>
+              <div class="artifact-desc">Modelo exploratório ilustrando o acoplamento de modelos generativos a ferramentas de consulta estruturada.</div>
+            </div>
+            <a href="prototipos/prototipo-3-llm/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-play"></i> Testar Exemplo 3</a>
+          </div>
+
+          <div class="artifact-card card-poc">
+            <span class="artifact-badge badge-poc">POC ORIENTADOR • ANTIGRAVITY</span>
+            <div>
+              <div class="artifact-title">Exemplo 4: Painel da Secretaria (Ramon)</div>
+              <div class="artifact-desc">Protótipo da tela administrativa do servidor para recebimento, triagem e resposta das solicitações geradas pelo chatbot.</div>
+            </div>
+            <a href="prototipos/painel-secretaria/index.html" target="_blank" class="btn-nav"><i class="fa-solid fa-table-columns"></i> Testar Painel Ramon</a>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button class="btn-nav" onclick="switchTab('tab-prototipos')" style="color: var(--accent-purple); border-color: var(--accent-purple);">
+            <i class="fa-solid fa-arrow-right"></i> Ver Detalhes e Diretrizes Técnicas na Guia de Exemplos Antigravity
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <!-- TAB 2: PRÓXIMOS PASSOS & CHECKLIST -->
     <div id="tab-passos" class="tab-pane">
       <div class="content-box">
         <div class="box-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-amber);"></i> Metas Imediatas Acordadas em Orientação (25/09/2026)</div>
-        <div class="box-desc">Compromissos prioritários firmados no último encontro de orientação para o avanço da pesquisa.</div>
+        <div class="box-desc">Compromissos prioritários firmados no último encontro de orientação para o desenvolvimento autoral de Marília.</div>
+
+        <div class="callout-box callout-amber">
+          <div class="callout-header">
+            <i class="fa-solid fa-bullseye" style="color: var(--accent-amber);"></i> Foco de Implementação da Aluna:
+          </div>
+          As tarefas a seguir devem ser codificadas diretamente por Marília em seu <strong>repositório oficial no GitHub (<a href="https://github.com/marilia79/tcc" target="_blank" style="color: var(--accent-amber); font-weight: 700;">marilia79/tcc</a>)</strong>, utilizando os exemplos do Antigravity como especificação viva.
+        </div>
 
         <div class="checklist-group">
           <div class="check-item current">
             <div class="check-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
             <div class="check-content">
-              <h4>1. Concluir a Camada de PLN e Executar 2 Testes Práticos</h4>
-              <p>Finalizar a correspondência de intenções e extração de slots do assistente, executando e documentando pelo menos 2 testes práticos com interações de alunos.</p>
+              <h4>1. Concluir a Camada de PLN no Repositório da Aluna e Executar 2 Testes Práticos</h4>
+              <p>Finalizar a classificação de intenções e extração de slots no backend em desenvolvimento pela aluna, executando e documentando pelo menos 2 testes práticos controlados com alunos do IFSC.</p>
             </div>
           </div>
 
           <div class="check-item current">
             <div class="check-icon"><i class="fa-solid fa-toggle-on"></i></div>
             <div class="check-content">
-              <h4>2. Implementar o Toggle Ligar/Desligar PLN no Chatbot (Benchmark)</h4>
-              <p>Adicionar uma chave seletora na interface para permitir testar a mesma pergunta com e sem a camada de PLN, gerando dados empíricos de acurácia e tempo para o artigo.</p>
+              <h4>2. Implementar a Chave Seletora (Toggle Ligar/Desligar PLN) no seu Chatbot</h4>
+              <p>Adicionar na aplicação da aluna a funcionalidade de alternar entre o modo de busca lexical simples e o modo PLN inteligente, permitindo submeter as mesmas perguntas e coletar métricas empíricas de acurácia e tempo.</p>
             </div>
           </div>
 
@@ -857,7 +991,7 @@
             <div class="check-icon"><i class="fa-solid fa-leaf"></i></div>
             <div class="check-content">
               <h4>3. Iniciar Redação do Artigo no Template do COTB 2026</h4>
-              <p>Estruturar no Overleaf o artigo segundo o template do <em>Computer on the Beach</em> (<a href="https://computeronthebeach.com.br" target="_blank" style="color: var(--ifsc-green); font-weight: 600;">computeronthebeach.com.br</a>), integrando os resultados preliminares.</p>
+              <p>Estruturar no Overleaf o artigo segundo o template do <em>Computer on the Beach</em> (<a href="https://computeronthebeach.com.br" target="_blank" style="color: var(--ifsc-green); font-weight: 600;">computeronthebeach.com.br</a>), preparando a seção de metodologia e tabela de resultados.</p>
             </div>
           </div>
 
@@ -865,7 +999,7 @@
             <div class="check-icon"><i class="fa-solid fa-diagram-project"></i></div>
             <div class="check-content">
               <h4>4. Validar os 3 Diagramas de Processo com Ramon (Secretaria)</h4>
-              <p>Revisar com o servidor Ramon os diagramas: (a) Fluxo do Aluno, (b) Painel de Demandas e (c) Arquitetura de Integração com o SIGAA.</p>
+              <p>Apresentar e validar com o servidor Ramon os diagramas: (a) Fluxo do Aluno, (b) Painel de Demandas da Secretaria e (c) Arquitetura de Integração com o SIGAA.</p>
             </div>
           </div>
         </div>
@@ -878,15 +1012,15 @@
             <div class="check-icon"><i class="fa-solid fa-circle-check"></i></div>
             <div class="check-content">
               <h4>Trilha 1: Mock de Dados do SIGAA & Base de FAQ da Secretaria</h4>
-              <p>Estrutura de dados simulada para consultas de histórico escolar, atestados de matrícula e trancamento de disciplinas.</p>
+              <p>Estrutura de dados simulada para consultas de histórico escolar, atestados de matrícula e trancamento de disciplinas (validada na pré-banca).</p>
             </div>
           </div>
 
           <div class="check-item current">
             <div class="check-icon"><i class="fa-solid fa-brain"></i></div>
             <div class="check-content">
-              <h4>Trilha 2: Motor de Processamento de Linguagem Natural (PLN)</h4>
-              <p>Classificação de intenções com tolerância a erros ortográficos, sinônimos acadêmicos e preenchimento de parâmetros (slots).</p>
+              <h4>Trilha 2: Motor de Processamento de Linguagem Natural (PLN) na Aplicação da Aluna</h4>
+              <p>Classificação de intenções com tolerância a erros ortográficos, sinônimos acadêmicos e preenchimento de parâmetros (slots) no código-fonte oficial.</p>
             </div>
           </div>
 
@@ -894,7 +1028,7 @@
             <div class="check-icon"><i class="fa-solid fa-chart-line"></i></div>
             <div class="check-content">
               <h4>Trilha 3: Bateria Experimental de Benchmark (Léxico vs. PLN)</h4>
-              <p>Elaboração de 10 a 15 cenários de teste para avaliar taxa de acerto, ambiguidade e satisfação do usuário.</p>
+              <p>Elaboração de 10 a 15 cenários de teste para avaliar taxa de acerto, ambiguidade e satisfação do usuário baseando-se nos critérios das POCs.</p>
             </div>
           </div>
 
@@ -909,55 +1043,76 @@
       </div>
     </div>
 
-    <!-- TAB 3: LABORATÓRIO DE PROTÓTIPOS -->
+    <!-- TAB 3: LABORATÓRIO DE EXEMPLOS (ANTIGRAVITY) -->
     <div id="tab-prototipos" class="tab-pane">
       <div class="content-box">
-        <div class="box-title"><i class="fa-solid fa-flask" style="color: var(--accent-blue);"></i> Laboratório Experimental de Protótipos (Online)</div>
-        <div class="box-desc">Ambientes funcionais desenvolvidos incrementalmente para demonstrar a evolução da solução conversacional.</div>
+        <div class="box-title">
+          <i class="fa-solid fa-flask" style="color: var(--accent-purple);"></i> Laboratório de Exemplos e Provas de Conceito (Antigravity POCs)
+        </div>
+        <div class="box-desc">
+          Ambientes funcionais desenvolvidos pela orientação técnica para demonstrar a arquitetura, regras de negócio e viabilidade prática para a aluna.
+        </div>
+
+        <div class="callout-box" style="border-left-color: var(--accent-purple); background: rgba(124, 58, 237, 0.06);">
+          <div class="callout-header" style="color: var(--accent-purple);">
+            <i class="fa-solid fa-triangle-exclamation"></i> Importante — Distinção de Autoria e Finalidade:
+          </div>
+          <p style="margin-bottom: 0.5rem;">
+            Os 4 protótipos funcionais disponibilizados nesta guia foram <strong>construídos no ambiente Antigravity pelo professor orientador</strong> como subsídio pedagógico e técnico para o projeto de TCC.
+          </p>
+          <p>
+            <strong>Eles não são o trabalho de codificação final da aluna</strong>. A estudante Marília utiliza estas referências para:
+            (1) entender o fluxo de dados com o SIGAA simulado; (2) espelhar o mecanismo de classificação semântica de intenções; e (3) ter um ambiente de controle para comparar métricas com a sua própria implementação.
+          </p>
+        </div>
 
         <div class="prototypes-lab-grid">
           <div class="proto-box">
             <div>
-              <span class="artifact-badge">PROTÓTIPO 1</span>
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">Busca Lexical & Formulário</h3>
-              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Correspondência por palavras-chave com base estática de FAQ e formulário direto de chamados para a secretaria.</p>
+              <span class="artifact-badge badge-poc">POC ORIENTADOR • BASELINE</span>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">1. Busca Lexical & Formulário</h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.8rem;">Correspondência por palavras-chave com base estática de FAQ e formulário direto de chamados para a secretaria.</p>
+              <div class="proto-hint">
+                <strong>O que Marília deve observar:</strong> A rigidez da busca por palavras exatas e as situações onde o aluno não obtém resposta devido a pequenos erros de grafia.
+              </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="prototipos/prototipo-1-lexical/index.html" target="_blank" class="btn-nav btn-nav-primary" style="flex: 1; justify-content: center;"><i class="fa-solid fa-play"></i> Testar Online</a>
-            </div>
+            <a href="prototipos/prototipo-1-lexical/index.html" target="_blank" class="btn-nav btn-nav-primary" style="justify-content: center; background: var(--accent-purple); border-color: var(--accent-purple);"><i class="fa-solid fa-play"></i> Testar Exemplo 1</a>
           </div>
 
-          <div class="proto-box" style="border-color: var(--accent-blue);">
+          <div class="proto-box" style="border-color: var(--accent-purple);">
             <div>
-              <span class="artifact-badge" style="background: rgba(2, 132, 199, 0.12); color: var(--accent-blue);">PROTÓTIPO 2 • FOCO ATUAL</span>
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">Motor de PLN & Extração de Slots</h3>
-              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Interpretação semântica com classificação de intenções, captura dinâmica de dados e suporte ao toggle comparativo.</p>
+              <span class="artifact-badge badge-poc">POC ORIENTADOR • MODELO DE REFERÊNCIA</span>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">2. Motor de PLN & Extração de Slots</h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.8rem;">Interpretação semântica com classificação de intenções, captura dinâmica de dados e suporte ao toggle comparativo.</p>
+              <div class="proto-hint">
+                <strong>O que Marília deve observar:</strong> Como a normalização de texto e o mapeamento de entidades (ex: tipo de atestado, curso) viabilizam o autoatendimento direto.
+              </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="prototipos/prototipo-2-pln/index.html" target="_blank" class="btn-nav btn-nav-primary" style="flex: 1; justify-content: center; background: var(--accent-blue); border-color: var(--accent-blue);"><i class="fa-solid fa-play"></i> Testar Online</a>
-            </div>
-          </div>
-
-          <div class="proto-box">
-            <div>
-              <span class="artifact-badge" style="background: rgba(124, 58, 237, 0.12); color: var(--accent-purple);">PROTÓTIPO 3</span>
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">IA Generativa & Tools (Experimental)</h3>
-              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Exploração complementar de modelos LLMs via API com chamada de ferramentas para respostas abertas e contextualizadas.</p>
-            </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="prototipos/prototipo-3-llm/index.html" target="_blank" class="btn-nav" style="flex: 1; justify-content: center;"><i class="fa-solid fa-play"></i> Testar Online</a>
-            </div>
+            <a href="prototipos/prototipo-2-pln/index.html" target="_blank" class="btn-nav btn-nav-primary" style="justify-content: center; background: var(--accent-purple); border-color: var(--accent-purple);"><i class="fa-solid fa-play"></i> Testar Exemplo 2</a>
           </div>
 
           <div class="proto-box">
             <div>
-              <span class="artifact-badge" style="background: rgba(217, 119, 6, 0.12); color: var(--accent-amber);">PROTÓTIPO 4</span>
-              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">Painel do Ramon (Secretaria)</h3>
-              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Visão administrativa do atendente humano para recebimento, triagem e resolução de solicitações vindas do chatbot.</p>
+              <span class="artifact-badge badge-poc">POC ORIENTADOR • EXPERIMENTAL</span>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">3. IA Generativa & Tools</h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.8rem;">Exploração complementar de modelos LLMs via API com chamada de ferramentas para respostas abertas e contextualizadas.</p>
+              <div class="proto-hint">
+                <strong>O que Marília deve observar:</strong> A flexibilidade de linguagem contraposta ao custo computacional e latência de resposta em comparação aos frameworks leves.
+              </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <a href="prototipos/painel-secretaria/index.html" target="_blank" class="btn-nav" style="flex: 1; justify-content: center;"><i class="fa-solid fa-play"></i> Testar Online</a>
+            <a href="prototipos/prototipo-3-llm/index.html" target="_blank" class="btn-nav" style="justify-content: center;"><i class="fa-solid fa-play"></i> Testar Exemplo 3</a>
+          </div>
+
+          <div class="proto-box">
+            <div>
+              <span class="artifact-badge badge-poc">POC ORIENTADOR • FLUXO SECRETARIA</span>
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.3rem 0; color: var(--text-main);">4. Painel Administrativo do Ramon</h3>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.8rem;">Visão administrativa do atendente humano para recebimento, triagem e resolução de solicitações vindas do chatbot.</p>
+              <div class="proto-hint">
+                <strong>O que Marília deve observar:</strong> A estrutura das filas de atendimento e como as demandas não resolvidas pelo bot chegam organizadas para o servidor acadêmico.
+              </div>
             </div>
+            <a href="prototipos/painel-secretaria/index.html" target="_blank" class="btn-nav" style="justify-content: center;"><i class="fa-solid fa-play"></i> Testar Painel Ramon</a>
           </div>
         </div>
       </div>
@@ -982,32 +1137,32 @@
             <tbody>
               <tr style="border-bottom: 1px solid var(--border-color); background: rgba(22, 163, 74, 0.03);">
                 <td style="padding: 10px;"><strong>Etapa 0</strong></td>
-                <td style="padding: 10px; color: var(--text-muted);">Levantamento de requisitos com Ramon, desenho no Canva e pré-banca.</td>
-                <td style="padding: 10px; text-align: center;"><span class="artifact-badge">Mar–Jun</span></td>
-                <td style="padding: 10px; color: var(--ifsc-green); font-weight: 700;"><i class="fa-solid fa-check-double"></i> Concluída</td>
+                <td style="padding: 10px; color: var(--text-muted);">Levantamento de requisitos com Ramon, desenho no Canva e aprovação na pré-banca.</td>
+                <td style="padding: 10px; text-align: center;"><span class="artifact-badge badge-autoral">Mar–Jun</span></td>
+                <td style="padding: 10px; color: var(--ifsc-green); font-weight: 700;"><i class="fa-solid fa-check-double"></i> Concluída pela Aluna</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color); background: rgba(2, 132, 199, 0.03);">
                 <td style="padding: 10px;"><strong>Etapa 1</strong></td>
-                <td style="padding: 10px; color: var(--text-muted);">Implementação do Motor de PLN, slots de atendimento e toggle de benchmark.</td>
-                <td style="padding: 10px; text-align: center;"><span class="artifact-badge" style="background: rgba(2, 132, 199, 0.12); color: var(--accent-blue);">Jul–Ago</span></td>
-                <td style="padding: 10px; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-spinner fa-spin"></i> Em Andamento</td>
+                <td style="padding: 10px; color: var(--text-muted);">Implementação do Motor de PLN, slots de atendimento e toggle de benchmark no código de Marília.</td>
+                <td style="padding: 10px; text-align: center;"><span class="artifact-badge badge-blue">Jul–Ago</span></td>
+                <td style="padding: 10px; color: var(--accent-blue); font-weight: 700;"><i class="fa-solid fa-spinner fa-spin"></i> Em Andamento (GitHub)</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 10px;"><strong>Etapa 2</strong></td>
-                <td style="padding: 10px; color: var(--text-muted);">Painel da Secretaria Acadêmica (triagem e gestão de chamados do Ramon).</td>
-                <td style="padding: 10px; text-align: center;"><span class="artifact-badge" style="background: rgba(217, 119, 6, 0.12); color: var(--accent-amber);">Set</span></td>
+                <td style="padding: 10px; color: var(--text-muted);">Painel da Secretaria Acadêmica (validação dos fluxos de atendimento com Ramon).</td>
+                <td style="padding: 10px; text-align: center;"><span class="artifact-badge badge-amber">Set</span></td>
                 <td style="padding: 10px; font-weight: 600;">Planejada</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 10px;"><strong>Etapa 3</strong></td>
-                <td style="padding: 10px; color: var(--text-muted);">Bateria de testes controlados (2 testes práticos + avaliação comparativa).</td>
-                <td style="padding: 10px; text-align: center;"><span class="artifact-badge" style="background: rgba(124, 58, 237, 0.12); color: var(--accent-purple);">Out</span></td>
+                <td style="padding: 10px; color: var(--text-muted);">Bateria de testes controlados (2 testes práticos + avaliação comparativa com usuários reais).</td>
+                <td style="padding: 10px; text-align: center;"><span class="artifact-badge badge-poc">Out</span></td>
                 <td style="padding: 10px; font-weight: 600;">Planejada</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 10px;"><strong>Etapa 4</strong></td>
                 <td style="padding: 10px; color: var(--text-muted);">Redação do Artigo Científico no template COTB / SBC no Overleaf.</td>
-                <td style="padding: 10px; text-align: center;"><span class="artifact-badge" style="background: rgba(2, 132, 199, 0.12); color: var(--accent-blue);">Out–Nov</span></td>
+                <td style="padding: 10px; text-align: center;"><span class="artifact-badge badge-blue">Out–Nov</span></td>
                 <td style="padding: 10px; font-weight: 600;">Iniciada no Overleaf</td>
               </tr>
               <tr>
@@ -1038,7 +1193,7 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;"><strong>Pauta:</strong> Avaliação do protótipo com PLN, estruturação da opção de ligar/desligar para benchmark e template do artigo.</p>
             <div style="background: rgba(22, 163, 74, 0.05); padding: 0.9rem; border-radius: 8px; border-left: 3px solid var(--ifsc-green); font-size: 0.84rem; line-height: 1.5;">
               <strong>Deliberações & Acordos Firmados:</strong><br>
-              1. Concluir camada de PLN no chatbot e executar pelo menos 2 testes práticos documentados.<br>
+              1. Concluir camada de PLN no chatbot e executar pelo menos 2 testes práticos documentados no app da aluna.<br>
               2. Implementar opção de ligar/desligar PLN (toggle) para comparar acurácia e tempo de resposta.<br>
               3. Iniciar a redação do artigo no template do Computer on the Beach (COTB) no Overleaf.<br>
               <span style="color: var(--accent-blue); font-weight: 600; display: block; margin-top: 6px;">🎯 Próxima Entrega: 2 testes práticos e início do artigo no Overleaf.</span>
@@ -1082,12 +1237,21 @@
     <!-- TAB 6: DOCUMENTOS, OVERLEAF & RECURSOS -->
     <div id="tab-links" class="tab-pane">
       <div class="content-box">
-        <div class="box-title"><i class="fa-solid fa-link" style="color: var(--accent-purple);"></i> Documentos Oficiais, Overleaf & Recursos</div>
+        <div class="box-title"><i class="fa-solid fa-link" style="color: var(--accent-blue);"></i> Documentos Oficiais, Overleaf & Recursos</div>
         <div class="box-desc">Links rápidos de acesso ao ecossistema do trabalho de Marília.</div>
 
         <div class="artifacts-grid">
           <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(22, 163, 74, 0.12); color: var(--ifsc-green);">OVERLEAF LEITURA</span>
+            <span class="artifact-badge badge-autoral">CÓDIGO OFICIAL DA ALUNA</span>
+            <div>
+              <div class="artifact-title">Repositório Git do TCC (GitHub)</div>
+              <div class="artifact-desc">Repositório mantido por Marília contendo o código em Python, rotas em Flask e arquivos LaTeX do projeto.</div>
+            </div>
+            <a href="https://github.com/marilia79/tcc" target="_blank" class="btn-nav"><i class="fa-brands fa-github"></i> Acessar GitHub da Aluna</a>
+          </div>
+
+          <div class="artifact-card">
+            <span class="artifact-badge badge-autoral">ARTIGO SBC / COTB</span>
             <div>
               <div class="artifact-title">Paper no Overleaf (Leitura)</div>
               <div class="artifact-desc">Link compartilhado de leitura do artigo científico em LaTeX.</div>
@@ -1096,7 +1260,7 @@
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(2, 132, 199, 0.12); color: var(--accent-blue);">OVERLEAF EDIÇÃO</span>
+            <span class="artifact-badge badge-blue">ARTIGO SBC / COTB</span>
             <div>
               <div class="artifact-title">Projeto Overleaf (Edição)</div>
               <div class="artifact-desc">Acesso direto ao editor LaTeX para redação das seções do artigo.</div>
@@ -1105,16 +1269,16 @@
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(124, 58, 237, 0.12); color: var(--accent-purple);">GITHUB REPOSITÓRIO</span>
+            <span class="artifact-badge badge-autoral">DESIGN UI/UX</span>
             <div>
-              <div class="artifact-title">Repositório Git do TCC</div>
-              <div class="artifact-desc">Código fonte, protótipos em Flask/JS e arquivos tex versionados.</div>
+              <div class="artifact-title">Design das Telas no Canva</div>
+              <div class="artifact-desc">Interfaces gráficas e fluxo de telas desenhadas por Marília para o assistente.</div>
             </div>
-            <a href="https://github.com/marilia79/tcc" target="_blank" class="btn-nav"><i class="fa-brands fa-github"></i> Abrir GitHub</a>
+            <a href="https://www.canva.com/design/DAGwpH8wyio/i7u20WVU_0vb8Oj-3aBwtA/edit" target="_blank" class="btn-nav"><i class="fa-solid fa-palette"></i> Abrir no Canva</a>
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(217, 119, 6, 0.12); color: var(--accent-amber);">GOOGLE DOCS</span>
+            <span class="artifact-badge badge-amber">TEXTO DE PROPOSTA</span>
             <div>
               <div class="artifact-title">Pré-projeto no Google Docs</div>
               <div class="artifact-desc">Texto original de submissão do pré-projeto de TCC.</div>
@@ -1123,21 +1287,12 @@
           </div>
 
           <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(220, 38, 38, 0.12); color: var(--ifsc-red);">ATA DA BANCA</span>
+            <span class="artifact-badge" style="background: rgba(220, 38, 38, 0.12); color: var(--ifsc-red);">AVALIAÇÃO ACADÊMICA</span>
             <div>
               <div class="artifact-title">Comentários da Pré-Banca</div>
               <div class="artifact-desc">Documento com anotações e pareceres dos avaliadores da banca examinadora.</div>
             </div>
             <a href="https://docs.google.com/document/d/1MIw-_lGgw37u-OHouxF43dwNrWBOI5vmaJwJW3S0Jzw/edit?tab=t.0" target="_blank" class="btn-nav"><i class="fa-solid fa-comments"></i> Abrir Ata da Banca</a>
-          </div>
-
-          <div class="artifact-card">
-            <span class="artifact-badge" style="background: rgba(2, 132, 199, 0.12); color: var(--accent-blue);">PROTÓTIPO CANVA</span>
-            <div>
-              <div class="artifact-title">Design das Telas no Canva</div>
-              <div class="artifact-desc">Interfaces gráficas e fluxo de telas desenhadas para o assistente.</div>
-            </div>
-            <a href="https://www.canva.com/design/DAGwpH8wyio/i7u20WVU_0vb8Oj-3aBwtA/edit" target="_blank" class="btn-nav"><i class="fa-solid fa-palette"></i> Abrir no Canva</a>
           </div>
         </div>
       </div>
