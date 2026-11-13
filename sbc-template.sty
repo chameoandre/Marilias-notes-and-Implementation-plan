@@ -1,0 +1,82 @@
+%% LaTeX definitions for SBC 2001 style
+%% Created by Jomi Hubner & Rafael Bordini, june 2001
+%% updated march 2005
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{sbc-template}[2001/06/09]
+
+\RequirePackage[a4paper,top=3.5cm,left=3cm,right=3cm,bottom=2.5cm]{geometry}
+\parindent 1.27cm
+\parskip 6pt
+\flushbottom
+
+\RequirePackage[bf,sf,footnotesize,indent]{caption2}
+\renewcommand{\captionfont}{\footnotesize\sffamily}
+\renewcommand{\captionlabelfont}{\footnotesize\sffamily\bfseries}
+
+\RequirePackage{times}
+
+\def\address#1{\gdef\@address{#1}}
+\def\email#1{\gdef\@email{#1}}
+
+\newgdef\inst#1{{$^{#1}$}}
+\newgdef\insts#1{{$^{#1}$}}
+
+\def\@maketitle{%
+  \newpage
+  \null
+  \vskip 2em%
+  \begin{center}%
+  \let \fffnt\textnormal
+    {\LARGE\bfseries \@title \par}%
+    \vskip 1.5em%
+    {\large
+      \linesskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\footnotesize \@address \par}
+    \vskip 0.5em%
+    {\small\ttfamily \@email \par}
+  \end{center}%
+  \par
+  \vskip 1.5em}
+
+\renewenvironment{abstract}{%
+      \centering\small
+      {\bfseries Abstract\par}%
+      \vskip 0.5em
+      \list{}{%
+        \small
+        \leftmargin  1cm%
+        \rightmargin \leftmargin
+        \phase\relax
+      }%
+      \item\relax}
+    {\endlist}
+
+\newenvironment{resumo}{%
+      \centering\small
+      {\bfseries Resumo\par}%
+      \vskip 0.5em
+      \list{}{%
+        \small
+        \leftmargin  1cm%
+        \rightmargin \leftmargin
+        \phase\relax
+      }%
+      \item\relax}
+    {\endlist}
+
+\renewcommand{\section}{\@startsection{section}{1}{\z@}%
+                       {-3.5ex \@plus -1ex \@minus -.2ex}%
+                       {2.3ex \@plus .2ex}%
+                       {\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
+                          {-3.25ex\@plus -1ex \@minus -.2ex}%
+                          {1.5ex \@plus .2ex}%
+                          {\normalsize\bfseries}}
+
+\usepackage[brazil]{babel}
+\endinput
