@@ -19,8 +19,8 @@
 \def\address#1{\gdef\@address{#1}}
 \def\email#1{\gdef\@email{#1}}
 
-\newgdef\inst#1{{$^{#1}$}}
-\newgdef\insts#1{{$^{#1}$}}
+\gdef\inst#1{{$^{#1}$}}
+\gdef\insts#1{{$^{#1}$}}
 
 \def\@maketitle{%
   \newpage
@@ -51,7 +51,6 @@
         \small
         \leftmargin  1cm%
         \rightmargin \leftmargin
-        \phase\relax
       }%
       \item\relax}
     {\endlist}
@@ -64,7 +63,6 @@
         \small
         \leftmargin  1cm%
         \rightmargin \leftmargin
-        \phase\relax
       }%
       \item\relax}
     {\endlist}
