@@ -131,20 +131,16 @@ de dados textuais, e não na interação direta com o usuário.
 
 \textbf{Evolução da Tecnologia.} A evolução dos chatbots teve início na
 década de 1960, com sistemas baseados em regras simples e respostas
-pré-programadas. Um dos primeiros exemplos foi o ELIZA, desenvolvido por
-Joseph Weizenbaum no Massachusetts Institute of Technology (MIT) (WEIZENBAUM, 1966), que
-simulava conversas semelhantes às de um psicoterapeuta. Posteriormente,
-surgiram sistemas mais avançados, como o A.L.I.C.E. e o Cleverbot,
-lançado em 2008, que inovou ao aprender com interações humanas. Outro
-marco relevante ocorreu em 2011, com o sistema IBM Watson, e, no mesmo
-período, houve a popularização dos assistentes virtuais com o lançamento
-da Siri.
-
-Conforme destaca Filatro (2020, p. 66), o desenvolvimento dos chatbots
-acompanha a evolução das tecnologias de inteligência artificial, passando
-de sistemas baseados em regras para modelos capazes de aprender com dados
-e interações humanas, tornando-se cada vez mais sofisticados e
-eficientes.
+pré-programadas. O marco pioneiro dessa área foi o programa ELIZA,
+desenvolvido por Joseph Weizenbaum no Massachusetts Institute of
+Technology (MIT), que simulava uma conversa em linguagem natural por meio
+de correspondência de padrões textuais (WEIZENBAUM, 1966). Nas décadas
+seguintes, surgiram arquiteturas mais sofisticadas e assistentes virtuais
+comerciais impulsionados pelo avanço da inteligência artificial. Conforme
+destaca Filatro (2020, p. 66), o desenvolvimento dos chatbots acompanha
+essa evolução tecnológica, passando de sistemas baseados em regras fixas
+para modelos capazes de processar linguagem natural com maior fluidez e
+eficiência.
 
 \textbf{Funcionalidades e Aplicações.} Os chatbots modernos são capazes de
 conduzir conversas interativas mais longas e contextualizadas, pois
@@ -155,9 +151,15 @@ específicas, sem manter um contexto contínuo de interação.
 
 Os chatbots podem ser classificados de acordo com a abordagem de design
 empregada: chatbots de fluxo, baseados em árvore de decisão fixa;
-chatbots com IA, que aprendem a partir de dados reais de interação;
-chatbots com reconhecimento de fala; e chatbots com dados contextuais
-integrados. O chatbot desenvolvido neste trabalho combina um fluxo guiado por menus (primeira abordagem) com um classificador de intenções por similaridade textual, que não aprende durante o uso: ele compara a mensagem com frases de exemplo previamente cadastradas, conforme detalhado na Seção~\ref{sec:desenvolvimento}.
+chatbots orientados por Processamento de Linguagem Natural (PLN), que
+interpretam texto livre por meio de técnicas estatísticas ou modelos de
+aprendizado; chatbots com reconhecimento de fala; e chatbots com dados
+contextuais integrados. O chatbot desenvolvido neste trabalho combina um
+fluxo guiado por menus (primeira abordagem) com uma técnica clássica e
+leve de PLN, sem uso de modelos de linguagem: um classificador de
+intenções por similaridade textual (TF-IDF e cosseno) que não aprende
+durante o uso, mas compara a mensagem com frases de exemplo previamente
+cadastradas, conforme detalhado na Seção~\ref{sec:desenvolvimento}.
 
 \subsection{PLN}\label{sec:pln}
 
@@ -169,13 +171,15 @@ que possibilitam que os sistemas aprendam a partir de dados e interações,
 identificando palavras, interpretando contextos e reconhecendo intenções
 nas mensagens enviadas pelos usuários (IBM, 2026).
 
-Nesse contexto, o uso do PLN se torna essencial para o desenvolvimento de
-chatbots, como o proposto neste trabalho. No caso da secretaria acadêmica
-do IFSC -- Câmpus Garopaba, a aplicação dessa tecnologia permite criar um
-sistema capaz de compreender as dúvidas dos alunos e fornecer respostas
-de forma rápida e automatizada, contribuindo para a redução de demandas
-repetitivas e para a geração de dados sobre o atendimento -- algo
-inexistente no canal de WhatsApp atualmente utilizado.
+Nesse contexto, o uso do PLN torna-se essencial para o desenvolvimento de
+chatbots como o proposto neste trabalho. Embora existam abordagens
+baseadas em aprendizado contínuo e modelos de linguagem de grande porte,
+este protótipo adota uma técnica clássica e leve de PLN para interpretar
+as dúvidas dos alunos e fornecer respostas de forma rápida e
+automatizada no âmbito da Secretaria Acadêmica do IFSC -- Câmpus
+Garopaba, contribuindo para a redução de demandas repetitivas e para a
+geração de dados sobre o atendimento -- algo inexistente no canal de
+WhatsApp atualmente utilizado.
 
 Entre as técnicas clássicas de PLN para reconhecer a intenção de uma
 mensagem está a representação do texto por TF-IDF (\textit{Term
@@ -187,9 +191,9 @@ pela similaridade de cosseno, medida entre 0 e 1 que indica o quanto dois
 vetores apontam para a mesma direção, isto é, o quanto os textos
 compartilham termos relevantes. Combinadas, essas técnicas permitem
 classificar uma mensagem pela intenção do exemplo mais parecido, sem
-exigir grandes volumes de dados nem recursos computacionais elevados -- o
-que as torna adequadas a um sistema leve como o proposto neste trabalho.
-
+exigir grandes volumes de dados, treinamento contínuo nem recursos
+computacionais elevados -- o que as torna adequadas a um sistema leve
+como o proposto neste trabalho.
 \subsection{Flask}\label{sec:flask}
 
 O Flask é um framework utilizado na linguagem Python para o
@@ -646,17 +650,27 @@ ausentes ao iniciar o sistema e preserva os registros já existentes.
 \end{table}
 \begin{multicols}{2}
 
-O acesso ao painel da Secretaria é restrito a atendentes autenticados. As
-páginas administrativas são protegidas por uma verificação de sessão: quem
-tenta acessá-las sem estar autenticado é redirecionado à tela de \textit{login}.
-As senhas não são armazenadas em texto puro, mas sob a forma de \textit{hash},
-gerado pela biblioteca Werkzeug, e a sessão do atendente é assinada com uma
-chave secreta do Flask e encerrada ao sair. Essa proteção é relevante porque o
-painel reúne mensagens dos alunos, que podem conter informações pessoais, e
-dialoga com os cuidados exigidos pela Lei Geral de Proteção de Dados (LGPD).
-Por se tratar de um protótipo, o usuário inicial, criado automaticamente na
-primeira execução, e a chave de sessão são valores padrão, que devem ser
-substituídos antes de uma implantação real. Quanto aos dados dos usuários, o sistema não solicita nome, matrícula nem e-mail e registra apenas o identificador aleatório do navegador e o texto das mensagens, que o aluno escreve livremente; por isso, antes de uma implantação real, é necessário exibir um aviso de que as mensagens são registradas, definir a finalidade e o prazo de retenção dos registros e orientar o usuário a não informar dados pessoais no texto livre.
+O acesso ao painel da Secretaria é restrito exclusivamente a servidores
+autenticados. As páginas administrativas são protegidas por verificação
+de sessão: quem tenta acessá-las sem estar autenticado é redirecionado à
+tela de login. As senhas não são armazenadas em texto puro, mas sob a
+forma de \textit{hash} gerado pela biblioteca Werkzeug, e a sessão do
+atendente é assinada com uma chave secreta do Flask e encerrada ao sair.
+Por se tratar de um protótipo, o usuário inicial criado automaticamente
+na primeira execução e a chave de sessão são valores padrão que devem ser
+obrigatoriamente substituídos antes de uma implantação em produção.
+
+Quanto à privacidade dos usuários, em alinhamento ao princípio da
+minimização da Lei Geral de Proteção de Dados Pessoais -- LGPD
+(Lei n\textsuperscript{o}~13.709/2018) (BRASIL, 2018), o sistema não
+solicita login, nome completo, CPF, matrícula nem e-mail, registrando
+apenas o identificador aleatório de sessão e o texto das mensagens. Como
+o campo aberto permite que o usuário envie dados pessoais por iniciativa
+própria, a mensagem de boas-vindas exibe um aviso explícito informando
+que as interações são registradas para melhoria do atendimento e
+orientando a não informar dados sensíveis, ficando prevista para a
+implantação definitiva a definição formal da finalidade e do prazo de
+retenção dos registros.
 
 \subsection{Fluxo Guiado por Menus}
 
@@ -930,7 +944,7 @@ Para orientar o aprimoramento do classificador, analisaram-se quatro falhas repr
 
   \item \textbf{Sensibilidade a erros ortográficos:} na entrada ``preciso justficar uma auzencia'' (esperado: \texttt{justificativa\_ausencia}), os erros de digitação geraram tokens ausentes no vocabulário indexado pelo TF-IDF, resultando em similaridade máxima de 0,2558 (abaixo de 0,30) e falha também na busca por palavras-chave. A inclusão de \textit{n}-gramas de caracteres (3 a 5 letras) no \texttt{classifier.py} permitiria capturar semelhanças parciais mesmo diante de trocas ou omissões de letras.
 
-  \item \textbf{Falso positivo fora de escopo por termo institucional compartilhado:} a pergunta ``qual a senha do wifi do campus?'' (esperado: fora de escopo) foi classificada como \texttt{1.2} (similaridade 0,4648), pois a palavra ``campus'' aparece com frequência nos exemplos de cursos ofertados. Definir uma lista de \textit{stopwords} institucionais (como ``campus'', ``ifsc'' e ``garopaba'') evitaria que termos genéricos acionem serviços específicos.
+  \item \textbf{Falso positivo fora de escopo por termo institucional compartilhado:} a pergunta ``qual a senha do wifi do câmpus?'' (esperado: fora de escopo) foi classificada como \texttt{1.2} (similaridade 0,4648), pois a palavra ``câmpus'' aparece com frequência nos exemplos de cursos ofertados. Definir uma lista de \textit{stopwords} institucionais (como ``câmpus'', ``ifsc'' e ``garopaba'') evitaria que termos genéricos acionem serviços específicos.
 \end{itemize}
 
 \subsection{Registro no Painel e Validação com o Servidor da Secretaria}
