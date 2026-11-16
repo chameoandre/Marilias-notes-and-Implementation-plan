@@ -16,7 +16,7 @@
 
 \author{Marília Stefenon Rodrigues\inst{1}}
 
-\address{Instituto Federal de Santa Catarina -- Campus Garopaba (IFSC)\\
+\address{Instituto Federal de Santa Catarina -- Câmpus Garopaba (IFSC)\\
   Rua Maria Aparecida Barbosa, 153 -- Bairro Campo Duna -- 88.495-000 -- Garopaba -- SC -- Brasil
   \email{marilia.sr@aluno.ifsc.edu.br}
 }
@@ -26,11 +26,11 @@
 \maketitle
 
 \begin{abstract}
-Chatbots have been increasingly adopted in educational institutions to streamline information access and automate repetitive user support. At the Federal Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic Secretary handles frequent demands regarding enrollments, absence justifications, course offerings, financial aid, and diplomas mostly through WhatsApp, leading to staff overload and a complete lack of records on service volume or resolution rates. To address this problem, this paper presents the development of a lightweight web chatbot built with the Flask framework, combining guided menus, a free-text Natural Language Processing (NLP) classifier based on TF-IDF and cosine similarity (with keyword matching as a fallback), and a control panel backed by SQLite to log every interaction. In a controlled evaluation using 52 unseen test messages, the NLP-enabled mode achieved 65.4\% overall accuracy (34/52), outperforming the keyword-only mode at 51.9\% (27/52) by 13.5 percentage points, while the control panel logged end-to-end demand statuses and user satisfaction. These results demonstrate that a lightweight, dependency-free NLP architecture is viable for supporting academic secretariats and generating service metrics without requiring heavy language models.
+Chatbots have been increasingly adopted in educational institutions to streamline information access and automate repetitive user support. At the Federal Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic Secretary handles frequent demands regarding enrollments, absence justifications, course offerings, financial aid, and diplomas mostly through WhatsApp, leading to staff overload and a complete lack of records on service volume or resolution rates. To address this problem, this paper presents the development of a lightweight web chatbot built with the Flask framework, combining guided menus, a free-text Natural Language Processing (NLP) classifier based on TF-IDF and cosine similarity (with keyword matching as a fallback), and a control panel backed by SQLite to log every interaction. In a controlled evaluation using 52 unseen test messages, the NLP-enabled mode achieved 65.4\% overall accuracy (34/52), outperforming the keyword-only mode at 51.9\% (27/52) by 13.5 percentage points, while the control panel logged end-to-end demand statuses and user satisfaction. These results indicate that a lightweight NLP architecture, without machine-learning libraries or large language models, is viable for supporting academic secretariats and generating service metrics without requiring heavy language models.
 \end{abstract}
 
 \begin{resumo}
-Os chatbots têm sido cada vez mais adotados em instituições de ensino para agilizar o acesso à informação e automatizar atendimentos repetitivos. No Instituto Federal de Santa Catarina (IFSC) -- Câmpus Garopaba, a Secretaria Acadêmica atende demandas recorrentes sobre matrículas, justificativas de ausência, cursos ofertados, auxílio estudantil e diplomas majoritariamente via WhatsApp, o que gera sobrecarga na equipe e completa ausência de registros sobre o volume ou a conclusão dos atendimentos. Para enfrentar esse problema, este trabalho apresenta o desenvolvimento de um chatbot web leve construído com o framework Flask, combinando menus guiados, interpretação de texto livre por Processamento de Linguagem Natural (PLN) baseada em TF-IDF e similaridade de cosseno (com busca por palavras-chave como contingência) e um painel de controle em SQLite para registrar cada interação. Em uma avaliação controlada com 52 mensagens inéditas, o modo com PLN atingiu 65,4\% de acerto geral (34/52), superando em 13,5 pontos percentuais o modo restrito a palavras-chave, que obteve 51,9\% (27/52), enquanto o painel comprovou o registro ponta a ponta dos status e da satisfação dos usuários. Os resultados demonstram que uma arquitetura leve e sem dependências externas é viável para apoiar secretarias acadêmicas e gerar métricas de atendimento sem exigir modelos de linguagem pesados.
+Os chatbots têm sido cada vez mais adotados em instituições de ensino para agilizar o acesso à informação e automatizar atendimentos repetitivos. No Instituto Federal de Santa Catarina (IFSC) -- Câmpus Garopaba, a Secretaria Acadêmica atende demandas recorrentes sobre matrículas, justificativas de ausência, cursos ofertados, auxílio estudantil e diplomas majoritariamente via WhatsApp, o que gera sobrecarga na equipe e completa ausência de registros sobre o volume ou a conclusão dos atendimentos. Para enfrentar esse problema, este trabalho apresenta o desenvolvimento de um chatbot web leve construído com o framework Flask, combinando menus guiados, interpretação de texto livre por Processamento de Linguagem Natural (PLN) baseada em TF-IDF e similaridade de cosseno (com busca por palavras-chave como contingência) e um painel de controle em SQLite para registrar cada interação. Em uma avaliação controlada com 52 mensagens inéditas, o modo com PLN atingiu 65,4\% de acerto geral (34/52), superando em 13,5 pontos percentuais o modo restrito a palavras-chave, que obteve 51,9\% (27/52), enquanto o painel comprovou o registro ponta a ponta dos status e da satisfação dos usuários. Os resultados indicam que uma arquitetura leve, sem bibliotecas de aprendizado de máquina nem modelos de linguagem de grande porte, é viável para apoiar secretarias acadêmicas e gerar métricas de atendimento sem exigir modelos de linguagem pesados.
 \end{resumo}
 
 \begin{multicols}{2}
@@ -60,7 +60,7 @@ eficiente (IBM, 2026).
 No ambiente acadêmico, as secretarias exercem papel fundamental no
 suporte aos estudantes, sendo responsáveis pelo atendimento de demandas
 relacionadas a matrículas, emissão de documentos, prazos, transferências
-e orientações gerais. No caso do IFSC -- Campus Garopaba, esse
+e orientações gerais. No caso do IFSC -- Câmpus Garopaba, esse
 atendimento é realizado principalmente por WhatsApp, canal em que,
 conforme relatado pela própria Secretaria Acadêmica, não há qualquer
 controle sobre o volume de atendimentos realizados, a taxa de conclusão
@@ -132,7 +132,7 @@ de dados textuais, e não na interação direta com o usuário.
 \textbf{Evolução da Tecnologia.} A evolução dos chatbots teve início na
 década de 1960, com sistemas baseados em regras simples e respostas
 pré-programadas. Um dos primeiros exemplos foi o ELIZA, desenvolvido por
-Joseph Weizenbaum no Massachusetts Institute of Technology (MIT), que
+Joseph Weizenbaum no Massachusetts Institute of Technology (MIT) (WEIZENBAUM, 1966), que
 simulava conversas semelhantes às de um psicoterapeuta. Posteriormente,
 surgiram sistemas mais avançados, como o A.L.I.C.E. e o Cleverbot,
 lançado em 2008, que inovou ao aprender com interações humanas. Outro
@@ -157,8 +157,7 @@ Os chatbots podem ser classificados de acordo com a abordagem de design
 empregada: chatbots de fluxo, baseados em árvore de decisão fixa;
 chatbots com IA, que aprendem a partir de dados reais de interação;
 chatbots com reconhecimento de fala; e chatbots com dados contextuais
-integrados. O chatbot desenvolvido neste trabalho combina as duas
-primeiras abordagens, conforme detalhado na Seção~\ref{sec:desenvolvimento}.
+integrados. O chatbot desenvolvido neste trabalho combina um fluxo guiado por menus (primeira abordagem) com um classificador de intenções por similaridade textual, que não aprende durante o uso: ele compara a mensagem com frases de exemplo previamente cadastradas, conforme detalhado na Seção~\ref{sec:desenvolvimento}.
 
 \subsection{PLN}\label{sec:pln}
 
@@ -172,7 +171,7 @@ nas mensagens enviadas pelos usuários (IBM, 2026).
 
 Nesse contexto, o uso do PLN se torna essencial para o desenvolvimento de
 chatbots, como o proposto neste trabalho. No caso da secretaria acadêmica
-do IFSC -- Campus Garopaba, a aplicação dessa tecnologia permite criar um
+do IFSC -- Câmpus Garopaba, a aplicação dessa tecnologia permite criar um
 sistema capaz de compreender as dúvidas dos alunos e fornecer respostas
 de forma rápida e automatizada, contribuindo para a redução de demandas
 repetitivas e para a geração de dados sobre o atendimento -- algo
@@ -215,7 +214,7 @@ horários, disciplinas e demais serviços acadêmicos.
 
 Um exemplo particularmente relevante, por tratar-se do mesmo instituto
 proponente deste trabalho, é o de Santos et al. (2024), que apresentam um
-chatbot para atendimento da Secretaria Acadêmica do IFSC -- Campus
+chatbot para atendimento da Secretaria Acadêmica do IFSC -- Câmpus
 Gaspar, construído com o framework Rasa e a abordagem de Linguagem
 Simples. Os autores partiram da análise de conversas reais extraídas do
 WhatsApp do setor para identificar os tópicos mais recorrentes, chegando
@@ -510,7 +509,7 @@ implementado em Python puro, em vez de utilizar bibliotecas de aprendizado
 de máquina como o \textit{scikit-learn}. A opção por um classificador
 leve baseado em TF-IDF e similaridade de cosseno, em vez de modelos de
 linguagem de grande porte (LLMs) ou arquiteturas de \textit{Retrieval-Augmented
-Generation} (RAG), fundamenta-se em três razões práticas. Primeiro, a
+Generation} (RAG), fundamenta-se em quatro razões práticas. Primeiro, a
 \textbf{precisão institucional}: como observado por Antico et al. (2024),
 modelos generativos podem produzir respostas imprecisas ou links
 inexistentes, enquanto respostas fixas e previamente revisadas pela
@@ -520,7 +519,7 @@ de mensagens de estudantes -- que frequentemente contêm dados pessoais ou
 situações acadêmicas sensíveis -- para APIs de terceiros. Terceiro,
 \textbf{custo e infraestrutura}: a arquitetura adotada executa em Python
 puro, sem exigir GPUs, servidores dedicados ou pagamento por volume de
-tokens. Ainda assim, o uso de RAG representa a evolução natural do sistema
+tokens. Quarto, a \textbf{sequência de evolução da solução}: o problema central identificado na entrevista é a ausência de registro e de métricas sobre o que é solicitado e o que é resolvido (Seção~\ref{sec:entrevista}), e não apenas a geração de respostas. Por isso, a primeira etapa foi organizar e medir o atendimento, com menus, registro de demandas, status e pergunta de satisfação. O mapeamento dos processos (Figuras~\ref{fig:justificativa} a~\ref{fig:matricula}) mostrou que a informação institucional está distribuída em diferentes páginas e sistemas do IFSC, em processos de mais de quinze etapas, e a qualidade das respostas de um sistema baseado em recuperação de documentos depende da organização e da atualização dessa base, como indicam as imprecisões e os links inexistentes relatados por Antico et al. (2024). Os dados produzidos pelo painel (assuntos mais demandados, perguntas sem resposta e atendimentos não resolvidos) indicam quais partes da base institucional devem ser organizadas primeiro e servem de conjunto de avaliação para uma etapa posterior com RAG. Nesse sentido, o uso de RAG representa a evolução natural do sistema
 para responder a dúvidas fora das 13 intenções mapeadas, e o isolamento do
 módulo de PLN na arquitetura permite substituir ou complementar o
 classificador atual sem alterar o núcleo do chatbot. A Tabela~\ref{tab:modulos} resume a
@@ -555,8 +554,7 @@ responsabilidade de cada arquivo do projeto.
 A interface de conversa é uma única página web, com uma janela de mensagens, um
 campo de texto e um seletor que permite ligar ou desligar o modo com PLN
 durante a conversa -- recurso criado para comparar os dois comportamentos nos
-testes. Ao carregar a página, o navegador gera um identificador aleatório para
-aquela sessão de conversa. O sistema não solicita \textit{login}, nome ou
+testes. Na primeira visita, o navegador gera um identificador aleatório e o guarda no armazenamento local (\textit{localStorage}), de modo que a mesma pessoa mantém o identificador ao recarregar a página ou reabrir o navegador, exceto se limpar os dados do navegador, usar uma janela anônima ou trocar de dispositivo. O sistema não solicita \textit{login}, nome ou
 matrícula ao aluno, de modo que nenhum dado pessoal é coletado além do que o
 próprio usuário escreve nas mensagens.
 
@@ -602,8 +600,7 @@ O núcleo do chatbot mantém, em memória, o ponto do menu em que cada usuário 
 encontra (menu principal ou submenu da Secretaria), o que permite interpretar
 corretamente os números digitados em cada contexto. Como esse estado fica
 apenas em memória, ele é reiniciado quando o servidor é reiniciado -- uma
-limitação aceitável para o protótipo, mas que precisaria ser tratada em um
-sistema em produção.
+limitação aceitável para o protótipo, mas que precisaria ser tratada em um sistema em produção. Além disso, ao abrir a página o chatbot sempre exibe a mensagem de boas-vindas, sem recarregar as mensagens da conversa anterior, embora todas as interações permaneçam gravadas no banco de dados, associadas ao identificador do usuário.
 
 \subsection{Persistência de Dados e Controle de Acesso}\label{sec:dados}
 
@@ -659,7 +656,7 @@ painel reúne mensagens dos alunos, que podem conter informações pessoais, e
 dialoga com os cuidados exigidos pela Lei Geral de Proteção de Dados (LGPD).
 Por se tratar de um protótipo, o usuário inicial, criado automaticamente na
 primeira execução, e a chave de sessão são valores padrão, que devem ser
-substituídos antes de uma implantação real.
+substituídos antes de uma implantação real. Quanto aos dados dos usuários, o sistema não solicita nome, matrícula nem e-mail e registra apenas o identificador aleatório do navegador e o texto das mensagens, que o aluno escreve livremente; por isso, antes de uma implantação real, é necessário exibir um aviso de que as mensagens são registradas, definir a finalidade e o prazo de retenção dos registros e orientar o usuário a não informar dados pessoais no texto livre.
 
 \subsection{Fluxo Guiado por Menus}
 
@@ -882,7 +879,7 @@ volume de atendimentos realizados, a proporção de dúvidas resolvidas pelo
 chatbot segundo os próprios usuários e os assuntos mais demandados pelos
 estudantes.
 O código-fonte completo do protótipo e do painel de controle está
-disponível em repositório público\footnote{\url{https://github.com/marilia79/chatbot}}.
+disponível em repositório público\footnote{\url{https://github.com/marilia79/chatbot}}. O protótipo hospedado pode ser testado em \url{https://marilia.pythonanywhere.com/}.
 
 
 \section{Resultados}\label{sec:resultados}
@@ -918,9 +915,9 @@ Cada mensagem foi submetida ao sistema no modo restrito a palavras-chave e no mo
 \end{table}
 \begin{multicols}{2}
 
-Os resultados mostram que o PLN não superou o método por palavras-chave em todas as categorias, mas trouxe ganhos expressivos na flexibilidade semântica: enquanto as palavras-chave obtiveram 0,0\% nas expressões de cortesia e 20,0\% em \textit{Inscrições em aberto}, o PLN atingiu 100,0\% em ambos os grupos, reconhecendo variações como ``quando abre o próximo vestibular?'' e ``mano tem inscrição aberta pra algum curso agr?''. Em contrapartida, o modo por palavras-chave superou o PLN em \textit{Cursos ofertados} (80,0\% contra 60,0\%) e \textit{Fora de escopo} (100,0\% contra 80,0%), pois termos genéricos presentes nos exemplos de treino provocaram falsos positivos em perguntas externas.
+Os resultados mostram que o PLN não superou o método por palavras-chave em todas as categorias, mas trouxe ganhos expressivos na flexibilidade semântica: enquanto as palavras-chave obtiveram 0,0\% nas expressões de cortesia e 20,0\% em \textit{Inscrições em aberto}, o PLN atingiu 100,0\% em ambos os grupos, reconhecendo variações como ``quando abre o próximo vestibular?'' e ``mano tem inscrição aberta pra algum curso agr?''. Em contrapartida, o modo por palavras-chave superou o PLN em \textit{Cursos ofertados} (80,0\% contra 60,0\%) e \textit{Fora de escopo} (100,0\% contra 80,0\%), pois termos genéricos presentes nos exemplos de treino provocaram falsos positivos em perguntas externas.
 
-A fixação do limiar de similaridade em 0,30 foi validada por meio de testes comparativos com os valores 0,20 e 0,40, buscando equilibrar sensibilidade e prevenção de respostas incorretas. Com o limiar em 0,20, o acerto global recuou para 61,5\% (32/52), pois o modelo tornou-se permissivo demais e respondeu indevidamente a 7 das 10 perguntas fora de escopo (reduzindo a rejeição correta de 80,0\% para 30,0\%). Já ao elevar o limiar para 0,40, o acerto global caiu para 57,7\% (30/52), uma vez que formulações válidas com sinônimos deixaram de atingir a pontuação mínima exigida, derrubando a precisão em \textit{Inscrições em aberto} de 100,0\% para 40,0\%.
+A fixação do limiar de similaridade em 0,30 foi validada por meio de testes comparativos com os valores 0,20 e 0,40, buscando equilibrar sensibilidade e prevenção de respostas incorretas. Com o limiar em 0,20, o acerto global recuou para 61,5\% (32/52), pois o modelo tornou-se permissivo demais e respondeu indevidamente a 7 das 10 perguntas fora de escopo (reduzindo a rejeição correta de 80,0\% para 30,0\%). Já ao elevar o limiar para 0,40, o acerto global caiu para 57,7\% (30/52), uma vez que formulações válidas com sinônimos deixaram de atingir a pontuação mínima exigida, derrubando a precisão em \textit{Inscrições em aberto} de 100,0\% para 40,0\%. Como essa comparação de limiares foi feita sobre o mesmo conjunto de 52 mensagens usado para medir o desempenho, os valores reportados podem estar otimistas; uma avaliação mais rigorosa exigiria separar um conjunto de ajuste e outro de teste.
 
 \subsection{Análise de Erros}
 
@@ -941,11 +938,8 @@ Para orientar o aprimoramento do classificador, analisaram-se quatro falhas repr
 O painel de controle já é capaz de registrar cada atendimento realizado
 pelo chatbot, incluindo o protocolo, a mensagem recebida, a intenção reconhecida pelo módulo de PLN e se o usuário informou que a dúvida foi sanada ou não -- um retrato exatamente do tipo de dado que, segundo
 relatado na entrevista (Seção~\ref{sec:entrevista}), inexiste no atendimento atual via
-WhatsApp. Em uma rodada de testes realizada durante o desenvolvimento, o
-painel registrou um total de 23 demandas, das quais 22 permaneceram
-pendentes de triagem pelo atendente e 1 foi marcada como resolvida,
-demonstrando que o fluxo de registro, classificação de status (pendente,
-em análise, resolvido) e listagem das demandas funciona de ponta a ponta.
+WhatsApp. % CONFERIR: numeros abaixo vieram do banco do prototipo hospedado; recontar no painel antes da entrega
+No protótipo hospedado, o banco de dados registrou 74 demandas, associadas a 5 identificadores distintos de navegador, das quais 70 permaneciam pendentes de triagem e 4 haviam sido marcadas como resolvidas pelo atendente. Nas respostas à pergunta de satisfação, o modo com PLN recebeu 6 respostas \textit{sim} e 1 \textit{não}, e o modo por palavras-chave, 3 respostas \textit{sim} e nenhuma \textit{não}. O volume é pequeno demais para comparar os modos, mas demonstra que o fluxo de registro, a classificação de status (pendente, em análise, resolvido) e a listagem das demandas funcionam de ponta a ponta.
 
 Em outubro de 2026, o protótipo foi apresentado ao servidor responsável
 pela Secretaria Acadêmica, futuro usuário da ferramenta, com o objetivo
@@ -988,27 +982,23 @@ resultados e tratadas antes de uma implantação definitiva:
   \item \textbf{Estado da conversa mantido apenas em memória:} o controle
   do ponto do menu em que o usuário se encontra fica armazenado na memória
   do servidor Flask; caso a aplicação seja reiniciada, as sessões ativas
-  perdem o contexto da navegação.
+  perdem o contexto da navegação. Além disso, as mensagens anteriores não são recarregadas na tela quando a página é reaberta, embora permaneçam registradas no banco de dados.
 
   \item \textbf{Ausência de identificação do usuário:} embora dispense o
   cadastro prévio e reduza o atrito inicial, o anonimato impede que o
-  chatbot consulte a situação acadêmica individual do aluno ou dê
-  continuidade a atendimentos anteriores.
+  chatbot consulte a situação acadêmica individual do aluno ou dê continuidade a atendimentos anteriores. Uma evolução possível é permitir a consulta do status e do parecer de demandas anteriores, primeiro no mesmo navegador (a partir do identificador já gravado) e, depois, por meio do número de protocolo ou de um e-mail verificado por código, o que exigiria os cuidados com a LGPD descritos na Seção~\ref{sec:dados}.
 
   \item \textbf{Amostra reduzida de testes:} a avaliação quantitativa foi
   conduzida em ambiente controlado com 52 mensagens inéditas elaboradas
   para o estudo, o que não substitui a análise estatística sobre o volume
   real de atendimentos em período de matrícula.
 \end{itemize}
-O chatbot pode ser testado através do link https://marilia.pythonanywhere.com/.
-Uma avaliação quantitativa, com base nos dados
-registrados pelo painel de controle durante um período de uso real, segue
-prevista como trabalho futuro.
+
 
 \section{Considerações Finais}
 
 Este trabalho apresentou o desenvolvimento de um chatbot voltado ao
-atendimento da Secretaria Acadêmica do IFSC -- Campus Garopaba,
+atendimento da Secretaria Acadêmica do IFSC -- Câmpus Garopaba,
 utilizando o framework leve Flask, um módulo de interpretação de texto
 livre baseado em TF-IDF e similaridade de cosseno e um painel de
 controle para registro das interações. A proposta buscou enfrentar tanto
@@ -1055,8 +1045,7 @@ saudação, filtrando cumprimentos no início de mensagens extensas,
 adicionando \textit{stopwords} institucionais e incorporando \textit{n}-gramas de
 caracteres para tolerância a erros de digitação --, além de ampliar as
 respostas específicas por serviço e conduzir um período de uso real com
-estudantes do câmpus para analisar os indicadores consolidados no painel
-de controle.
+estudantes do câmpus para analisar os indicadores consolidados no painel de controle. Em uma etapa seguinte, a partir desses indicadores, pretende-se organizar a base de conhecimento institucional dos serviços mais demandados e avaliar uma abordagem com RAG, comparando-a ao classificador atual sobre o mesmo conjunto de teste, além de permitir ao usuário consultar o status e o parecer de demandas anteriores.
 
 \section{Referências}
 
