@@ -26,50 +26,11 @@
 \maketitle
 
 \begin{abstract}
-The advancement of computing and artificial intelligence has enabled the
-automation of tasks once performed exclusively by humans, such as user
-support, typically carried out by chatbots -- virtual agents that
-standardize and streamline access to information. At the Federal
-Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic
-Secretary handles demands such as absence justification, early student
-release, financial aid, enrollment, course offerings, diplomas and
-graduation, mostly through WhatsApp, with no record of service volume or
-completion. Given the high demand and limited staff, the sector becomes
-overloaded due to the lack of automated responses. This paper presents
-the development of a chatbot to support the demands of the Academic
-Secretary/Registry, the CERE and the Student Assistance office at the
-Garopaba Campus, built with the lightweight Flask framework and a
-control panel to log every interaction. Requirements were gathered with the staff member
-responsible for the campus secretary, based on the most frequent
-WhatsApp requests, together with flow diagrams representing how students
-navigate the IFSC website to justify an absence, enroll in a course and
-complete enrollment.
+Chatbots have been increasingly adopted in educational institutions to streamline information access and automate repetitive user support. At the Federal Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic Secretary handles frequent demands regarding enrollments, absence justifications, course offerings, financial aid, and diplomas mostly through WhatsApp, leading to staff overload and a complete lack of records on service volume or resolution rates. To address this problem, this paper presents the development of a lightweight web chatbot built with the Flask framework, combining guided menus, a free-text Natural Language Processing (NLP) classifier based on TF-IDF and cosine similarity (with keyword matching as a fallback), and a control panel backed by SQLite to log every interaction. In a controlled evaluation using 52 unseen test messages, the NLP-enabled mode achieved 65.4\% overall accuracy (34/52), outperforming the keyword-only mode at 51.9\% (27/52) by 13.5 percentage points, while the control panel logged end-to-end demand statuses and user satisfaction. These results demonstrate that a lightweight, dependency-free NLP architecture is viable for supporting academic secretariats and generating service metrics without requiring heavy language models.
 \end{abstract}
 
 \begin{resumo}
-O avanço da computação e da inteligência artificial, com o
-desenvolvimento de máquinas e algoritmos cada vez mais capazes de imitar
-o ser humano, tem possibilitado a execução de tarefas antes
-exclusivamente humanas, como o atendimento ao usuário -- normalmente
-realizado por chatbots, agentes virtuais que padronizam e facilitam o
-acesso à informação, podendo inclusive executar tarefas mais complexas
-conforme a finalidade. No IFSC -- Câmpus Garopaba, a Secretaria
-Acadêmica é responsável por diversas demandas dos alunos e da comunidade
-em geral, como justificativa de ausência escolar, saída antecipada,
-auxílio financeiro, matrícula, cursos ofertados, diplomas e formatura,
-hoje atendidas majoritariamente via WhatsApp, sem qualquer registro de
-volume ou conclusão dos atendimentos. Dada a grande demanda e o quadro
-reduzido de servidores, o setor acaba sobrecarregado pela ausência de
-informatização das respostas. Este trabalho apresenta o desenvolvimento
-de um chatbot de apoio às demandas da Secretaria/Registro Acadêmico, do
-CERE e da Assistência Estudantil do Câmpus Garopaba, construído com o
-framework leve Flask e um
-painel de controle para registro dos atendimentos realizados. O
-levantamento de requisitos foi feito junto ao servidor responsável pela
-secretaria do campus, com base nos atendimentos mais recorrentes via
-WhatsApp, além da elaboração de diagramas representando o caminho
-percorrido pelo aluno no site do IFSC para justificar uma ausência,
-inscrever-se em um curso e efetuar matrícula.
+Os chatbots têm sido cada vez mais adotados em instituições de ensino para agilizar o acesso à informação e automatizar atendimentos repetitivos. No Instituto Federal de Santa Catarina (IFSC) -- Câmpus Garopaba, a Secretaria Acadêmica atende demandas recorrentes sobre matrículas, justificativas de ausência, cursos ofertados, auxílio estudantil e diplomas majoritariamente via WhatsApp, o que gera sobrecarga na equipe e completa ausência de registros sobre o volume ou a conclusão dos atendimentos. Para enfrentar esse problema, este trabalho apresenta o desenvolvimento de um chatbot web leve construído com o framework Flask, combinando menus guiados, interpretação de texto livre por Processamento de Linguagem Natural (PLN) baseada em TF-IDF e similaridade de cosseno (com busca por palavras-chave como contingência) e um painel de controle em SQLite para registrar cada interação. Em uma avaliação controlada com 52 mensagens inéditas, o modo com PLN atingiu 65,4\% de acerto geral (34/52), superando em 13,5 pontos percentuais o modo restrito a palavras-chave, que obteve 51,9\% (27/52), enquanto o painel comprovou o registro ponta a ponta dos status e da satisfação dos usuários. Os resultados demonstram que uma arquitetura leve e sem dependências externas é viável para apoiar secretarias acadêmicas e gerar métricas de atendimento sem exigir modelos de linguagem pesados.
 \end{resumo}
 
 \begin{multicols}{2}
@@ -299,36 +260,58 @@ presente trabalho busca contribuir com uma solução voltada
 especificamente ao atendimento da Secretaria Acadêmica do IFSC -- Câmpus
 Garopaba, diferenciando-se dos trabalhos citados por adotar um framework
 leve (Flask) combinado a um módulo de PLN também leve, baseado em similaridade textual (TF-IDF) e busca por palavras-chave, que dispensa modelos de linguagem de grande porte, e por incorporar um painel de controle que supre a lacuna de métricas
-identificada no atendimento atual via WhatsApp -- aspecto não abordado
-pelos demais trabalhos relacionados.
+identificada no atendimento atual via WhatsApp, recurso que os demais
+trabalhos relacionados não detalham como ferramenta de acompanhamento
+administrativo da secretaria.
 
-\section{Entrevista com a Secretaria Acadêmica}\label{sec:entrevista}
+\section{Entrevista e Levantamento de Requisitos}\label{sec:entrevista}
 
-Durante as conversas realizadas com o servidor responsável pela
-Secretaria Acadêmica do IFSC Campus Garopaba, foi possível identificar as
-principais dúvidas apresentadas pela comunidade acadêmica, hoje recebidas
-majoritariamente pelo WhatsApp institucional do setor. Segundo o relato,
-as perguntas mais frequentes são: qual o procedimento para justificar uma
-falta; quais cursos são ofertados pelo campus e quais possuem inscrições
-em aberto; como saber se o aluno foi aprovado ou sorteado em um processo
-seletivo; como e quando é feita a matrícula; e dúvidas relacionadas a
-auxílio financeiro estudantil.
+Em meados de agosto de 2026, foi realizado o levantamento de requisitos
+junto ao servidor responsável pela Secretaria Acadêmica do IFSC -- Câmpus
+Garopaba, profissional que atua diretamente no atendimento presencial e
+pelo WhatsApp institucional do setor. O processo ocorreu de forma
+iterativa, por meio de conversas presenciais e trocas de mensagens via
+WhatsApp, utilizadas tanto para mapear as demandas mais frequentes da
+comunidade quanto para esclarecer regras acadêmicas e apresentar as
+versões intermediárias do chatbot ao longo do desenvolvimento.
 
-O servidor relatou ainda que a resolução de cada uma dessas demandas
-costuma exigir várias trocas de mensagens até que o atendimento seja de
-fato concluído, e que esse atendimento não ocorre de forma instantânea:
-há pausas ao longo do processo, já que o WhatsApp é apenas um dos canais
-de trabalho do setor e nem sempre pode ser respondido no mesmo instante
-em que a mensagem é recebida.
+Segundo o servidor, o atendimento via WhatsApp exige múltiplas trocas de
+mensagens para cada solicitação e não ocorre de forma instantânea, pois o
+canal concorre com outras rotinas administrativas. Além disso, o setor
+não dispõe de registros sobre o volume diário de atendimentos, a taxa de
+conclusão ou a natureza dos assuntos tratados.
 
-Um ponto central identificado na entrevista é a completa ausência de
-métricas sobre esse atendimento: a secretaria não possui controle de
-quantos atendimentos são realizados por dia, quantos são efetivamente
-concluídos e quantos ficam em aberto, tampouco de quantas mensagens
-recebidas dizem respeito à própria secretaria e quantas são
-encaminhamentos de dúvidas de outras áreas do campus. Essa lacuna
-dificulta o planejamento do setor e a identificação de gargalos no
-atendimento.
+A partir desse levantamento, identificaram-se cinco perguntas
+recorrentes enviadas pela comunidade, que foram convertidas nos
+requisitos funcionais do protótipo e vinculadas às respectivas soluções
+no sistema:
+
+\begin{itemize}
+  \item \textbf{R1 -- ``Quais cursos têm no IFSC?''} Atendido pela
+  opção \textit{Cursos ofertados} no submenu da Secretaria (opção 1.2) e
+  pela intenção correspondente no módulo de texto livre, que direciona o
+  usuário à página oficial de cursos do câmpus e ao perfil institucional;
+  \item \textbf{R2 -- ``Como faço para trancar ou cancelar minha
+  matrícula?''} Atendido pela opção \textit{Requerimento} (opção 1.1) e
+  pela intenção de requerimentos em texto livre, que orienta o estudante
+  a protocolar a solicitação no sistema de Requerimento Online;
+  \item \textbf{R3 -- ``Como faço para transferência de curso?''}
+  Incorporado ao fluxo de solicitações acadêmicas formais da opção
+  \textit{Requerimento} (opção 1.1) e ao encaminhamento para atendimento
+  humano (opção 4), permitindo orientar sobre o protocolo eletrônico ou
+  transferir casos específicos de movimentação acadêmica;
+  \item \textbf{R4 -- ``Minha filha(o) precisa sair mais cedo, você pode
+  liberar?''} Atendido pela opção \textit{Coordenação/Assistência
+  Estudantil} no menu principal (opção 3) e pela intenção específica no
+  classificador de texto livre, que informa os telefones e o e-mail da
+  Coordenadoria Pedagógica responsável pela liberação;
+  \item \textbf{R5 -- ``Como faço para saber se fui aprovado?''}
+  Atendido pela opção \textit{Cursos com inscrições em aberto} (opção
+  1.3) e pela intenção de processos seletivos no texto livre, que
+  fornece o acesso direto ao Sistema de Ingresso do IFSC para consulta
+  de editais e resultados, complementado pela opção de atendente humano
+  para dúvidas individuais.
+\end{itemize}
 
 Com base nessas informações, o desenvolvimento de um chatbot para a
 Secretaria Acadêmica do IFSC Garopaba surge como uma alternativa para
@@ -339,87 +322,68 @@ acompanhamento que hoje não existem no canal de WhatsApp.
 \section{Metodologia}\label{sec:metodologia}
 
 Para o desenvolvimento deste trabalho, adotou-se uma abordagem de
-pesquisa aplicada e de caráter qualitativo, envolvendo pesquisa
-bibliográfica, levantamento de requisitos, desenvolvimento de um
-protótipo de chatbot e um painel de controle de demandas vindas do chatbot, estruturada nas seguintes etapas:
+pesquisa aplicada, organizada em seis etapas sequenciais:
 
 \begin{itemize}
-  
+  \item \textbf{1. Pesquisa bibliográfica:} revisão de literatura sobre
+  chatbots, Processamento de Linguagem Natural (TF-IDF e similaridade de
+  cosseno), framework Flask e soluções correlatas aplicadas a
+  secretarias acadêmicas (Seções~\ref{sec:conceitos}
+  e~\ref{sec:trabalhos});
 
-  \item \textbf{Pesquisa bibliográfica:} realizada sobre inteligência
-  artificial, chatbots, Processamento de Linguagem Natural e
-  desenvolvimento de aplicações web com o framework Flask, com o objetivo
-  de compreender os conceitos e tecnologias envolvidas (Seção~\ref{sec:conceitos}) e situar
-  o trabalho em relação a soluções semelhantes já publicadas (Seção~\ref{sec:trabalhos});
+  \item \textbf{2. Entrevista e levantamento de requisitos:} encontros
+  presenciais e interações via WhatsApp, em meados de agosto de 2026,
+  com o servidor responsável pelo atendimento da Secretaria Acadêmica do
+  IFSC Garopaba, definindo os requisitos funcionais e a base inicial de
+  conhecimento (Seção~\ref{sec:entrevista});
 
-  \item \textbf{Levantamento das informações da secretaria acadêmica:}
-  realizado por meio de entrevista com o servidor responsável pelo setor
-  (Seção~\ref{sec:entrevista}), permitindo identificar as dúvidas mais recorrentes dos
-  estudantes e da comunidade em geral, a dinâmica atual do atendimento via WhatsApp e a ausência
-  de métricas como problema central a ser mitigado pela solução;
+  \item \textbf{3. Mapeamento dos processos institucionais:} modelagem
+  em fluxogramas do caminho percorrido pelo estudante no site do IFSC
+  para justificar ausência, inscrever-se em cursos e efetivar matrícula
+  (Figuras~\ref{fig:justificativa} a~\ref{fig:matricula}), servindo de
+  base para sintetizar as respostas do chatbot;
 
-  \item \textbf{Mapeamento dos processos atuais no site do IFSC:} para
-  compreender o caminho hoje percorrido pelo aluno para resolver suas
-  próprias demandas sem intermédio da secretaria, foram elaborados diagramas (Figuras~\ref{fig:justificativa} a~\ref{fig:matricula}) detalhando o passo a passo de três processos frequentemente
-  perguntados à Secretaria Acadêmica (Seção~\ref{sec:entrevista}): a justificativa de
-  ausência escolar, a inscrição em um processo seletivo e o
-  acompanhamento do curso até a efetivação da matrícula. Esse mapeamento
-  evidenciou a extensão e a complexidade desses processos -- envolvendo,
-  em alguns casos, mais de quinze etapas distribuídas em diferentes
-  sistemas do IFSC -- e serviu de base para a definição do conteúdo das
-  respostas do chatbot;
+  \item \textbf{4. Desenvolvimento do protótipo e do painel:}
+  implementação incremental da aplicação web em Python com Flask,
+  integrando o fluxo guiado por menus, o módulo de texto livre com PLN e
+  palavras-chave, o registro de demandas em SQLite e o painel
+  administrativo (Seção~\ref{sec:desenvolvimento});
 
-  \item \textbf{Modelagem do fluxo de atendimento:} o fluxo de decisão do
-  chatbot foi representado por meio de diagramas, elaborados para
-  descrever visualmente o caminho de navegação do sistema -- da mensagem
-  de boas-vindas às opções do menu, ao tratamento de texto livre e ao
-  encerramento do atendimento -- servindo de guia direto para a implementação (Figura~\ref{fig:fluxo_chatbot} e Seção~\ref{sec:desenvolvimento});
+  \item \textbf{5. Avaliação quantitativa:} execução de testes
+  controlados com 52 mensagens inéditas para comparar a taxa de acerto
+  entre o modo restrito a palavras-chave e o modo com PLN em diferentes
+  limiares de similaridade, seguida da análise de erros
+  (Seção~\ref{sec:resultados});
 
-  \item \textbf{Organização da base de conhecimento:} com base nas
-  informações coletadas na entrevista, foi organizada uma base com as respostas do chatbot, 43 palavras-chave relacionadas a matrículas, documentos, cursos e demais serviços acadêmicos e 141 frases de exemplo, distribuídas em 13 intenções, utilizadas pelo módulo de tratamento de texto livre do chatbot;
-
-  \item \textbf{Desenvolvimento do protótipo:} implementado em Python, de
-forma incremental, em duas fases. Na primeira, foram construídos o fluxo
-guiado por menus, a busca por palavras-chave para o texto livre e o
-registro das interações no painel de controle; na segunda, foram
-acrescentados o classificador de intenções (PLN), a alternância entre os
-modos de operação e a pergunta de satisfação ao final das respostas, sem
-alterar a estrutura da primeira fase. O framework Flask
-(Seção~\ref{sec:flask}) foi utilizado no \textit{backend}, para as rotas,
-o controle de sessão e as páginas do painel, por sua simplicidade e
-leveza; a interface web de conversação foi escrita em HTML, CSS e
-JavaScript puros, e os registros são armazenados em um banco SQLite, que
-dispensa a instalação de um servidor de banco de dados. O código foi
-organizado em módulos com responsabilidades separadas (servidor, núcleo do
-chatbot, conteúdo, PLN e acesso a dados) e executado localmente, com
-acesso pelo navegador, o que permitiu testar o sistema sem depender de
-infraestrutura de hospedagem nesta etapa (Seção~\ref{sec:arquitetura});
-  \item \textbf{Desenvolvimento do painel de controle:} construído na mesma aplicação Flask do chatbot, com páginas geradas por \textit{templates} Jinja2 e dados armazenados no SQLite, para registrar cada interação e dar à Secretaria visibilidade sobre o atendimento, antes inexistente. O painel é composto por uma tela de \textit{login}, uma fila de demandas com indicadores, filtros por status e exportação em CSV, e uma tela de detalhe em que o atendente altera o status e registra um parecer (Seção~\ref{sec:painel});
-
-  \item \textbf{Implementação do Processamento de Linguagem Natural:}
-  desenvolvimento do módulo responsável por interpretar mensagens em texto livre, composto por um classificador de intenções baseado em TF-IDF e similaridade de cosseno, com a busca por palavras-chave como reforço, permitindo que o chatbot responda a perguntas fora do menu estruturado (Seção~\ref{sec:textolivre});
-
-  \item \textbf{Testes e validação do sistema:} realização de testes
-  manuais do protótipo, verificando o funcionamento do fluxo guiado, a
-  resposta do módulo de texto livre e o correto registro das interações
-  no painel de controle da aplicação (Seção~\ref{sec:resultados});
-
-  \item \textbf{Análise exploratória de chatbots em uso:} além da
-  pesquisa bibliográfica, foram testados chatbots de outras instituições
-  como forma de identificar boas práticas e problemas a evitar no
-  protótipo. O chatbot da PUC, que não conta com módulo de PLN, travou e
-  parou de responder em determinado momento do teste, evidenciando um
-  risco a ser evitado no sistema aqui desenvolvido. Já o chatbot da
-  Ortoimagem de Tubarão apresentou um menu com maior quantidade de
-  opções, validação correta do CPF informado pelo usuário e alta
-  resolutividade nas respostas. A observação desses dois modelos
-  contrastantes serviu de inspiração direta para o desenho deste
-  trabalho: um fluxo guiado por menus (inspirado na resolutividade do
-  chatbot da Ortoimagem), combinado a um módulo de interpretação de texto livre (classificador de intenções e busca por palavras-chave), de modo a evitar o tipo de travamento
-  observado no chatbot da PUC.
+  \item \textbf{6. Validação exploratória e com o servidor:}
+  disponibilização do protótipo hospedado online para testes piloto com
+  voluntários e apresentação funcional ao servidor da Secretaria
+  Acadêmica para coleta de parecer qualitativo e ajustes de
+  usabilidade (Seção~\ref{sec:resultados}).
 \end{itemize}
 
-O mapeamento mencionado na segunda etapa resultou em três diagramas
+Complementarmente à revisão bibliográfica, realizou-se uma observação
+exploratória informal de dois chatbots institucionais em operação -- o
+da Pontifícia Universidade Católica (PUC) e o da clínica Ortoimagem de
+Tubarão -- nos dias 9 e 10 de setembro de 2026. A inspeção foi conduzida
+a partir de quatro critérios práticos: (i) quantidade e clareza das
+opções do menu inicial; (ii) suporte ou limitação diante de texto livre;
+(iii) validação de dados informados pelo usuário (como CPF); e
+(iv) continuidade do fluxo e encaminhamento a atendente humano. No teste
+realizado em 09/09/2026, o chatbot da PUC interrompeu a navegação no
+meio da conversa, deixando de exibir opções para prosseguir, embora em
+um novo teste realizado no dia seguinte (10/09/2026) tenha operado
+normalmente até a conclusão do atendimento, indicando tratar-se de uma
+indisponibilidade pontual. Já o chatbot da Ortoimagem apresentou fluxo
+estável em todas as etapas, validando corretamente o CPF informado e
+concluindo a solicitação de forma autônoma, sem exigir transferência
+para atendente humano. Essa observação prática orientou o desenho
+híbrido do protótipo deste trabalho, priorizando menus objetivos com
+opção explícita de retorno ao início (\texttt{0} ou \texttt{menu}) para
+evitar becos sem saída na navegação, aliados à interpretação de texto
+livre e à transferência assistida quando necessário.
+
+O mapeamento mencionado na terceira etapa resultou em três diagramas
 distintos, correspondentes aos processos mais recorrentes identificados
 na entrevista com a Secretaria Acadêmica (Seção~\ref{sec:entrevista}).
 
@@ -542,8 +506,24 @@ sem \textit{frameworks} nem bibliotecas externas, usando a função
 servidor. Essa escolha mantém o sistema leve, simples de instalar e executável
 em computadores com restrições de segurança, que costumam bloquear bibliotecas
 com arquivos compilados -- razão pela qual o classificador de intenções foi
-implementado em Python puro, em vez de utilizar bibliotecas de aprendizado de
-máquina como o \textit{scikit-learn}. A Tabela~\ref{tab:modulos} resume a
+implementado em Python puro, em vez de utilizar bibliotecas de aprendizado
+de máquina como o \textit{scikit-learn}. A opção por um classificador
+leve baseado em TF-IDF e similaridade de cosseno, em vez de modelos de
+linguagem de grande porte (LLMs) ou arquiteturas de \textit{Retrieval-Augmented
+Generation} (RAG), fundamenta-se em três razões práticas. Primeiro, a
+\textbf{precisão institucional}: como observado por Antico et al. (2024),
+modelos generativos podem produzir respostas imprecisas ou links
+inexistentes, enquanto respostas fixas e previamente revisadas pela
+Secretaria garantem conformidade com os editais e normas do IFSC. Segundo,
+a \textbf{proteção de dados (LGPD)}: o processamento local evita o envio
+de mensagens de estudantes -- que frequentemente contêm dados pessoais ou
+situações acadêmicas sensíveis -- para APIs de terceiros. Terceiro,
+\textbf{custo e infraestrutura}: a arquitetura adotada executa em Python
+puro, sem exigir GPUs, servidores dedicados ou pagamento por volume de
+tokens. Ainda assim, o uso de RAG representa a evolução natural do sistema
+para responder a dúvidas fora das 13 intenções mapeadas, e o isolamento do
+módulo de PLN na arquitetura permite substituir ou complementar o
+classificador atual sem alterar o núcleo do chatbot. A Tabela~\ref{tab:modulos} resume a
 responsabilidade de cada arquivo do projeto.
 
 \end{multicols}
@@ -863,7 +843,6 @@ apenas ``menu'', pois nesses casos o classificador não é acionado.
     resolvidas); três cartões com a taxa de resolução informada pelos usuários
     (geral, modo com PLN e modo apenas com palavras-chave), com o percentual,
     o número de respostas \textit{sim} e \textit{não} e o total de avaliações,
-    destacado em verde ou vermelho conforme esteja acima ou abaixo de 50\%;
     filtros por status e botão para exportar os dados em CSV; e tabela com
     protocolo, data e hora, identificador do usuário, mensagem, intenção
     reconhecida (com a confiança do classificador), indicação se a dúvida foi
@@ -902,6 +881,8 @@ permite à Secretaria Acadêmica visualizar, pela primeira vez, dados como o
 volume de atendimentos realizados, a proporção de dúvidas resolvidas pelo
 chatbot segundo os próprios usuários e os assuntos mais demandados pelos
 estudantes.
+O código-fonte completo do protótipo e do painel de controle está
+disponível em repositório público\footnote{\url{https://github.com/marilia79/chatbot}}.
 
 
 \section{Resultados}\label{sec:resultados}
@@ -911,9 +892,51 @@ totalidade em relação ao fluxo descrito na Seção~\ref{sec:desenvolvimento}: 
 satisfação e o registro das interações no painel de controle já estão
 implementados e operantes.
 
-Testes manuais indicam que o fluxo guiado por menus responde de forma
-consistente e previsível a todas as opções mapeadas no diagrama de fluxo,
-enquanto o módulo de interpretação de texto livre apresenta bom desempenho para mensagens que utilizam termos próximos aos cadastrados (como ``matrícula'' ou ``curso''). O modo com PLN reconhece ainda variações de escrita (como ``faltei ontem e quero justificar'') e mensagens de cortesia, como saudações e agradecimentos, que o modo apenas com palavras-chave não compreende. Em ambos os modos, porém, persistem limitações diante de mensagens com vocabulário muito diferente do previsto, nas quais o chatbot retorna o menu principal em vez de uma resposta específica.
+Para mensurar objetivamente o desempenho do módulo de interpretação de texto livre e comparar os dois modos de operação disponíveis no protótipo, elaborou-se um conjunto de teste inédito composto por 52 mensagens não presentes na base de treinamento (\texttt{training\_data.py}). O conjunto reúne perguntas diretas, expressões informais, erros de digitação, mensagens longas, fórmulas de cortesia e 10 perguntas fora do escopo da Secretaria Acadêmica (como horários do refeitório ou senha da rede sem fio), nas quais o comportamento esperado é devolver o menu principal sem atribuir nenhuma intenção.
+
+Cada mensagem foi submetida ao sistema no modo restrito a palavras-chave e no modo híbrido com PLN (no qual as palavras-chave atuam como contingência quando a similaridade fica abaixo do limiar configurado). No modo apenas por palavras-chave, o chatbot acertou 27 das 52 mensagens (51,9\%). Com a ativação do PLN no limiar padrão de 0,30, a taxa global de acerto elevou-se para 65,4\% (34/52), representando um ganho de 13,5 pontos percentuais. A Tabela~\ref{tab:comparacao_pln} apresenta o desempenho por intenção nos dois modos lado a lado.
+
+\end{multicols}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|p{0.34\textwidth}|c|c|c|c|}
+    \hline
+    \textbf{Categoria / Intenção} & \textbf{Total} & \textbf{Só Palavras-Chave} & \textbf{Com PLN (0,30)} & \textbf{Diferença} \\ \hline
+    1.1 -- Requerimento & 7 & 4 (57,1\%) & 4 (57,1\%) & 0,0 p.p. \\ \hline
+    Justificativa de ausência & 6 & 3 (50,0\%) & 3 (50,0\%) & 0,0 p.p. \\ \hline
+    1.2 -- Cursos ofertados & 5 & 4 (80,0\%) & 3 (60,0\%) & -20,0 p.p. \\ \hline
+    1.3 -- Inscrições em aberto & 5 & 1 (20,0\%) & 5 (100,0\%) & +80,0 p.p. \\ \hline
+    2 -- CERE (estágio, eventos, imprensa) & 5 & 1 (20,0\%) & 1 (20,0\%) & 0,0 p.p. \\ \hline
+    3 -- Assistência estudantil & 5 & 1 (20,0\%) & 2 (40,0\%) & +20,0 p.p. \\ \hline
+    4 -- Falar com atendente & 4 & 3 (75,0\%) & 3 (75,0\%) & 0,0 p.p. \\ \hline
+    Cortesia (saudações, agradecimento, despedida) & 5 & 0 (0,0\%) & 5 (100,0\%) & +100,0 p.p. \\ \hline
+    Fora de escopo (devolver menu) & 10 & 10 (100,0\%) & 8 (80,0\%) & -20,0 p.p. \\ \hline
+    \textbf{TOTAL GERAL} & \textbf{52} & \textbf{27 (51,9\%)} & \textbf{34 (65,4\%)} & \textbf{+13,5 p.p.} \\ \hline
+  \end{tabular}
+  \caption{Comparação de acertos entre o modo por palavras-chave e o modo com PLN (limiar = 0,30)}
+  \label{tab:comparacao_pln}
+\end{table}
+\begin{multicols}{2}
+
+Os resultados mostram que o PLN não superou o método por palavras-chave em todas as categorias, mas trouxe ganhos expressivos na flexibilidade semântica: enquanto as palavras-chave obtiveram 0,0\% nas expressões de cortesia e 20,0\% em \textit{Inscrições em aberto}, o PLN atingiu 100,0\% em ambos os grupos, reconhecendo variações como ``quando abre o próximo vestibular?'' e ``mano tem inscrição aberta pra algum curso agr?''. Em contrapartida, o modo por palavras-chave superou o PLN em \textit{Cursos ofertados} (80,0\% contra 60,0\%) e \textit{Fora de escopo} (100,0\% contra 80,0%), pois termos genéricos presentes nos exemplos de treino provocaram falsos positivos em perguntas externas.
+
+A fixação do limiar de similaridade em 0,30 foi validada por meio de testes comparativos com os valores 0,20 e 0,40, buscando equilibrar sensibilidade e prevenção de respostas incorretas. Com o limiar em 0,20, o acerto global recuou para 61,5\% (32/52), pois o modelo tornou-se permissivo demais e respondeu indevidamente a 7 das 10 perguntas fora de escopo (reduzindo a rejeição correta de 80,0\% para 30,0\%). Já ao elevar o limiar para 0,40, o acerto global caiu para 57,7\% (30/52), uma vez que formulações válidas com sinônimos deixaram de atingir a pontuação mínima exigida, derrubando a precisão em \textit{Inscrições em aberto} de 100,0\% para 40,0\%.
+
+\subsection{Análise de Erros}
+
+Para orientar o aprimoramento do classificador, analisaram-se quatro falhas representativas observadas durante os testes com PLN:
+
+\begin{itemize}
+  \item \textbf{Contaminação lexical por fórmulas de cortesia:} na mensagem ``gostaria de saber como solicitar segunda chamada de uma avaliacao'' (esperado: \texttt{1.1}), o classificador atribuiu a intenção \texttt{saudacao\_oi} com similaridade de 0,4513. Isso ocorreu porque o treino de \texttt{saudacao\_oi} inclui a frase ``oi, gostaria de uma informação'', fazendo com que o termo ``gostaria'' puxasse o vetor da consulta para as saudações. Como correção, recomenda-se restringir os exemplos de saudação apenas a cumprimentos curtos e adicionar variações de ``segunda chamada de avaliação'' na intenção \texttt{1.1}.
+
+  \item \textbf{Saudação inicial ofuscando o conteúdo principal:} na mensagem ``Bom dia! Semana passada tive que viajar por causa do falecimento de um familiar... Posso justificar essas faltas?'' (esperado: \texttt{justificativa\_ausencia}), o bigrama ``bom dia'' apresentou peso TF-IDF elevado e classificou toda a entrada como \texttt{saudacao\_bom\_dia} (0,4422), enquanto o modo por palavras-chave acertou pelo termo ``falta''. A correção consiste em remover saudações no início de mensagens extensas antes da vetorização.
+
+  \item \textbf{Sensibilidade a erros ortográficos:} na entrada ``preciso justficar uma auzencia'' (esperado: \texttt{justificativa\_ausencia}), os erros de digitação geraram tokens ausentes no vocabulário indexado pelo TF-IDF, resultando em similaridade máxima de 0,2558 (abaixo de 0,30) e falha também na busca por palavras-chave. A inclusão de \textit{n}-gramas de caracteres (3 a 5 letras) no \texttt{classifier.py} permitiria capturar semelhanças parciais mesmo diante de trocas ou omissões de letras.
+
+  \item \textbf{Falso positivo fora de escopo por termo institucional compartilhado:} a pergunta ``qual a senha do wifi do campus?'' (esperado: fora de escopo) foi classificada como \texttt{1.2} (similaridade 0,4648), pois a palavra ``campus'' aparece com frequência nos exemplos de cursos ofertados. Definir uma lista de \textit{stopwords} institucionais (como ``campus'', ``ifsc'' e ``garopaba'') evitaria que termos genéricos acionem serviços específicos.
+\end{itemize}
+
+\subsection{Registro no Painel e Validação com o Servidor da Secretaria}
 
 O painel de controle já é capaz de registrar cada atendimento realizado
 pelo chatbot, incluindo o protocolo, a mensagem recebida, a intenção reconhecida pelo módulo de PLN e se o usuário informou que a dúvida foi sanada ou não -- um retrato exatamente do tipo de dado que, segundo
@@ -923,11 +946,6 @@ painel registrou um total de 23 demandas, das quais 22 permaneceram
 pendentes de triagem pelo atendente e 1 foi marcada como resolvida,
 demonstrando que o fluxo de registro, classificação de status (pendente,
 em análise, resolvido) e listagem das demandas funciona de ponta a ponta.
-Uma avaliação mais formal, com um período de uso real por estudantes e
-comparação entre os modos com e sem PLN, está prevista como etapa futura
-do trabalho.
-
-\subsection{Validação com o Servidor da Secretaria}
 
 Em outubro de 2026, o protótipo foi apresentado ao servidor responsável
 pela Secretaria Acadêmica, futuro usuário da ferramenta, com o objetivo
@@ -945,12 +963,45 @@ forma positiva, destacando que o chatbot tem potencial para contribuir de
 forma significativa com o seu trabalho, desafogando a rotina de
 atendimento hoje concentrada no WhatsApp.
 
-Embora se trate de uma validação qualitativa, realizada com um único
-servidor e sem aplicação de instrumento formal de avaliação, esse retorno
+Embora se trate de uma validação qualitativa, realizada por um grupo pequeno da comunidade e pelo servidor e sem aplicação de instrumento formal de avaliação, esse retorno
 é relevante por partir do próprio profissional que vivencia a demanda
 descrita na Seção~\ref{sec:entrevista}, indicando que o protótipo está alinhado às
 necessidades levantadas e que a abordagem adotada é aceita pelo público
-a que se destina. Uma avaliação quantitativa, com base nos dados
+a que se destina. 
+\subsection{Limitações}
+
+Apesar de demonstrar a viabilidade técnica da proposta, o protótipo
+apresenta limitações que devem ser consideradas na interpretação dos
+resultados e tratadas antes de uma implantação definitiva:
+
+\begin{itemize}
+  \item \textbf{Validação restrita a um pequeno grupo de pessoas:} a avaliação
+  qualitativa refletiu a percepção do responsável pela Secretaria Acadêmica
+  e de um grupo reduzido de usuários, sem a aplicação de questionários
+  padronizados de usabilidade junto ao corpo discente.
+
+  \item \textbf{Base de treinamento enxuta:} o classificador utiliza 141
+  frases distribuídas em 13 intenções, volume suficiente para validar a
+  arquitetura, mas limitado para cobrir toda a diversidade de sinônimos e
+  regionalismos das dúvidas reais dos estudantes.
+
+  \item \textbf{Estado da conversa mantido apenas em memória:} o controle
+  do ponto do menu em que o usuário se encontra fica armazenado na memória
+  do servidor Flask; caso a aplicação seja reiniciada, as sessões ativas
+  perdem o contexto da navegação.
+
+  \item \textbf{Ausência de identificação do usuário:} embora dispense o
+  cadastro prévio e reduza o atrito inicial, o anonimato impede que o
+  chatbot consulte a situação acadêmica individual do aluno ou dê
+  continuidade a atendimentos anteriores.
+
+  \item \textbf{Amostra reduzida de testes:} a avaliação quantitativa foi
+  conduzida em ambiente controlado com 52 mensagens inéditas elaboradas
+  para o estudo, o que não substitui a análise estatística sobre o volume
+  real de atendimentos em período de matrícula.
+\end{itemize}
+O chatbot pode ser testado através do link https://marilia.pythonanywhere.com/.
+Uma avaliação quantitativa, com base nos dados
 registrados pelo painel de controle durante um período de uso real, segue
 prevista como trabalho futuro.
 
@@ -958,28 +1009,54 @@ prevista como trabalho futuro.
 
 Este trabalho apresentou o desenvolvimento de um chatbot voltado ao
 atendimento da Secretaria Acadêmica do IFSC -- Campus Garopaba,
-utilizando o framework leve Flask e um módulo de tratamento de texto livre baseado em classificação de intenções e busca por palavras-chave. A partir do levantamento de
-requisitos junto ao setor, foi possível identificar não apenas as
-principais demandas dos estudantes, mas também um problema estrutural do
-atendimento atual: a completa ausência de métricas sobre o volume,
-conclusão e natureza dos atendimentos realizados via WhatsApp -- lacuna
-não abordada pelos trabalhos relacionados apresentados na Seção~\ref{sec:trabalhos}.
+utilizando o framework leve Flask, um módulo de interpretação de texto
+livre baseado em TF-IDF e similaridade de cosseno e um painel de
+controle para registro das interações. A proposta buscou enfrentar tanto
+a sobrecarga no atendimento via WhatsApp quanto a ausência de métricas
+sobre volume e resolutividade das demandas do setor.
 
-O protótipo desenvolvido contempla um fluxo guiado por menus, um módulo
-de interpretação de texto livre com alternância entre os modos com e sem
-PLN, oferta de encaminhamento a atendente humano quando a dúvida não é sanada, e um
-painel de controle que registra cada interação. Os resultados
-preliminares indicam que a proposta é viável e que uma solução leve,
-baseada em menus, classificação de intenções por similaridade textual e busca por palavras-chave, já é suficiente para
-atender parte significativa das demandas mapeadas, cumprindo os
-objetivos específicos definidos na Seção~\ref{sec:objetivos}.
+Em relação aos objetivos específicos estabelecidos na
+Seção~\ref{sec:objetivos}, os resultados obtidos permitem verificar o
+atendimento de cada etapa:
+\begin{itemize}
+  \item O primeiro objetivo, de identificar as principais dúvidas e
+  demandas frequentes do setor, foi atendido por meio da entrevista com o
+  servidor da Secretaria Acadêmica e do mapeamento dos fluxos no site
+  institucional, apresentados na Seção~\ref{sec:entrevista} e na
+  Seção~\ref{sec:metodologia};
+  \item O segundo objetivo, de organizar uma base de informações
+  institucionais para respostas automatizadas, foi concretizado na
+  estruturação dos textos de resposta, das 43 palavras-chave e das 141
+  frases de exemplo distribuídas em 13 intenções, descritas na
+  Seção~\ref{sec:metodologia} e na Seção~\ref{sec:textolivre};
+  \item O terceiro objetivo, de desenvolver a aplicação web em Flask para
+  interação com os usuários, foi alcançado com a implementação da
+  interface de conversação, do fluxo guiado por menus e do painel de
+  controle em SQLite, detalhados na Seção~\ref{sec:desenvolvimento} e
+  validados quanto ao fluxo de registro na Seção~\ref{sec:resultados};
+  \item O quarto objetivo, de implementar recursos de Processamento de
+  Linguagem Natural para interpretar perguntas em texto livre, foi
+  atendido pelo classificador em Python puro descrito na
+  Seção~\ref{sec:textolivre}, que elevou a taxa de acerto de 51,9\% para
+  65,4\% no teste com 52 mensagens inéditas (Seção~\ref{sec:resultados}),
+  embora ainda apresente limitações diante de erros ortográficos,
+  saudações iniciais em frases longas e termos institucionais genéricos.
+\end{itemize}
 
-Como trabalhos futuros, pretende-se ampliar o conjunto de palavras-chave, de frases de exemplo e de respostas do módulo de PLN -- inclusive com respostas específicas por serviço, como a já implementada para a justificativa de ausência --, incorporar uma etapa de validação de
-identidade do usuário (como a verificação de CPF observada no chatbot da
-Ortoimagem de Tubarão, Seção~\ref{sec:metodologia}), realizar um período de testes com
-estudantes e servidores reais do campus, e utilizar os dados coletados
-pelo painel de controle para avaliar quantitativamente a efetividade do
-chatbot frente ao atendimento tradicional por WhatsApp.
+Os testes realizados demonstram a viabilidade técnica do protótipo em
+ambiente controlado e indicam boa aceitação inicial na validação
+qualitativa com o servidor responsável pelo setor. Contudo, a efetividade
+do sistema na redução da fila real do WhatsApp e na satisfação contínua
+dos estudantes ainda depende de avaliação em ambiente de produção.
+
+Como trabalhos futuros, pretende-se corrigir as falhas identificadas na
+análise de erros -- removendo fórmulas de cortesia das intenções de
+saudação, filtrando cumprimentos no início de mensagens extensas,
+adicionando \textit{stopwords} institucionais e incorporando \textit{n}-gramas de
+caracteres para tolerância a erros de digitação --, além de ampliar as
+respostas específicas por serviço e conduzir um período de uso real com
+estudantes do câmpus para analisar os indicadores consolidados no painel
+de controle.
 
 \section{Referências}
 
