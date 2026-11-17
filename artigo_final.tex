@@ -12,7 +12,7 @@
 
 \sloppy
 
-\title{Chatbot para Atendimento na Secretaria Acadêmica Utilizando Framework Leve}
+\title{Chatbot com PLN e Painel de Gestão para a Secretaria Acadêmica}
 
 \author{Marília Stefenon Rodrigues\inst{1}}
 
@@ -26,11 +26,11 @@
 \maketitle
 
 \begin{abstract}
-Chatbots have been increasingly adopted in educational institutions to streamline information access and automate repetitive user support. At the Federal Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic Secretary handles frequent demands regarding enrollments, absence justifications, course offerings, financial aid, and diplomas mostly through WhatsApp, leading to staff overload and a complete lack of records on service volume or resolution rates. To address this problem, this paper presents the development of a lightweight web chatbot built with the Flask framework, combining guided menus, a free-text Natural Language Processing (NLP) classifier based on TF-IDF and cosine similarity (with keyword matching as a fallback), and a control panel backed by SQLite to log every interaction. In a controlled evaluation using 52 unseen test messages, the NLP-enabled mode achieved 65.4\% overall accuracy (34/52), outperforming the keyword-only mode at 51.9\% (27/52) by 13.5 percentage points, while the control panel logged end-to-end demand statuses and user satisfaction. These results indicate that a lightweight NLP architecture, without machine-learning libraries or large language models, is viable for supporting academic secretariats and generating service metrics without requiring heavy language models.
+Chatbots have been increasingly adopted in educational institutions to streamline information access and automate repetitive user support. At the Federal Institute of Santa Catarina (IFSC) -- Garopaba Campus, the Academic Secretary handles frequent demands regarding enrollments, absence justifications, course offerings, financial aid, and diplomas mostly through WhatsApp, leading to staff overload and a complete lack of records on service volume or resolution rates. To address this problem, this paper presents the development of a web chatbot built with the Flask framework, combining guided menus, a free-text Natural Language Processing (NLP) classifier based on TF-IDF and cosine similarity (with keyword matching as a fallback), and a control panel backed by SQLite to log every interaction. In a controlled evaluation using 52 unseen test messages, the NLP-enabled mode achieved 65.4\% overall accuracy (34/52), outperforming the keyword-only mode at 51.9\% (27/52) by 13.5 percentage points, while the control panel logged end-to-end demand statuses and user satisfaction. These results indicate that a lightweight NLP architecture, without machine-learning libraries or large language models, is viable for supporting academic secretariats and generating service metrics without requiring heavy language models.
 \end{abstract}
 
 \begin{resumo}
-Os chatbots têm sido cada vez mais adotados em instituições de ensino para agilizar o acesso à informação e automatizar atendimentos repetitivos. No Instituto Federal de Santa Catarina (IFSC) -- Câmpus Garopaba, a Secretaria Acadêmica atende demandas recorrentes sobre matrículas, justificativas de ausência, cursos ofertados, auxílio estudantil e diplomas majoritariamente via WhatsApp, o que gera sobrecarga na equipe e completa ausência de registros sobre o volume ou a conclusão dos atendimentos. Para enfrentar esse problema, este trabalho apresenta o desenvolvimento de um chatbot web leve construído com o framework Flask, combinando menus guiados, interpretação de texto livre por Processamento de Linguagem Natural (PLN) baseada em TF-IDF e similaridade de cosseno (com busca por palavras-chave como contingência) e um painel de controle em SQLite para registrar cada interação. Em uma avaliação controlada com 52 mensagens inéditas, o modo com PLN atingiu 65,4\% de acerto geral (34/52), superando em 13,5 pontos percentuais o modo restrito a palavras-chave, que obteve 51,9\% (27/52), enquanto o painel comprovou o registro ponta a ponta dos status e da satisfação dos usuários. Os resultados indicam que uma arquitetura leve, sem bibliotecas de aprendizado de máquina nem modelos de linguagem de grande porte, é viável para apoiar secretarias acadêmicas e gerar métricas de atendimento sem exigir modelos de linguagem pesados.
+Os chatbots têm sido cada vez mais adotados em instituições de ensino para agilizar o acesso à informação e automatizar atendimentos repetitivos. No Instituto Federal de Santa Catarina (IFSC) -- Câmpus Garopaba, a Secretaria Acadêmica atende demandas recorrentes sobre matrículas, justificativas de ausência, cursos ofertados, auxílio estudantil e diplomas majoritariamente via WhatsApp, o que gera sobrecarga na equipe e completa ausência de registros sobre o volume ou a conclusão dos atendimentos. Para enfrentar esse problema, este trabalho apresenta o desenvolvimento de um chatbot web construído com o framework Flask, combinando menus guiados, interpretação de texto livre por Processamento de Linguagem Natural (PLN) baseada em TF-IDF e similaridade de cosseno (com busca por palavras-chave como contingência) e um painel de controle em SQLite para registrar cada interação. Em uma avaliação controlada com 52 mensagens inéditas, o modo com PLN atingiu 65,4\% de acerto geral (34/52), superando em 13,5 pontos percentuais o modo restrito a palavras-chave, que obteve 51,9\% (27/52), enquanto o painel comprovou o registro ponta a ponta dos status e da satisfação dos usuários. Os resultados indicam que uma arquitetura leve, sem bibliotecas de aprendizado de máquina nem modelos de linguagem de grande porte, é viável para apoiar secretarias acadêmicas e gerar métricas de atendimento sem exigir modelos de linguagem pesados.
 \end{resumo}
 
 \begin{multicols}{2}
@@ -385,6 +385,7 @@ pesquisa aplicada, organizada em seis etapas sequenciais:
   a autora e voluntários, seguida de apresentação funcional ao servidor
   da Secretaria Acadêmica para coleta de parecer qualitativo e ajustes
   de usabilidade (Seção~\ref{sec:resultados}).
+\end{itemize}
   
 Complementarmente à revisão bibliográfica, realizou-se uma observação
 exploratória informal de dois chatbots institucionais em operação -- o
@@ -980,8 +981,7 @@ Para orientar o aprimoramento do classificador, analisaram-se quatro falhas repr
 O painel de controle já é capaz de registrar cada atendimento realizado
 pelo chatbot, incluindo o protocolo, a mensagem recebida, a intenção reconhecida pelo módulo de PLN e se o usuário informou que a dúvida foi sanada ou não -- um retrato exatamente do tipo de dado que, segundo
 relatado na entrevista (Seção~\ref{sec:entrevista}), inexiste no atendimento atual via
-WhatsApp. % CONFERIR: numeros abaixo vieram do banco do prototipo hospedado; recontar no painel antes da entrega
-No protótipo hospedado, o banco de dados registrou 130 demandas
+WhatsApp. No protótipo hospedado, o banco de dados registrou 130 demandas
 (incluindo testes realizados pela autora e por voluntários durante a
 validação), das quais 126 permaneciam pendentes de triagem e 4 haviam sido marcadas
 como resolvidas pelo atendente. Nas respostas à pergunta de satisfação,
@@ -1052,7 +1052,7 @@ resultados e tratadas antes de uma implantação definitiva:
 
 Este trabalho apresentou o desenvolvimento de um chatbot voltado ao
 atendimento da Secretaria Acadêmica do IFSC -- Câmpus Garopaba,
-utilizando o framework leve Flask, um módulo de interpretação de texto
+utilizando o \textit{framework} Flask, um módulo de interpretação de texto
 livre baseado em TF-IDF e similaridade de cosseno e um painel de
 controle para registro das interações. A proposta buscou enfrentar tanto
 a sobrecarga no atendimento via WhatsApp quanto a ausência de métricas
